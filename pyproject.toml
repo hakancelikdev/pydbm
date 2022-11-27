@@ -19,7 +19,7 @@ skip_gitignore = true
 
 [tool.black]
 line-length = 120
-target-version = ['py38', 'py39', 'py310']
+target-version = ['py311']
 
 [tool.unimport]
 remove = true
@@ -37,3 +37,4 @@ warn_unused_configs = true
 no_strict_optional = true
 ignore_missing_imports = true
 show_error_codes = true
+check_untyped_defs = true
