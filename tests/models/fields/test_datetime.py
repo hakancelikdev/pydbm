@@ -1,11 +1,99 @@
-from pydbm import DateField, DateTimeField, validate_date, validate_datetime
+from datetime import date, datetime
+
+import pytest
+
+from pydbm import BaseModel, Field, OdbmValidationError
 
 
-def test_datetime_field_check_validator():
-    field = DateTimeField()
-    assert field.validators == [validate_datetime]
+@pytest.mark.parametrize(
+    "value",
+    [
+        datetime(2020, 1, 1),
+    ],
+)
+def test_valid_datetime_field(value):
+    class Model(BaseModel):
+        field: datetime = Field()
+
+    model = Model(field=value)
+    assert model.field == value
 
 
-def test_date_field_check_validator():
-    field = DateField()
-    assert field.validators == [validate_date]
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        None,
+        0,
+        1,
+        "",
+        "True",
+        "False",
+        [],
+        {},
+        set(),
+        tuple(),
+        object(),
+        date(2020, 1, 1),
+        b"byte",
+        1.1,
+        -1.1,
+    ],
+)
+def test_invalid_datetime_field(value):
+    class Model(BaseModel):
+        field: datetime = Field()
+
+    with pytest.raises(OdbmValidationError) as cm:
+        Model(field=value)
+
+    assert cm.value.error.args[0] == "It must be datetime"
+    assert cm.value.field_name == "field"
+    assert cm.value.field_value == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        date(2020, 1, 1),
+    ],
+)
+def test_valid_date_field(value):
+    class Model(BaseModel):
+        field: date = Field()
+
+    model = Model(field=value)
+    assert model.field == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        None,
+        0,
+        1,
+        "",
+        "True",
+        "False",
+        [],
+        {},
+        set(),
+        tuple(),
+        object(),
+        # datetime(2020, 1, 1),
+        b"byte",
+        1.1,
+        -1.1,
+    ],
+)
+def test_invalid_date_field(value):
+    class Model(BaseModel):
+        field: date = Field()
+
+    with pytest.raises(OdbmValidationError) as cm:
+        Model(field=value)
+
+    assert cm.value.error.args[0] == "It must be date"
+    assert cm.value.field_name == "field"
+    assert cm.value.field_value == value

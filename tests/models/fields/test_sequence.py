@@ -1,48 +1,284 @@
-from pydbm import (
-    BytesField,
-    ListField,
-    StrField,
-    TupleField,
-    validate_bytes,
-    validate_list,
-    validate_str,
-    validate_tuple,
+from datetime import date, datetime
+
+import pytest
+
+from pydbm import BaseModel, Field, OdbmValidationError
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "",
+        "True",
+        "False",
+        "[]",
+        "{}",
+        "set()",
+        "tuple()",
+        "object()",
+        "datetime(2020, 1, 1)",
+        "date(2020, 1, 1)",
+    ],
 )
+def test_valid_str_field(value):
+    class Model(BaseModel):
+        field: str = Field()
+
+    model = Model(field=value)
+    assert model.field == value
 
 
-def test_str_field_check_validator():
-    field = StrField()
-    assert field.validators == [validate_str]
+def test_str_default():
+    class Model(BaseModel):
+        field: str = Field(default="10")
 
-    field = StrField(max_value=10)
-    assert len(field.validators) == 2  # TODO: Write this test explicitly
-
-    field = StrField(max_value=10, min_value=5)
-    assert len(field.validators) == 3  # TODO: Write this test explicitly
+    model = Model()
+    assert model.field == "10"
 
 
-def test_bytes_field_check_validator():
-    field = BytesField()
-    assert field.validators == [validate_bytes]
+def test_str_default_factory():
+    class Model(BaseModel):
+        field: str = Field(default_factory=lambda: "10")
+
+    model = Model()
+    assert model.field == "10"
 
 
-def test_tuple_field_check_validator():
-    field = TupleField()
-    assert field.validators == [validate_tuple]
+def test_str_default_factory_and_default():
+    with pytest.raises(AssertionError) as cm:
 
-    field = TupleField(max_value=10)
-    assert len(field.validators) == 2  # TODO: Write this test explicitly
+        class Model(BaseModel):
+            field: str = Field(default_factory=lambda: "10", default="20")
 
-    field = TupleField(max_value=10, min_value=5)
-    assert len(field.validators) == 3  # TODO: Write this test explicitly
+    assert str(cm.value) == "default and default_factory are mutually exclusive"
 
 
-def test_list_field_check_validator():
-    field = ListField()
-    assert field.validators == [validate_list]
+def test_str_max_value(caplog):
+    class Model(BaseModel):
+        field: str = Field(max_value=10)
 
-    field = ListField(max_value=10)
-    assert len(field.validators) == 2  # TODO: Write this test explicitly
+    caplog.clear()
+    with caplog.at_level("WARNING"):
+        Model(field="11")
+    assert (
+        caplog.records[0].msg == "min_value and max_value are only valid for int type. They are ignored for str type."
+    )
 
-    field = ListField(max_value=10, min_value=5)
-    assert len(field.validators) == 3  # TODO: Write this test explicitly
+
+def test_str_min_value(caplog):
+    class Model(BaseModel):
+        field: str = Field(min_value="10")
+
+    caplog.clear()
+    with caplog.at_level("WARNING"):
+        Model(field="2")
+    assert (
+        caplog.records[0].msg == "min_value and max_value are only valid for int type. They are ignored for str type."
+    )
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        None,
+        0,
+        1,
+        [],
+        {},
+        set(),
+        tuple(),
+        object(),
+        datetime(2020, 1, 1),
+        date(2020, 1, 1),
+        b"byte",
+        1.1,
+        -1.1,
+    ],
+)
+def test_invalid_str_field(value):
+    class Model(BaseModel):
+        field: str = Field()
+
+    with pytest.raises(OdbmValidationError) as cm:
+        Model(field=value)
+
+    assert cm.value.error.args[0] == "It must be str"
+    assert cm.value.field_name == "field"
+    assert cm.value.field_value == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        b"",
+        b"True",
+        b"False",
+        b"[]",
+        b"{}",
+        b"set()",
+        b"tuple()",
+        b"object()",
+        b"datetime(2020, 1, 1)",
+        b"date(2020, 1, 1)",
+    ],
+)
+def test_valid_bytes_field(value):
+    class Model(BaseModel):
+        field: bytes = Field()
+
+    model = Model(field=value)
+    assert model.field == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        None,
+        0,
+        1,
+        "",
+        "True",
+        "False",
+        [],
+        {},
+        set(),
+        tuple(),
+        object(),
+        datetime(2020, 1, 1),
+        date(2020, 1, 1),
+        1.1,
+        -1.1,
+    ],
+)
+def test_invalid_bytes_field(value):
+    class Model(BaseModel):
+        field: bytes = Field()
+
+    with pytest.raises(OdbmValidationError) as cm:
+        Model(field=value)
+
+    assert cm.value.error.args[0] == "It must be bytes"
+    assert cm.value.field_name == "field"
+    assert cm.value.field_value == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        [True],
+        [False],
+        [],
+        [1],
+        [-1],
+        [0],
+        [1.1],
+        [-1.1],
+        [""],
+        ["True"],
+        [1, 2],
+        ["a", "b"],
+        [b"byte"],
+        [b"byte", b"byte"],
+    ],
+)
+def test_valid_list_field(value):
+    class Model(BaseModel):
+        field: list = Field()
+
+    model = Model(field=value)
+    assert model.field == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        None,
+        0,
+        1,
+        "",
+        "True",
+        "False",
+        {},
+        set(),
+        tuple(),
+        object(),
+        datetime(2020, 1, 1),
+        date(2020, 1, 1),
+        b"byte",
+        1.1,
+        -1.1,
+    ],
+)
+def test_invalid_list_field(value):
+    class Model(BaseModel):
+        field: list = Field()
+
+    with pytest.raises(OdbmValidationError) as cm:
+        Model(field=value)
+
+    assert cm.value.error.args[0] == "It must be list"
+    assert cm.value.field_name == "field"
+    assert cm.value.field_value == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        (True,),
+        (False,),
+        (),
+        (1,),
+        (-1,),
+        (0,),
+        (1.1,),
+        (-1.1,),
+        ("",),
+        ("True",),
+        (1, 2),
+        ("a", "b"),
+        (b"byte",),
+        (b"byte", b"byte"),
+    ],
+)
+def test_valid_tuple_field(value):
+    class Model(BaseModel):
+        field: tuple = Field()
+
+    model = Model(field=value)
+    assert model.field == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        None,
+        0,
+        1,
+        "",
+        "True",
+        "False",
+        [],
+        {},
+        set(),
+        object(),
+        datetime(2020, 1, 1),
+        date(2020, 1, 1),
+        b"byte",
+        1.1,
+        -1.1,
+    ],
+)
+def test_invalid_tuple_field(value):
+    class Model(BaseModel):
+        field: tuple = Field()
+
+    with pytest.raises(OdbmValidationError) as cm:
+        Model(field=value)
+
+    assert cm.value.error.args[0] == "It must be tuple"
+    assert cm.value.field_name == "field"
+    assert cm.value.field_value == value

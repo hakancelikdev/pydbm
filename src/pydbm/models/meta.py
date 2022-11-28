@@ -45,6 +45,7 @@ class Meta(type):
     if typing.TYPE_CHECKING:
         not_required_fields: list[Field | AutoField]
         required_fields: list[str]
+        database: Database
 
     def __new__(
         mcs,
@@ -75,15 +76,13 @@ class Meta(type):
         return super().__new__(mcs, cls_name, bases, namespace, **kwargs)
 
     def __call__(cls, **kwargs):
-        for not_required_field in cls.not_required_fields:
-            if not_required_field.public_name not in kwargs and not_required_field.public_name != PRIMARY_KEY:
-                assert isinstance(not_required_field, Field)
-                field: Field = not_required_field
+        for field in cls.not_required_fields:
+            if field.public_name not in kwargs and field.public_name != PRIMARY_KEY:
                 kwargs[field.public_name] = field.get_default_value()  # type: ignore[attr-defined]  # noqa: E501
 
-        for required_field in cls.required_fields:
-            if required_field not in kwargs:
-                raise ValueError(f"{required_field} is required")
+        for field in cls.required_fields:  # type: ignore[assignment]
+            if field not in kwargs:
+                raise ValueError(f"{field} is required")
 
         primary_key_field: AutoField | None = next(
             filter(

@@ -6,16 +6,16 @@ __all__ = (
 )
 
 
-def validate_max_value(max_value: int) -> typing.Callable[[typing.Any], None]:
-    def check_max_value(value: typing.Any):
+def validate_max_value(max_value: int) -> typing.Callable[[int], None]:
+    def check_max_value(value: int):
         if value > max_value:
             raise ValueError(f"It must be less than {max_value}")
 
     return check_max_value
 
 
-def validate_min_value(min_value: int) -> typing.Callable[[typing.Any], None]:
-    def check_min_value(value: typing.Any):
+def validate_min_value(min_value: int) -> typing.Callable[[int], None]:
+    def check_min_value(value: int):
         if value < min_value:
             raise ValueError(f"It must be greater than {min_value}")
 

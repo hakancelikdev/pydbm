@@ -1,6 +1,48 @@
-from pydbm import BoolField, validate_bool
+from datetime import date, datetime
+
+import pytest
+
+from pydbm import BaseModel, Field, OdbmValidationError
 
 
-def test_bool_field_check_validator():
-    field = BoolField()
-    assert field.validators == [validate_bool]
+@pytest.mark.parametrize("value", [True, False])
+def test_valid_bool_field(value):
+    class Model(BaseModel):
+        field: bool = Field()
+
+    model = Model(field=value)
+    assert model.field == value
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        -1,
+        None,
+        0,
+        1,
+        "",
+        "True",
+        "False",
+        [],
+        {},
+        set(),
+        tuple(),
+        object(),
+        datetime(2020, 1, 1),
+        date(2020, 1, 1),
+        b"byte",
+        1.1,
+        -1.1,
+    ],
+)
+def test_invalid_bool_field(value):
+    class Model(BaseModel):
+        field: bool = Field()
+
+    with pytest.raises(OdbmValidationError) as cm:
+        Model(field=value)
+
+    assert cm.value.error.args[0] == "It must be bool"
+    assert cm.value.field_name == "field"
+    assert cm.value.field_value == value

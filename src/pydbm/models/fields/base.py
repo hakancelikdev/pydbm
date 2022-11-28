@@ -4,6 +4,7 @@ import contextlib
 import typing
 
 from pydbm.exceptions import OdbmValidationError
+from pydbm.logging import logger
 from pydbm.models import validators as odbm_validators
 
 if typing.TYPE_CHECKING:
@@ -31,6 +32,8 @@ class BaseField:
         "private_name",
         "field_name",
         "field_type_name",
+        "max_value",
+        "min_value",
         "kwargs",
         "__is_call_run",
     )
@@ -53,12 +56,8 @@ class BaseField:
         self.default_factory = default_factory
         self.normalizers: AnyCallableFunctionT = [] if normalizers is None else normalizers
         self.validators: AnyCallableFunctionT = [] if validators is None else validators
-
-        if max_value is not None:
-            self.validators.append(odbm_validators.validate_max_value(max_value))
-
-        if min_value is not None:
-            self.validators.append(odbm_validators.validate_min_value(min_value))
+        self.max_value = max_value
+        self.min_value = min_value
 
         self.__is_call_run = False
 
@@ -73,8 +72,19 @@ class BaseField:
         return self.get_default_value()
 
     def __set__(self, instance: BaseModel, value: typing.Any) -> None:
-        normalize_and_validate_value = self.before_set(value)
+        if value.__class__ is int:
+            if self.min_value:
+                self.validators.append(odbm_validators.validate_min_value(self.min_value))
+            if self.max_value:
+                self.validators.append(odbm_validators.validate_max_value(self.max_value))
+        else:
+            if self.min_value or self.max_value:
+                logger.warning(
+                    "min_value and max_value are only valid for int type. "
+                    f"They are ignored for {value.__class__.__name__} type."
+                )
 
+        normalize_and_validate_value = self.before_set(value)
         setattr(instance, self.private_name, normalize_and_validate_value)
 
     def __call__(self: Self, field_name: str, field_type_name: str, *args, **kwargs) -> Self:  # type: ignore[valid-type]  # noqa: E501
