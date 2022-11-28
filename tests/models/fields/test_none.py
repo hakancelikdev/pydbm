@@ -1,5 +1,4 @@
-from pydbm.models.fields.none import NoneField
-from pydbm.models.validators import validate_none
+from pydbm import NoneField, validate_none
 
 
 def test_none_field_check_validator():

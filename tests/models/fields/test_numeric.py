@@ -1,5 +1,4 @@
-from pydbm.models.fields.numeric import FloatField, IntField
-from pydbm.models.validators import validate_float, validate_int
+from pydbm import FloatField, IntField, validate_float, validate_int
 
 
 def test_int_field_check_validator():

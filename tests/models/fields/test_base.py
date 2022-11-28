@@ -1,7 +1,6 @@
 import pytest
 
-from pydbm.models.fields.base import BaseField, Undefined
-from pydbm.models.validators import validate_str
+from pydbm import BaseField, Undefined, validate_str
 
 
 def test_base_attributes_with_call():

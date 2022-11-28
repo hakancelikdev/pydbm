@@ -1,5 +1,4 @@
-from pydbm.models.fields.datetime import DateField, DateTimeField
-from pydbm.models.validators import validate_date, validate_datetime
+from pydbm import DateField, DateTimeField, validate_date, validate_datetime
 
 
 def test_datetime_field_check_validator():

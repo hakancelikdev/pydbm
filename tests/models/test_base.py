@@ -1,4 +1,4 @@
-from pydbm.models.base import BaseModel
+from pydbm import BaseModel
 
 
 class Model(BaseModel):

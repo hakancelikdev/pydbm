@@ -1,8 +1,7 @@
 import pytest
 
-from pydbm import exceptions
+from pydbm import AutoField, exceptions
 from pydbm.models import meta
-from pydbm.models.fields import AutoField
 
 
 class BaseModel(metaclass=meta.Meta):
