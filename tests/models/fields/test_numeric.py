@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import pytest
 
-from pydbm import BaseModel, Field, OdbmValidationError
+from pydbm import BaseModel, Field, ValidationError
 
 
 @pytest.mark.parametrize(
@@ -41,7 +41,7 @@ def test_int_max_value():
     class Model(BaseModel):
         field: int = Field(max_value=10)
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=11)
     assert str(cm.value) == "Invalid value for field=11; It must be less than 10."
 
@@ -50,7 +50,7 @@ def test_int_min_value():
     class Model(BaseModel):
         field: int = Field(min_value=10)
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=9)
     assert str(cm.value) == "Invalid value for field=9; It must be greater than 10."
 
@@ -59,11 +59,11 @@ def test_int_min_and_max_value():
     class Model(BaseModel):
         field: int = Field(min_value=10, max_value=20)
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=9)
     assert str(cm.value) == "Invalid value for field=9; It must be greater than 10."
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=21)
     assert str(cm.value) == "Invalid value for field=21; It must be less than 20."
 
@@ -91,7 +91,7 @@ def test_invalid_int_field(value):
     class Model(BaseModel):
         field: int = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be int"
@@ -138,7 +138,7 @@ def test_invalid_float_field(value):
     class Model(BaseModel):
         field: float = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be float"

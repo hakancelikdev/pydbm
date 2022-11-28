@@ -3,7 +3,7 @@ from __future__ import annotations
 import contextlib
 import typing
 
-from pydbm.exceptions import OdbmValidationError
+from pydbm.exceptions import ValidationError
 from pydbm.logging import logger
 from pydbm.models import validators as odbm_validators
 
@@ -119,7 +119,7 @@ class BaseField:
             try:
                 validator(value)
             except ValueError as exc:
-                raise OdbmValidationError(self.field_name, value, exc)
+                raise ValidationError(self.field_name, value, exc)
 
         return value
 

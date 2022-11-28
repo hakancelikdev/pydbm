@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import pytest
 
-from pydbm import BaseModel, Field, OdbmValidationError
+from pydbm import BaseModel, Field, ValidationError
 
 
 @pytest.mark.parametrize(
@@ -49,7 +49,7 @@ def test_invalid_dict_field(value):
     class Model(BaseModel):
         field: dict = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be dict"

@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import pytest
 
-from pydbm import BaseModel, Field, OdbmValidationError
+from pydbm import BaseModel, Field, ValidationError
 
 
 @pytest.mark.parametrize("value", [True, False])
@@ -40,7 +40,7 @@ def test_invalid_bool_field(value):
     class Model(BaseModel):
         field: bool = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be bool"

@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import pytest
 
-from pydbm import BaseModel, Field, OdbmValidationError
+from pydbm import BaseModel, Field, ValidationError
 
 
 @pytest.mark.parametrize(
@@ -44,7 +44,7 @@ def test_invalid_datetime_field(value):
     class Model(BaseModel):
         field: datetime = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be datetime"
@@ -91,7 +91,7 @@ def test_invalid_date_field(value):
     class Model(BaseModel):
         field: date = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be date"

@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import pytest
 
-from pydbm import BaseModel, Field, OdbmValidationError
+from pydbm import BaseModel, Field, ValidationError
 
 
 @pytest.mark.parametrize(
@@ -100,7 +100,7 @@ def test_invalid_str_field(value):
     class Model(BaseModel):
         field: str = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be str"
@@ -156,7 +156,7 @@ def test_invalid_bytes_field(value):
     class Model(BaseModel):
         field: bytes = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be bytes"
@@ -216,7 +216,7 @@ def test_invalid_list_field(value):
     class Model(BaseModel):
         field: list = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be list"
@@ -276,7 +276,7 @@ def test_invalid_tuple_field(value):
     class Model(BaseModel):
         field: tuple = Field()
 
-    with pytest.raises(OdbmValidationError) as cm:
+    with pytest.raises(ValidationError) as cm:
         Model(field=value)
 
     assert cm.value.error.args[0] == "It must be tuple"

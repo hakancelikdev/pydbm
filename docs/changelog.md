@@ -64,7 +64,7 @@ All notable changes to this project will be documented in this file.
   - Added len, contains, delitem, getitem, setitem magic method.
 - Added Logging.
 - Added Exception classes.
-  - Added OdbmBaseException.
+  - Added BaseException.
   - Added DoesNotExists.
-  - Added OdbmTypeError.
-  - Added OdbmValidationError.
+  - Added PydbmTypeError.
+  - Added ValidationError.

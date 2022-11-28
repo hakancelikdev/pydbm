@@ -1,4 +1,4 @@
-from pydbm.exceptions import DoesNotExists, OdbmBaseException, OdbmTypeError, OdbmValidationError
+from pydbm.exceptions import BaseException, DoesNotExists, PydbmTypeError, ValidationError
 from pydbm.models import (
     AutoField,
     BaseModel,
@@ -22,9 +22,9 @@ from pydbm.models import (
 
 __all__ = (
     "DoesNotExists",
-    "OdbmBaseException",
-    "OdbmTypeError",
-    "OdbmValidationError",
+    "BaseException",
+    "PydbmTypeError",
+    "ValidationError",
     "BaseModel",
     "AutoField",
     "Field",
