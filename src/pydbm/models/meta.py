@@ -79,7 +79,7 @@ class Meta(type):
             if not_required_field.public_name not in kwargs and not_required_field.public_name != PRIMARY_KEY:
                 assert isinstance(not_required_field, Field)
                 field: Field = not_required_field
-                kwargs[field.public_name] = field.default_value  # type: ignore[attr-defined]  # noqa: E501
+                kwargs[field.public_name] = field.get_default_value()  # type: ignore[attr-defined]  # noqa: E501
 
         for required_field in cls.required_fields:
             if required_field not in kwargs:

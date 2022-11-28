@@ -31,6 +31,7 @@ class BaseField:
         "private_name",
         "field_name",
         "field_type_name",
+        "kwargs",
         "__is_call_run",
     )
 
@@ -40,6 +41,8 @@ class BaseField:
         default_factory: typing.Callable[[], typing.Any] = Undefined,
         normalizers: AnyCallableFunctionT | None = None,
         validators: AnyCallableFunctionT | None = None,
+        max_value: int | None = None,
+        min_value: int | None = None,
         **kwargs,
     ) -> None:  # noqa: E501
         assert not (
@@ -50,6 +53,12 @@ class BaseField:
         self.default_factory = default_factory
         self.normalizers: AnyCallableFunctionT = [] if normalizers is None else normalizers
         self.validators: AnyCallableFunctionT = [] if validators is None else validators
+
+        if max_value is not None:
+            self.validators.append(odbm_validators.validate_max_value(max_value))
+
+        if min_value is not None:
+            self.validators.append(odbm_validators.validate_min_value(min_value))
 
         self.__is_call_run = False
 

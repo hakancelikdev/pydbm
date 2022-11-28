@@ -93,13 +93,13 @@ def test_base_type_validator():
 
     with pytest.raises(exceptions.OdbmValidationError) as cm:
         Model(str=1, int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={1, 2}, bool=True, bytes=b"123")
-    assert str(cm.value) == "Invalid value for str=1; It must be str, not int"
+    assert str(cm.value) == "Invalid value for str=1; It must be str."
 
     with pytest.raises(exceptions.OdbmValidationError) as cm:
         Model(
             str="str", int=1.1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={1, 2}, bool=True, bytes=b"123"
         )
-    assert str(cm.value) == "Invalid value for int=1.1; It must be int, not float"
+    assert str(cm.value) == "Invalid value for int=1.1; It must be int."
 
     with pytest.raises(exceptions.OdbmValidationError) as cm:
         Model(
@@ -113,36 +113,36 @@ def test_base_type_validator():
             bool=True,
             bytes=b"123",
         )
-    assert str(cm.value) == "Invalid value for float=(1.0,); It must be float, not tuple"
+    assert str(cm.value) == "Invalid value for float=(1.0,); It must be float."
 
     with pytest.raises(exceptions.OdbmValidationError) as cm:
         Model(
             str="str", int=1, float=1.0, tuple=[1, 2], list=[1, 2], dict={"a": 1}, set={1, 2}, bool=True, bytes=b"123"
         )
-    assert str(cm.value) == "Invalid value for tuple=[1, 2]; It must be tuple, not list"
+    assert str(cm.value) == "Invalid value for tuple=[1, 2]; It must be tuple."
 
     with pytest.raises(exceptions.OdbmValidationError) as cm:
         Model(
             str="str", int=1, float=1.0, tuple=(1, 2), list=(1, 2), dict={"a": 1}, set={1, 2}, bool=True, bytes=b"123"
         )
-    assert str(cm.value) == "Invalid value for list=(1, 2); It must be list, not tuple"
+    assert str(cm.value) == "Invalid value for list=(1, 2); It must be list."
 
     # with pytest.raises(exceptions.OdbmValidationError) as cm:  # TODO: fix it
     #     Model(
     #         str="str", int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a", 1}, set={1, 2}, bool=True, bytes=b"123"
     #     )
-    # assert str(cm.value) == "Invalid value for dict={1, 'a'}; It must be dict, not set"
+    # assert str(cm.value) == "Invalid value for dict={1, 'a'}; It must be dict."
 
     with pytest.raises(exceptions.OdbmValidationError) as cm:
         Model(
             str="str", int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={"1": 2}, bool=True, bytes=b"123"
         )
-    assert str(cm.value) == "Invalid value for set={'1': 2}; It must be set, not dict"
+    assert str(cm.value) == "Invalid value for set={'1': 2}; It must be set."
 
     with pytest.raises(exceptions.OdbmValidationError) as cm:
         Model(str="str", int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={1, 2}, bool=1, bytes=b"123")
-    assert str(cm.value) == "Invalid value for bool=1; It must be bool, not int"
+    assert str(cm.value) == "Invalid value for bool=1; It must be bool."
 
     with pytest.raises(exceptions.OdbmValidationError) as cm:
         Model(str="str", int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={1, 2}, bool=True, bytes="123")
-    assert str(cm.value) == "Invalid value for bytes='123'; It must be bytes, not str"
+    assert str(cm.value) == "Invalid value for bytes='123'; It must be bytes."

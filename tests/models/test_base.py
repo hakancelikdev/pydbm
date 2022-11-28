@@ -1,4 +1,6 @@
-from pydbm import BaseModel
+import pytest
+
+from pydbm import BaseModel, OdbmValidationError
 
 
 class Model(BaseModel):
@@ -150,3 +152,41 @@ def test_base_filter():
     Example.create(str="another str")
 
     assert list(Example.filter(str="str")) == [Example(str="str")]
+
+
+# Test base model with fields
+
+
+def test_base_with_int_field():
+    from pydbm import Field
+
+    # test with default value
+    class Model(BaseModel):
+        field: int = Field(default=10)
+
+    model = Model()
+    assert model.field == 10
+
+    # test with default_factory
+    class Model(BaseModel):
+        field: int = Field(default_factory=lambda: 10)
+
+    model = Model()
+    assert model.field == 10
+
+    # type checking test
+    class Model(BaseModel):
+        field: int = Field()
+
+    with pytest.raises(OdbmValidationError) as cm:
+        Model(field="10")
+
+    assert str(cm.value) == "Invalid value for field='10'; It must be int."
+
+    # max value test
+    class Model(BaseModel):
+        field: int = Field(max_value=10)
+
+    with pytest.raises(OdbmValidationError) as cm:
+        Model(field=11)
+    assert str(cm.value) == "Invalid value for field=11; It must be less than 10."

@@ -19,8 +19,8 @@ def test_builtin_types_valid(validator_name, max_value, value):
 @pytest.mark.parametrize(
     "validator_name, max_value, value, error_msg",
     [
-        ("validate_max_value", 10, 11, "11 must be less than 10"),
-        ("validate_min_value", 10, 9, "9 must be greater than 10"),
+        ("validate_max_value", 10, 11, "It must be less than 10"),
+        ("validate_min_value", 10, 9, "It must be greater than 10"),
     ],
 )
 def test_builtin_types_invalid(validator_name, max_value, value, error_msg):

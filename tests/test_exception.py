@@ -19,4 +19,4 @@ def test_validation_error_type():
 
     error = getattr(exceptions, validation_error)("field", "1", ValueError("It must be int"))
     assert isinstance(error, exceptions.OdbmBaseException)
-    assert str(error) == "Invalid value for field='1'; It must be int, not str"
+    assert str(error) == "Invalid value for field='1'; It must be int."

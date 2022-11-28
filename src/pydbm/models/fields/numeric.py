@@ -1,3 +1,5 @@
+# TODO: these fields unused.
+
 from pydbm.models.fields import GenericField
 from pydbm.models.validators import validate_max_value, validate_min_value
 
