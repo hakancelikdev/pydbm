@@ -61,9 +61,6 @@ extra:
     default: stable
 
   social:
-    - icon: fontawesome/brands/discord
-      link: https://discord.com/invite/6z8YXy4
-
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/hakancelikdev
 
@@ -77,6 +74,7 @@ extra:
 
 theme:
   name: material
+  custom_dir: docs/overrides
   language: en
   features:
     - navigation.instant
@@ -91,7 +89,7 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: red
+      primary: white
       accent: amber
       toggle:
         icon: material/weather-sunny
@@ -119,9 +117,10 @@ edit_uri: https://github.com/hakancelikdev/pydbm/tree/main/docs
 
 
 nav:
-  - pydbm: index.md
+  - Overview: overview.md
+  - Install: installation.md
   - User Guide:
-      - tutorial/installation.md
+      - tutorial/models.md
   - Contributing: CONTRIBUTING.md
   - Changelog: CHANGELOG.md
   - Authors: AUTHORS.md

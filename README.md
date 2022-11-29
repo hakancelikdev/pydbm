@@ -20,4 +20,8 @@
 [![Contributors](https://img.shields.io/github/contributors/hakancelikdev/pydbm)](https://github.com/hakancelikdev/pydbm/graphs/contributors)
 [![Last Commit](https://img.shields.io/github/last-commit/hakancelikdev/pydbm.svg)](https://github.com/hakancelikdev/pydbm/commits/main)
 
+-----
+
+It provides a fast, simple, and convenient facility for your small-scale Python projects that need a database.
+
 For more information see: https://pydbm.hakancelik.dev/
