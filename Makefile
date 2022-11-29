@@ -52,6 +52,6 @@ publish:
 	python -m build
 	python -m twine upload dist/*
 
-docs:
+doc:
 	pip install -e .[docs]
 	mkdocs serve
