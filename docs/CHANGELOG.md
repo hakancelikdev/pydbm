@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
-## [0.2.0] - .-.-
+## [0.2.0] - 2022-11-29
 
 ### Added
 - Add max_value and min_value parameters to Field, for now only support int type.
