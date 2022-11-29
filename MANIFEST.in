@@ -1,5 +1,12 @@
 include LICENSE
 include MANIFEST.in
+include tox.ini
+include setup.cfg
+include pyproject.toml
+include Makefile
+include .pre-commit-config.yaml
+include .gitignore
+include .dockerignore
 include *.md
 graft pydbm
 graft docs

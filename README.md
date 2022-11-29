@@ -1,6 +1,6 @@
-# pydbm
+# Pydbm
 
-**pydbm is an ORM for dbm.**
+**Pydbm is a more pythonic way to use dbm.**
 
 [![pre-commit](https://github.com/hakancelikdev/pydbm/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/hakancelikdev/pydbm/actions/workflows/pre-commit.yml)
 [![test](https://github.com/hakancelikdev/pydbm/actions/workflows/tests.yml/badge.svg)](https://github.com/hakancelikdev/pydbm/actions/workflows/tests.yml)
