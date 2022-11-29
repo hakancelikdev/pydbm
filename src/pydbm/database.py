@@ -10,7 +10,7 @@ from typing import Any, Literal
 
 from pydbm.logging import logger
 
-__all__ = ["DB_NAME", "Database", "DatabaseOperations"]
+__all__ = ("DB_NAME", "Database", "DatabaseOperations")
 
 DB_NAME = "pydbm.db"
 

@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+## [0.2.0] - 2022-11-29
+
+### Added
+- Add max_value and min_value parameters to Field, for now only support int type.
+- Add more tests
+
+### Changed
+- Rename OdbmBaseException to BaseException
+- Rename OdbmTypeError to PydbmTypeError
+- Rename OdbmValidationError to ValidationError
+- ValidationError description changes from f"{value!r} must be less than {max_value}" to f"It must be less than {max_value}"
+
+### Removed
+- BoolField
+- GenericField
+- BytesField
+- DateField
+- DateTimeField
+- DictField
+- Field
+- FloatField
+- IntField
+- ListField
+- NoneField
+- SetField
+- StrField
+- TupleField
+- Undefined
+
 ## [0.1.0] - 2022-11-27
 
 ### Added
@@ -64,7 +93,7 @@ All notable changes to this project will be documented in this file.
   - Added len, contains, delitem, getitem, setitem magic method.
 - Added Logging.
 - Added Exception classes.
-  - Added OdbmBaseException.
+  - Added BaseException.
   - Added DoesNotExists.
-  - Added OdbmTypeError.
-  - Added OdbmValidationError.
+  - Added PydbmTypeError.
+  - Added ValidationError.

@@ -1,14 +1,13 @@
 import pytest
 
-from pydbm.models.fields.base import BaseField, Undefined
-from pydbm.models.validators import validate_str
+from pydbm import Field, Undefined, validate_str
 
 
 def test_base_attributes_with_call():
-    field = BaseField()("field", "str")
+    field = Field()("field", "str")
 
-    assert repr(field) == "BaseField('field', 'str')"
-    assert str(field) == "BaseField('field', 'str')"
+    assert repr(field) == "Field('field', 'str')"
+    assert str(field) == "Field('field', 'str')"
 
     assert field.default == Undefined
     assert field.default_factory == Undefined
@@ -23,10 +22,10 @@ def test_base_attributes_with_call():
 
 
 def test_base_attributes():
-    field = BaseField()
+    field = Field()
 
-    assert repr(field) == "BaseField(default=Undefined, default_factory=Undefined, normalizers=[], validators=[])"
-    assert str(field) == "BaseField(default=Undefined, default_factory=Undefined, normalizers=[], validators=[])"
+    assert repr(field) == "Field(default=Undefined, default_factory=Undefined, normalizers=[], validators=[])"
+    assert str(field) == "Field(default=Undefined, default_factory=Undefined, normalizers=[], validators=[])"
 
     assert field.default == Undefined
     assert field.default_factory == Undefined
@@ -38,7 +37,7 @@ def test_base_attributes():
 
 def test_base_set_attr():
     class Model:
-        field = BaseField()("field", "str")
+        field = Field()("field", "str")
 
     model = Model()
 
@@ -47,17 +46,17 @@ def test_base_set_attr():
 
 
 def test_base_is_required():
-    field = BaseField()
+    field = Field()
     assert field.is_required() is True
 
-    field = BaseField(default=True)
+    field = Field(default=True)
     assert field.is_required() is False
 
-    field = BaseField(default_factory=list)
+    field = Field(default_factory=list)
     assert field.is_required() is False
 
 
 def test_base_default_mutually_exclusive():
     with pytest.raises(AssertionError) as cm:
-        BaseField(default=True, default_factory=list)
+        Field(default=True, default_factory=list)
     assert str(cm.value) == "default and default_factory are mutually exclusive"

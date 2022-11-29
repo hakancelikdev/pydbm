@@ -1,32 +1,32 @@
 import typing
 
 __all__ = (
-    "OdbmBaseException",
+    "BaseException",
     "DoesNotExists",
-    "OdbmTypeError",
-    "OdbmValidationError",
+    "PydbmTypeError",
+    "ValidationError",
 )
 
 
-class OdbmBaseException(Exception):
+class BaseException(Exception):
     """Base exception for pydbm models."""
 
     pass
 
 
-class DoesNotExists(OdbmBaseException):
+class DoesNotExists(BaseException):
     """Exception for not found id in the models."""
 
     pass
 
 
-class OdbmTypeError(OdbmBaseException, TypeError):
+class PydbmTypeError(BaseException, TypeError):
     """Exception for not valid type of value."""
 
     pass
 
 
-class OdbmValidationError(OdbmBaseException):
+class ValidationError(BaseException):
     """Exception for not valid value."""
 
     def __init__(self, field_name: str, field_value: typing.Any, error: ValueError) -> None:
@@ -35,4 +35,4 @@ class OdbmValidationError(OdbmBaseException):
         self.error = error
 
     def __str__(self) -> str:
-        return f"Invalid value for {self.field_name}={self.field_value!r}; {self.error}, not {type(self.field_value).__name__}"  # noqa: E501
+        return f"Invalid value for {self.field_name}={self.field_value!r}; {self.error}."  # noqa: E501

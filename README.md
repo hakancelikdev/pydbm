@@ -1,6 +1,6 @@
-# pydbm
+# Pydbm
 
-**pydbm is an ORM for dbm.**
+**Pydbm is a more pythonic way to use dbm.**
 
 [![pre-commit](https://github.com/hakancelikdev/pydbm/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/hakancelikdev/pydbm/actions/workflows/pre-commit.yml)
 [![test](https://github.com/hakancelikdev/pydbm/actions/workflows/tests.yml/badge.svg)](https://github.com/hakancelikdev/pydbm/actions/workflows/tests.yml)
@@ -19,5 +19,9 @@
 [![Codecov](https://codecov.io/gh/hakancelikdev/pydbm/branch/main/graph/badge.svg)](https://codecov.io/gh/hakancelikdev/pydbm)
 [![Contributors](https://img.shields.io/github/contributors/hakancelikdev/pydbm)](https://github.com/hakancelikdev/pydbm/graphs/contributors)
 [![Last Commit](https://img.shields.io/github/last-commit/hakancelikdev/pydbm.svg)](https://github.com/hakancelikdev/pydbm/commits/main)
+
+-----
+
+It provides a fast, simple, and convenient facility for your small-scale Python projects that need a database.
 
 For more information see: https://pydbm.hakancelik.dev/
