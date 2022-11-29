@@ -1,5 +1,5 @@
-site_name: pydbm
-site_description:
+site_name: Pydbm
+site_description: Pydbm is a more pythonic way to use dbm.
 site_url: https://pydbm.hakancelik.dev
 
 markdown_extensions:
@@ -59,6 +59,10 @@ extra:
   version:
     provider: mike
     default: stable
+  extra:
+    analytics:
+      provider: google
+      property: G-2EGM5WWEED
 
   social:
     - icon: fontawesome/brands/twitter
@@ -76,6 +80,8 @@ theme:
   name: material
   custom_dir: docs/overrides
   language: en
+  logo: 'assets/logo.png'
+  favicon: 'assets/logo.png'
   features:
     - navigation.instant
     - navigation.tracking
@@ -97,7 +103,7 @@ theme:
 
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: red
+      primary: black
       accent: amber
       toggle:
         icon: material/weather-night
@@ -117,7 +123,7 @@ edit_uri: https://github.com/hakancelikdev/pydbm/tree/main/docs
 
 
 nav:
-  - Overview: overview.md
+  - Overview: index.md
   - Install: installation.md
   - User Guide:
       - tutorial/models.md
