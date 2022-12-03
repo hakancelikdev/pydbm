@@ -58,11 +58,17 @@ plugins:
 extra:
   version:
     provider: mike
-    default: stable
-  extra:
-    analytics:
-      provider: google
-      property: G-2EGM5WWEED
+    default: latest
+  analytics:
+    provider: google
+    property: G-2EGM5WWEED
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
 
   social:
     - icon: fontawesome/brands/twitter
@@ -80,17 +86,17 @@ theme:
   name: material
   custom_dir: docs/overrides
   language: en
-  logo: 'assets/logo.png'
-  favicon: 'assets/logo.png'
+  logo: 'assets/images/logo.png'
+  favicon: 'assets/images/logo.png'
   features:
     - navigation.instant
     - navigation.tracking
     - navigation.indexes
-    - navigation.top
     - search.suggest
     - search.highlight
     - search.share
     - header.autohide
+    - navigation.top
 
   palette:
     - media: "(prefers-color-scheme: light)"
