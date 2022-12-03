@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.3.0] - 2022-12-DD
 - Support for Python3.9 [#6](https://github.com/hakancelikdev/pydbm/issues/6)
+- Documentations improve, add version support [#11](https://github.com/hakancelikdev/pydbm/issues/11)
 
 ## [0.2.0] - 2022-11-29
 
