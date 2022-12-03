@@ -53,16 +53,6 @@ After adding a new feature or fixing a bug please report your change to
 [changelog.md](CHANGELOG.md) and write your name, GitHub address, and email in the
 [authors.md](AUTHORS.md) file in alphabetical order.
 
-### Changelog Guide
-
-```
-## [Unreleased] - .-.- (YYYY-MM-DD)
-
-- [{Use the emoji below that suits you.} {Explain the change.} @{Add who solved the issue.}]({Add PR link})
-
-{You can provide more details or examples if you wish.}
-
-```
 
 ### Commit Messages
 
