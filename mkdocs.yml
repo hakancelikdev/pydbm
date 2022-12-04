@@ -133,6 +133,9 @@ nav:
   - Install: installation.md
   - User Guide:
       - tutorial/models.md
+      - tutorial/model-config.md
+      - tutorial/field-types.md
+      - tutorial/validators.md
   - Contributing: CONTRIBUTING.md
   - Changelog: CHANGELOG.md
   - Authors: AUTHORS.md
