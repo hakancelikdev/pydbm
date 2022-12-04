@@ -23,3 +23,4 @@ jobs:
           git config --local user.name "Hakan Celik"
           git fetch --all
           mike deploy --push --update-aliases ${{github.ref_name}} latest
+          mike set-default --push latest
