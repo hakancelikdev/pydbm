@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 
+from pydbm import DoesNotExists
 from pydbm.database import Database
 from pydbm.models.meta import Meta
 
@@ -41,13 +42,14 @@ class BaseModel(metaclass=Meta):
         return cls.get(model.id)
 
     @classmethod
-    def get(cls, id: str, default: typing.Any | None = None) -> BaseModel | None:  # TODO: add annotation
+    def get(cls, id: str, default: typing.Any | None = None) -> BaseModel:
         with cls.database.db as db:
             data = db.get(id, default)
-        if data is None:
-            return None
 
-        return cls(**data)
+        if data:
+            return cls(**data)
+
+        raise DoesNotExists(f"{cls.__name__} with id {id} does not exists")
 
     def delete(self) -> None:
         with self.database.db as db:

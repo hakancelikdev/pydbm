@@ -1,4 +1,6 @@
-from pydbm import BaseModel
+import pytest
+
+from pydbm import BaseModel, DoesNotExists
 
 
 class Model(BaseModel):
@@ -118,7 +120,9 @@ def test_base_delete():
     model = Example.create(str="str")
 
     model.delete()
-    assert Example.get(id=model.id) is None
+    with pytest.raises(DoesNotExists) as cm:
+        Example.get(id=model.id)
+    assert str(cm.value) == "Example with id 341be97d9aff90c9978347f66f945b77 does not exists"
 
 
 def test_base_update():

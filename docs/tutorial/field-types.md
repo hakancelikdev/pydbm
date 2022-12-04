@@ -6,12 +6,6 @@
 `bytes`
 > Field value can be any sequence of bytes.
 
-`date`
-> Field value can be a date in the format `YYYY-MM-DD`.
-
-`datetime`
-> Field value can be a date and time in the format `YYYY-MM-DD HH:MM:SS`.
-
 `dict`
 > Field value can be a dictionary.
 >> But for now, Pydbm can not validators dict of type.
@@ -41,16 +35,12 @@
 ---
 
 ```python
-from datetime import datetime, date
-
 from pydbm import BaseModel
 
 
 class User(BaseModel):
     age: bool
     avatar: bytes
-    birthday: date
-    created_at: datetime
     extra_data: dict
     height: float
     friends: list
@@ -62,8 +52,6 @@ class User(BaseModel):
 user = User(
     age=True,
     avatar=b"avatar",
-    birthday=date(2000, 1, 1),
-    created_at=datetime(2021, 1, 1, 1, 1, 1),
     extra_data={"name": "hakan"},
     height=1.80,
     friends=["hakan", "ali"],

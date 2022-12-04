@@ -139,7 +139,7 @@ Get method is used to get the data from the database and return it as a model in
 user = UserModel.get(user.id, default=None)
 ```
 
-If the user exists in the database, it will return the user, otherwise it will return None.
+If the user exists in the database, it will return the user, otherwise it raises `DoesNotExists` exception.
 
 
 ### Update
