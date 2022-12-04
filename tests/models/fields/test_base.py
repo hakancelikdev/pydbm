@@ -1,6 +1,6 @@
 import pytest
 
-from pydbm import Field, Undefined, validate_str
+from pydbm import Field, Undefined, ValidationError, validate_str
 
 
 def test_base_attributes_with_call():
@@ -60,3 +60,12 @@ def test_base_default_mutually_exclusive():
     with pytest.raises(AssertionError) as cm:
         Field(default=True, default_factory=list)
     assert str(cm.value) == "default and default_factory are mutually exclusive"
+
+
+def test_base_validator_not_raise_value_error():
+    class Model:
+        field = Field(validators=[lambda value: False])("field", "str")
+
+    with pytest.raises(ValidationError) as cm:
+        Model().field = "test"
+    assert str(cm.value) == "Invalid value for field='test'; Value is not valid."

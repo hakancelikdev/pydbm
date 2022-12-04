@@ -1,14 +1,14 @@
 name: build-docs
 on:
   push:
-    branches:
-      - stable
+    tags:
+      - "**"
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.1.0
-      - uses: actions/setup-python@v4.3.0
+      - uses: actions/checkout@v2.5.0
+      - uses: actions/setup-python@v2.3.3
         with:
           python-version: "3.10"
           architecture: "x64"
@@ -22,4 +22,4 @@ jobs:
           git config --local user.email "hakancelikdev@gmail.com"
           git config --local user.name "Hakan Celik"
           git fetch --all
-          mkdocs gh-deploy -m "Update Docs" --remote-branch gh-pages
+          mike deploy --push --update-aliases ${{github.ref_name}} latest

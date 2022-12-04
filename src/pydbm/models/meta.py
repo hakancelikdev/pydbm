@@ -3,7 +3,6 @@ from __future__ import annotations
 import typing
 
 from pydbm.database import Database
-from pydbm.logging import logger
 from pydbm.models.fields import AutoField, Field, Undefined
 
 __all__ = (
@@ -93,8 +92,6 @@ class Meta(type):
         )
         if primary_key_field:
             kwargs[primary_key_field.public_name] = primary_key_field(kwargs).get_default_value()  # type: ignore[attr-defined]  # noqa: E501
-        else:
-            logger.debug("primary key field is not found")
 
         return super().__call__(**kwargs)
 

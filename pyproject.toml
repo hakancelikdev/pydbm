@@ -1,8 +1,8 @@
 # Build system
 [build-system]
 requires = [
-    "setuptools>=45",
-    "wheel"
+    "setuptools>=65",
+    "wheel>=0.38.4"
 ]
 build-backend = "setuptools.build_meta"
 
@@ -19,7 +19,7 @@ skip_gitignore = true
 
 [tool.black]
 line-length = 120
-target-version = ['py311']
+target-version = ['py39']
 
 [tool.unimport]
 remove = true

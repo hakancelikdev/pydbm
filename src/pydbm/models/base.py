@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 
+from pydbm import DoesNotExists
 from pydbm.database import Database
 from pydbm.models.meta import Meta
 
@@ -26,20 +27,6 @@ class BaseModel(metaclass=Meta):
         for key, value in fields.items():
             setattr(self, key, value)
 
-    def __repr__(self):
-        kwargs = ", ".join(f"{key}={getattr(self, key)!r}" for key in self.fields)
-        return f"{type(self).__name__}({kwargs})"
-
-    def __eq__(self, other):
-        if isinstance(other, type(self)):
-            return self.fields == other.fields and self.pk == other.pk
-        return False
-
-    def __hash__(self):
-        if self.pk is None:
-            raise TypeError("Model instances without primary key value are unhashable")
-        return hash(self.pk)
-
     def save(self) -> None:
         with self.database.db as db:
             db[self.pk] = self.fields | {"pk": self.pk}
@@ -55,13 +42,14 @@ class BaseModel(metaclass=Meta):
         return cls.get(model.id)
 
     @classmethod
-    def get(cls, id: str, default: typing.Any | None = None) -> BaseModel | None:  # TODO: add annotation
+    def get(cls, id: str, default: typing.Any | None = None) -> BaseModel:
         with cls.database.db as db:
             data = db.get(id, default)
-        if data is None:
-            return None
 
-        return cls(**data)
+        if data:
+            return cls(**data)
+
+        raise DoesNotExists(f"{cls.__name__} with id {id} does not exists")
 
     def delete(self) -> None:
         with self.database.db as db:
@@ -87,3 +75,20 @@ class BaseModel(metaclass=Meta):
         for model in cls.all():
             if all(getattr(model, key) == value for key, value in filters.items()):
                 yield model
+
+    def as_dict(self) -> dict[str, typing.Any]:
+        return self.fields
+
+    def __repr__(self):
+        kwargs = ", ".join(f"{key}={getattr(self, key)!r}" for key in self.fields)
+        return f"{type(self).__name__}({kwargs})"
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self.fields == other.fields and self.pk == other.pk
+        return False
+
+    def __hash__(self):
+        if self.pk is None:
+            raise TypeError("Model instances without primary key value are unhashable")
+        return hash(self.pk)

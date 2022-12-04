@@ -1,16 +1,24 @@
 all: lint test clean
 
+.PHONY: dev
 dev:
 	pip install -e .[tests]
 	pip install pre-commit
 
+.PHONY: lint
 lint:
 	git add .
 	pre-commit run --all-files
 
+.PHONY: test
 test:
 	pytest tests -x -v --disable-warnings
 
+.PHONY: tox
+tox:
+	tox
+
+.PHONY: clean
 clean:
 	rm -rf `find . -name __pycache__`
 	rm -f `find . -type f -name '*.py[co]' `
@@ -26,14 +34,17 @@ clean:
 	rm -rf .tox
 	rm -rf build
 
+.PHONY: push
 push:
 	git push origin head
 
+.PHONY: amend
 amend:
 	git add .
 	git commit --amend --no-edit
 	git push origin head -f
 
+.PHONY: stable
 stable:
 	git checkout main
 	git branch -D stable
@@ -41,10 +52,12 @@ stable:
 	git push origin head -f
 	git checkout main
 
+.PHONY: git
 git:
 	git config --local user.email "hakancelikdev@gmail.com"
 	git config --local user.name "Hakan Celik"
 
+.PHONY: publish
 publish:
 	python -m pip install --upgrade pip
 	python -m pip install --upgrade build
@@ -52,6 +65,7 @@ publish:
 	python -m build
 	python -m twine upload dist/*
 
+.PHONY: doc
 doc:
 	pip install -e .[docs]
 	mkdocs serve

@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+
+## [0.3.0] - 2022-12-04
+
+### Added
+- Support for Python3.9 [#6](https://github.com/hakancelikdev/pydbm/issues/6)
+- Documentations for all features [#8](https://github.com/hakancelikdev/pydbm/issues/8)
+
+### Changed
+- Documentations improve, add version support [#11](https://github.com/hakancelikdev/pydbm/issues/11)
+
+### Fixed
+- Fix exception name -> BaseException [#12](https://github.com/hakancelikdev/pydbm/issues/12)
+
 ## [0.2.0] - 2022-11-29
 
 ### Added
