@@ -12,12 +12,14 @@ if typing.TYPE_CHECKING:
     from pydbm.models.meta import Meta
 
 
-__all__ = ("AnyCallableFunctionT", "BaseField", "Undefined", "Field")
+__all__ = ["AnyCallableFunctionT", "BaseField", "Field", "Undefined", "ValidatorsT"]
 
+
+AnyCallableFunctionT = typing.List[typing.Callable[[typing.Any], typing.Any]]
+ValidatorsT = typing.List[typing.Callable[[typing.Any], bool | None]]
+Self = typing.TypeVar("Self", bound="BaseField")  # unexport: not-public
 
 Undefined = type("Undefined", (), {"__repr__": lambda self: "Undefined", "__name__": "Undefined"})()
-AnyCallableFunctionT = typing.List[typing.Callable[[typing.Any], typing.Any]]
-Self = typing.TypeVar("Self", bound="BaseField")  # unexport: not-public
 
 
 class BaseField:
@@ -43,7 +45,7 @@ class BaseField:
         default: typing.Any = Undefined,
         default_factory: typing.Callable[[], typing.Any] = Undefined,
         normalizers: AnyCallableFunctionT | None = None,
-        validators: AnyCallableFunctionT | None = None,
+        validators: ValidatorsT | None = None,
         max_value: int | None = None,
         min_value: int | None = None,
         **kwargs,
@@ -55,7 +57,7 @@ class BaseField:
         self.default = default
         self.default_factory = default_factory
         self.normalizers: AnyCallableFunctionT = [] if normalizers is None else normalizers
-        self.validators: AnyCallableFunctionT = [] if validators is None else validators
+        self.validators: ValidatorsT = [] if validators is None else validators
         self.max_value = max_value
         self.min_value = min_value
 
@@ -117,7 +119,8 @@ class BaseField:
 
         for validator in self.validators:
             try:
-                validator(value)
+                if validator(value) is False:
+                    raise ValueError("Value is not valid")
             except ValueError as exc:
                 raise ValidationError(self.field_name, value, exc)
 
