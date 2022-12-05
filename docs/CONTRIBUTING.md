@@ -22,6 +22,7 @@ $ cd pydbm
 ## Setup Branch
 
 ```shell
+git checkout develop
 git checkout -b i{your issue number}
 ```
 
@@ -30,13 +31,13 @@ git checkout -b i{your issue number}
 ```shell
 $ git remote add upstream git@github.com:hakancelikdev/pydbm.git
 $ git fetch upstream # or git fetch --all
-$ git rebase upstream/main
+$ git rebase upstream/develop
 ```
 
 ## Testing
 
-Firstly make sure you have py3.10 python versions
-installed on your system.
+Firstly make sure you have py3.9 and py3.10 python versions installed on
+your system.
 
 After typing your codes, you should run the tests by typing the following command.
 
@@ -45,7 +46,7 @@ $ python3.10 -m pip install tox
 $ tox
 ```
 
-If all tests pass.
+If tox pass.
 
 ## The final step
 
@@ -53,19 +54,33 @@ After adding a new feature or fixing a bug please report your change to
 [changelog.md](CHANGELOG.md) and write your name, GitHub address, and email in the
 [authors.md](AUTHORS.md) file in alphabetical order.
 
+### Changelog Guide
+
+```
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased] - YYYY-MM-DD
+
+### Added | Fixed | Changed | Removed
+- [{Use the emoji below that suits you.} {Explain the change.} @{Add who solved the issue.}]({Add PR link})
+
+{You can provide more details or examples if you wish.}
+
+```
 
 ### Commit Messages
 
-If you want, you can use the emoji about the commit message you will throw, this can
-help us better understand the change you have made and also it is fun.
+Follow the below commit template;
 
-- When you make any support commit; 💪
-- When you make any tests commit; 🧪
-- When you make any fix commit; 🐞
-- When you make any optimization commit; 💊
-- When you make any new feature commit; 🔥
-- When you make any drop or delete existing feature; 👎
+```
+git commit -m "{Description your changes in shortly} #{issue-id}"
+```
 
-## License
+### Open PR
 
-pydbm is GPL-3.0 licensed, as found in the LICENSE file.
+Then open the pull request to develop branch.
