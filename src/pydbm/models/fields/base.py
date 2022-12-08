@@ -16,7 +16,7 @@ __all__ = ["AnyCallableFunctionT", "BaseField", "Field", "Undefined", "Validator
 
 
 AnyCallableFunctionT = typing.List[typing.Callable[[typing.Any], typing.Any]]
-ValidatorsT = typing.List[typing.Callable[[typing.Any], bool | None]]
+ValidatorsT = typing.List[typing.Callable[[typing.Any], typing.Optional[bool]]]
 Self = typing.TypeVar("Self", bound="BaseField")  # unexport: not-public
 
 Undefined = type("Undefined", (), {"__repr__": lambda self: "Undefined", "__name__": "Undefined"})()

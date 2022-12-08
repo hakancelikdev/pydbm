@@ -21,7 +21,7 @@ class DatabaseOperations:
         "table_name",
     )
 
-    def __init__(self, db, table_name) -> None:
+    def __init__(self, db, table_name: str) -> None:  # TODO: Add type annotation
         self.db = db
         self.table_name = bytes(table_name, "utf-8")
 

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+## [0.4.0] - YYYY-MM-DD
+
+### Added
+- Support for Python3.8 [#5](https://github.com/hakancelikdev/pydbm/issues/5)
+
 
 ## [0.3.0] - 2022-12-04
 

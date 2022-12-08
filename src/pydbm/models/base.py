@@ -29,7 +29,7 @@ class BaseModel(metaclass=Meta):
 
     def save(self) -> None:
         with self.database.db as db:
-            db[self.pk] = self.fields | {"pk": self.pk}
+            db[self.pk] = {**self.fields, **{"pk": self.pk}}
 
     @classmethod
     def create(cls, **kwargs) -> BaseModel:  # TODO: add annotation

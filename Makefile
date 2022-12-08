@@ -3,7 +3,7 @@ all: lint test clean
 .PHONY: dev
 dev:
 	pip install -e .[tests]
-	pip install pre-commit
+	pip install pre-commit tox
 
 .PHONY: lint
 lint:

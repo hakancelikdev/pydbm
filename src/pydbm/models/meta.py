@@ -58,10 +58,7 @@ class Meta(type):
 
         config = get_config(cls_name, namespace.get("Config", None))
 
-        fields: dict[str, Field] = mcs.inspect_namespace(namespace)
-        auto_field = AutoField("pk", "str", unique_together=config.unique_together or list(fields.keys()))  # type: ignore[arg-type]  # noqa: E501
-
-        fields |= {"pk": auto_field}  # type: ignore[dict-item]  # noqa: E501
+        fields = mcs.inspect_namespace(namespace, config)
         required_fields, not_required_fields = mcs.split_fields(list(fields.values()))
 
         slots = {field.private_name for field in fields.values()}
@@ -70,23 +67,23 @@ class Meta(type):
         namespace["required_fields"] = required_fields
         namespace["not_required_fields"] = not_required_fields
         namespace["database"] = Database(config.table_name)
-        namespace |= fields
+        namespace.update(**fields)
 
         return super().__new__(mcs, cls_name, bases, namespace, **kwargs)
 
-    def __call__(cls, **kwargs):
-        for field in cls.not_required_fields:
+    def __call__(self, **kwargs):
+        for field in self.not_required_fields:
             if field.public_name not in kwargs and field.public_name != PRIMARY_KEY:
                 kwargs[field.public_name] = field.get_default_value()  # type: ignore[attr-defined]  # noqa: E501
 
-        for field in cls.required_fields:  # type: ignore[assignment]
+        for field in self.required_fields:  # type: ignore[assignment]
             if field not in kwargs:
                 raise ValueError(f"{field} is required")
 
         primary_key_field: AutoField | None = next(
             filter(
                 lambda field: field.public_name not in kwargs and field.public_name == PRIMARY_KEY,  # type: ignore[arg-type]  # noqa: E501
-                cls.not_required_fields,
+                self.not_required_fields,
             ),
             None,
         )
@@ -96,9 +93,9 @@ class Meta(type):
         return super().__call__(**kwargs)
 
     @classmethod
-    def inspect_namespace(mcs, namespace: dict[str, typing.Any]) -> dict[str, Field]:
+    def inspect_namespace(mcs, namespace: dict[str, typing.Any], config: Config) -> dict[str, Field | AutoField]:
         """Inspect namespace and return fields."""
-        fields: dict[str, Field] = {}
+        fields: dict[str, Field | AutoField] = {}
         ann = namespace.get("__annotations__", {})
 
         for field_name, field_type_or_type_name in ann.items():
@@ -109,8 +106,9 @@ class Meta(type):
 
             default: Field | typing.Any = namespace.get(field_name, Undefined)
             field = default if isinstance(default, Field) else Field(default=default)
-            fields |= {field_name: field(field_name, field_type_name)}
+            fields.update(**{field_name: field(field_name, field_type_name)})
 
+        fields[PRIMARY_KEY] = AutoField("pk", "str", unique_together=config.unique_together or list(fields.keys()))  # type: ignore[arg-type]  # noqa: E501
         return fields
 
     @classmethod
