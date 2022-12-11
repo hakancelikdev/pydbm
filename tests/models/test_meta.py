@@ -12,8 +12,8 @@ class BaseModel(metaclass=meta.Meta):
 
 
 def test_generate_table_name():
-    assert meta.generate_table_name("User") == "users"
-    assert meta.generate_table_name("UserModel") == "usermodels"
+    assert meta.Meta.generate_table_name("User") == "users"
+    assert meta.Meta.generate_table_name("UserModel") == "usermodels"
 
 
 def test_config():
@@ -24,12 +24,14 @@ def test_config():
 
 
 def test_get_config():
-    config = meta.get_config("User", None)
+    config = meta.Meta.get_config("User", {})
 
     assert config.table_name == "users"
     assert config.unique_together == ()
 
-    config = meta.get_config("User", meta.Config(table_name="users", unique_together=("email", "username")))
+    config = meta.Meta.get_config(
+        "User", {meta.CLASS_CONFIG_NAME: meta.Config(table_name="users", unique_together=("email", "username"))}
+    )
 
     assert config.table_name == "users"
     assert config.unique_together == ("email", "username")

@@ -32,7 +32,7 @@ class AutoField(BaseField):
         self.public_name = field_name
         self.private_name = "_" + field_name
 
-        self.unique_together = unique_together or ()
+        self.unique_together = unique_together if unique_together is not None else ()
         super().__init__(default_factory=self.generate_pk, **kwargs)
 
     def __get__(self, instance: Meta, owner: BaseModel) -> typing.Any:

@@ -33,6 +33,7 @@ clean:
 	rm -f .coverage.*
 	rm -rf .tox
 	rm -rf build
+	rm -rf src/pythonic_dbm.egg-info
 
 .PHONY: push
 push:
