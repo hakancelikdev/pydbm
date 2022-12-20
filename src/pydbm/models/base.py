@@ -2,22 +2,18 @@ from __future__ import annotations
 
 import typing
 
-from pydbm import DoesNotExists
-from pydbm.database import Database
+from pydbm.database import DatabaseManager
 from pydbm.models.meta import Meta
 
 __all__ = ("BaseModel",)
 
 
 class BaseModel(metaclass=Meta):
-    # TODO: we can not use id and pk, fix it
     if typing.TYPE_CHECKING:
         required_fields: typing.ClassVar[list[str]]
-        database: typing.ClassVar[Database]
+        objects: typing.ClassVar[DatabaseManager]
         pk: str
         id: str
-
-    __slots__ = ("fields", "id")
 
     def __init__(self, **fields: typing.Any) -> None:
         self.id = fields.pop("pk")
@@ -28,53 +24,16 @@ class BaseModel(metaclass=Meta):
             setattr(self, key, value)
 
     def save(self) -> None:
-        with self.database.db as db:
-            db[self.pk] = {**self.fields, **{"pk": self.pk}}
-
-    @classmethod
-    def create(cls, **kwargs) -> BaseModel:  # TODO: add annotation
-        if not kwargs:
-            raise ValueError("No fields provided")
-
-        model = cls(**kwargs)
-        model.save()
-
-        return cls.get(model.id)
-
-    @classmethod
-    def get(cls, id: str, default: typing.Any | None = None) -> BaseModel:
-        with cls.database.db as db:
-            data = db.get(id, default)
-
-        if data:
-            return cls(**data)
-
-        raise DoesNotExists(f"{cls.__name__} with id {id} does not exists")
-
-    def delete(self) -> None:
-        with self.database.db as db:
-            del db[self.pk]
+        self.objects.save(pk=self.pk, fields=self.fields)
 
     def update(self, **updated_fields) -> None:
-        for key, value in updated_fields.items():
-            self.fields[key] = value
-            setattr(self, key, value)
+        for field_name, field_value in updated_fields.items():
+            setattr(self, field_name, field_value)
 
-        self.save()
+        self.objects.update(pk=self.pk, **updated_fields)
 
-    @classmethod
-    def all(cls) -> typing.Iterator[BaseModel]:
-        with cls.database.db as db:
-            keys = db.keys()
-
-        for key in keys:
-            yield cls.get(key)
-
-    @classmethod
-    def filter(cls, **filters) -> typing.Iterator[BaseModel]:
-        for model in cls.all():
-            if all(getattr(model, key) == value for key, value in filters.items()):
-                yield model
+    def delete(self) -> None:
+        self.objects.delete(pk=self.pk)
 
     def as_dict(self) -> dict[str, typing.Any]:
         return self.fields

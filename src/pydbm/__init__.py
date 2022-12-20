@@ -1,6 +1,5 @@
 from pydbm.exceptions import DoesNotExists, PydbmBaseException, PydbmTypeError, ValidationError
 from pydbm.models import (
-    AutoField,
     BaseModel,
     Field,
     Undefined,
@@ -14,7 +13,7 @@ from pydbm.models import (
     validate_list,
     validate_max_value,
     validate_min_value,
-    validate_none,
+    validate_nonetype,
     validate_set,
     validate_str,
     validate_tuple,
@@ -26,7 +25,6 @@ __all__ = (
     "PydbmTypeError",
     "ValidationError",
     "BaseModel",
-    "AutoField",
     "Field",
     "Undefined",
     "validate_bool",
@@ -39,7 +37,7 @@ __all__ = (
     "validate_list",
     "validate_max_value",
     "validate_min_value",
-    "validate_none",
+    "validate_nonetype",
     "validate_set",
     "validate_str",
     "validate_tuple",

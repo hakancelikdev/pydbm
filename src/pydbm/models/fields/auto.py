@@ -49,7 +49,7 @@ class AutoField(BaseField):
         return super().__call__(self.field_name, self.field_type_name, *args, **kwargs)  # type: ignore
 
     def generate_pk(self) -> str:
-        if self.unique_together:
+        if self.unique_together and self._is_call_run:
             text = "*".join(map(str, (attr for name in self.unique_together if (attr := self.fields.get(name, None)))))
             return hashlib.md5(bytes(text, "utf-8")).hexdigest()
         else:

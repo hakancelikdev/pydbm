@@ -81,7 +81,7 @@ def test_valid_date_field(value):
         set(),
         tuple(),
         object(),
-        # datetime(2020, 1, 1),
+        datetime(2020, 1, 1),
         b"byte",
         1.1,
         -1.1,

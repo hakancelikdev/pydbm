@@ -1,6 +1,6 @@
 import pytest
 
-from pydbm import AutoField
+from pydbm.models.fields import AutoField
 
 
 def test_auto_field_repr():

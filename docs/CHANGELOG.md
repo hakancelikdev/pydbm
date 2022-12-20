@@ -8,7 +8,15 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Support for Python3.8 [#5](https://github.com/hakancelikdev/pydbm/issues/5)
-
+- Support date and datetime data types [#14](https://github.com/hakancelikdev/pydbm/issues/14)
+- Add database manager, now database operations are as below.
+  - model.objects.get
+  - model.objects.create
+  - model.objects.delete
+  - model.objects.all
+  - model.objects.filter
+  - model.save
+  - model.update
 
 ## [0.3.0] - 2022-12-04
 

@@ -3,10 +3,16 @@ from __future__ import annotations
 import typing
 
 from pydbm import typing_extra
-from pydbm.database import Database
+from pydbm.database import DatabaseManager
 from pydbm.models.fields import AutoField, Field, Undefined
 
-__all__ = ["CLASS_CONFIG_NAME", "Config", "Meta", "PRIMARY_KEY", "UNIQUE_TOGETHER"]
+__all__ = (
+    "CLASS_CONFIG_NAME",
+    "Config",
+    "Meta",
+    "PRIMARY_KEY",
+    "UNIQUE_TOGETHER",
+)
 
 
 PRIMARY_KEY: typing.Final[str] = "pk"
@@ -24,7 +30,7 @@ class Meta(type):
     if typing.TYPE_CHECKING:
         not_required_fields: list[Field | AutoField]
         required_fields: list[str]
-        database: Database
+        database: DatabaseManager
 
     def __new__(
         mcs,
@@ -34,26 +40,27 @@ class Meta(type):
         **kwargs: typing.Any,
     ) -> type:
         if not [b for b in bases if isinstance(b, mcs)]:
+            namespace["__slots__"] = mcs.generate_slots(cls_name, namespace) + ("fields", "id")
             return super().__new__(mcs, cls_name, bases, namespace, **kwargs)
 
-        namespace["__slots__"] = mcs.generate_slots(cls_name, namespace)
+        namespace["__slots__"] = mcs.generate_slots(cls_name, namespace) + ("database",)
         return super().__new__(mcs, cls_name, bases, namespace, **kwargs)
 
     def __init__(
         cls, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any
     ) -> None:
         super().__init__(cls_name, bases, namespace, **kwargs)
+        if [b for b in bases if isinstance(b, type(cls))]:
+            mcs = type(cls)
 
-        mcs = Meta
+            config = mcs.get_config(cls_name, namespace)
+            fields = mcs.generate_fields(cls_name, namespace)
 
-        config = mcs.get_config(cls_name, namespace)
-        fields = mcs.generate_fields(cls_name, namespace)
+            cls.required_fields, cls.not_required_fields = mcs.split_fields(list(fields.values()))
+            cls.objects = DatabaseManager(model=cls, table_name=config.table_name)  # type: ignore
 
-        cls.required_fields, cls.not_required_fields = mcs.split_fields(list(fields.values()))
-        cls.database = Database(table_name=config.table_name)
-
-        for key, value in fields.items():
-            setattr(cls, key, value)
+            for key, value in fields.items():
+                setattr(cls, key, value)
 
     def __call__(cls, **kwargs):
         for field in cls.not_required_fields:
@@ -64,7 +71,7 @@ class Meta(type):
             if field not in kwargs:
                 raise ValueError(f"{field} is required")
 
-        primary_key_field: AutoField | None = next(
+        primary_key_field: AutoField | None = next(  # TODO: Always AutoField must be exists ?
             filter(
                 lambda field: field.public_name not in kwargs and field.public_name == PRIMARY_KEY,  # type: ignore[arg-type]  # noqa: E501
                 cls.not_required_fields,
@@ -112,12 +119,16 @@ class Meta(type):
             else:
                 field_type_name = field_type_or_type_name
 
-            default: Field | typing.Any = namespace.get(field_name, Undefined)
-            field = default if isinstance(default, Field) else Field(default=default)
-            fields.update(**{field_name: field(field_name, field_type_name)})
+            default_value: Field | typing.Any = namespace.get(field_name, Undefined)
+            if isinstance(default_value, Field):
+                field = default_value
+            else:
+                field = Field(default=default_value)
+            fields.update({field_name: field(field_name, field_type_name)})
 
         unique_together: tuple[str, ...] = config.unique_together or tuple(fields.keys())
-        fields[PRIMARY_KEY] = AutoField("pk", "str", unique_together=unique_together)
+        pk_field = AutoField("pk", "str", unique_together=unique_together)
+        fields[PRIMARY_KEY] = pk_field
 
         return fields
 

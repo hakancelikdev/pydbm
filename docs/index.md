@@ -45,10 +45,10 @@ class UserModel(BaseModel):
         return f"{self.name} {self.surname}"
 
 
-user = AccountModel(name="Hakan", surname="Celik", age=26, username="hakancelik")
+user = UserModel(name="Hakan", surname="Celik", age=26, username="hakancelik")
 user.save()
 
-hakan_user = AccountModel.get(id=user.id)
+hakan_user = UserModel.objects.get(id=user.id)
 
 assert hakan_user.name == "Hakan"
 assert hakan_user.surname == "Celik"

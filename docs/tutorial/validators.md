@@ -23,7 +23,7 @@ class UserModel(BaseModel):
 - validate_float
 - validate_int
 - validate_list
-- validate_none
+- validate_nonetype
 - validate_set
 - validate_str
 - validate_tuple
@@ -42,7 +42,7 @@ from pydbm import (
     validate_float,
     validate_int,
     validate_list,
-    validate_none,
+    validate_nonetype,
     validate_set,
     validate_str,
     validate_tuple,
