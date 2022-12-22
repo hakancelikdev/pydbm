@@ -35,6 +35,7 @@ and is well-suited for developers working on small-scale projects that do not re
 Pydbm also includes an object-relational mapper (ORM), which allows developers to work with their database using objects and classes rather than raw commands.
 This can make it easier to manage and interact with the database in their application in a more pythonic way.
 
+Here is a quick example;
 ```python
 from pydbm import BaseModel
 
