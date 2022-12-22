@@ -1,6 +1,7 @@
 # Pydbm
 
 **Pydbm is a more pythonic way to use dbm.**
+> It provides a fast, simple, and convenient facility for your small-scale Python projects that need a database.
 
 [![pre-commit](https://github.com/hakancelikdev/pydbm/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/hakancelikdev/pydbm/actions/workflows/pre-commit.yml)
 [![test](https://github.com/hakancelikdev/pydbm/actions/workflows/tests.yml/badge.svg)](https://github.com/hakancelikdev/pydbm/actions/workflows/tests.yml)
@@ -20,11 +21,14 @@
 [![Contributors](https://img.shields.io/github/contributors/hakancelikdev/pydbm)](https://github.com/hakancelikdev/pydbm/graphs/contributors)
 [![Last Commit](https://img.shields.io/github/last-commit/hakancelikdev/pydbm.svg)](https://github.com/hakancelikdev/pydbm/commits/main)
 
-----
+## Installation
 
-It provides a fast, simple, and convenient facility for your small-scale Python projects that need a database.
+Pydbm requires Python 3.8+ and can be easily installed using most common Python
+packaging tools. We recommend installing the latest stable release from PyPI with pip:
 
-For more information see: https://pydbm.hakancelik.dev/
+```shell
+$ pip install pythonic-dbm
+```
 
 ----
 Pydbm is a database management system that uses the dbm standard library from Python to provide interfaces to Unix databases in a pythonic way.
@@ -35,3 +39,38 @@ and is well-suited for developers working on small-scale projects that do not re
 
 Pydbm is also an object-relational mapper (ORM), which allows developers to work with their database using objects and classes rather than raw commands.
 This can make it easier to manage and interact with the database in their application in a more pythonic way.
+
+**Here is a quick example;**
+
+```python
+from pydbm import BaseModel
+
+__all__ = (
+    "UserModel",
+)
+
+
+class UserModel(BaseModel):
+    name: str
+    surname: str
+    age: int
+    username: str
+
+    class Meta:
+        unique_together = ("username", )
+
+    def get_fullname(self) -> str:
+        return f"{self.name} {self.surname}"
+
+
+user = UserModel(name="Hakan", surname="Celik", age=26, username="hakancelik")
+user.save()
+
+hakan_user = UserModel.objects.get(id=user.id)
+
+assert hakan_user.name == "Hakan"
+assert hakan_user.surname == "Celik"
+assert hakan_user.age == 26
+assert hakan_user.username == "hakancelik"
+```
+
