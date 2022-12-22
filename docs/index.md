@@ -32,7 +32,7 @@ It is designed for small-scale projects and is a light database, meaning it is n
 Pydbm is particularly useful for applications that need to store and retrieve simple data structures quickly,
 and is well-suited for developers working on small-scale projects that do not require the full functionality of a more complex database management system.
 
-Pydbm also includes an object-relational mapper (ORM), which allows developers to work with their database using objects and classes rather than raw commands.
+Pydbm is also an object-relational mapper (ORM), which allows developers to work with their database using objects and classes rather than raw commands.
 This can make it easier to manage and interact with the database in their application in a more pythonic way.
 
 Here is a quick example;
