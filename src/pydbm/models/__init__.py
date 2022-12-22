@@ -1,4 +1,4 @@
-from pydbm.models.base import BaseModel
+from pydbm.models.base import DbmModel
 from pydbm.models.fields import Field, Undefined
 from pydbm.models.validators import (
     validate_bool,
@@ -14,7 +14,7 @@ from pydbm.models.validators import (
 )
 
 __all__ = (
-    "BaseModel",
+    "DbmModel",
     "Field",
     "Undefined",
     "validate_bool",

@@ -10,7 +10,7 @@ from pydbm.database.data_types import BaseDataType
 from pydbm.inspect_extra import get_obj_annotations
 
 if typing.TYPE_CHECKING:
-    from pydbm import BaseModel
+    from pydbm import DbmModel
     from pydbm.typing_extra import SupportedClassT
 
 
@@ -50,7 +50,7 @@ class DatabaseManager:
 
     database_path: typing.ClassVar[Path] = Path("pydbm")  # TODO: take from env
 
-    def __init__(self, *, model: typing.Type[BaseModel], table_name: str) -> None:  # TODO: table_name -> db_name
+    def __init__(self, *, model: typing.Type[DbmModel], table_name: str) -> None:  # TODO: table_name -> db_name
         self.model = model
         self.table_name = table_name
 
@@ -81,7 +81,7 @@ class DatabaseManager:
         with self as db:
             return len(db)
 
-    def __getitem__(self, pk: str) -> BaseModel:
+    def __getitem__(self, pk: str) -> DbmModel:
         return self.get(pk=pk)
 
     def __setitem__(self, pk: str, fields: dict[str, typing.Any]) -> None:
@@ -130,7 +130,7 @@ class DatabaseManager:
         with self as db:
             db[pk] = data_for_dbm
 
-    def create(self, **kwargs) -> BaseModel:
+    def create(self, **kwargs) -> DbmModel:
         if not kwargs:
             raise ValueError("No fields provided")
 
@@ -139,7 +139,7 @@ class DatabaseManager:
 
         return model
 
-    def get(self, *, pk: str) -> BaseModel:
+    def get(self, *, pk: str) -> DbmModel:
         with self as db:
             data_from_dbm: bytes = db.get(pk, None)
 
@@ -166,12 +166,12 @@ class DatabaseManager:
         with self as db:
             del db[pk]
 
-    def all(self) -> typing.Iterable[BaseModel]:
+    def all(self) -> typing.Iterable[DbmModel]:
         for key in self:
             yield self.get(pk=key)
 
-    def filter(self, **kwargs) -> typing.Iterable[BaseModel]:
-        def check(model: BaseModel) -> bool:
+    def filter(self, **kwargs) -> typing.Iterable[DbmModel]:
+        def check(model: DbmModel) -> bool:
             return all(model.fields[key] == value for key, value in kwargs.items())
 
         yield from filter(check, self.all())

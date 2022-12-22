@@ -27,10 +27,10 @@
 ```python
 import datetime
 
-from pydbm import BaseModel
+from pydbm import DbmModel
 
 
-class User(BaseModel):
+class User(DbmModel):
     bool_field: bool
     bytes_field: bytes
     date_field: datetime.date
@@ -48,9 +48,9 @@ from __future__ import annotations
 
 import datetime
 
-from pydbm import BaseModel
+from pydbm import DbmModel
 
-class User(BaseModel):
+class User(DbmModel):
     bool_field: bool
     bytes_field: bytes
     date_field: datetime.date
@@ -67,9 +67,9 @@ class User(BaseModel):
 ```python
 import datetime
 
-from pydbm import BaseModel
+from pydbm import DbmModel
 
-class User(BaseModel):
+class User(DbmModel):
     bool_field: "bool"
     bytes_field: "bytes"
     date_field: "datetime.date"

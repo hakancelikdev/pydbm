@@ -19,6 +19,9 @@ All notable changes to this project will be documented in this file.
   - model.update
 - Implement DoesNotExist exception under Model [#23](https://github.com/hakancelikdev/pydbm/issues/23)
 
+### Changed
+- BaseMode -> DbmModel [#24](https://github.com/hakancelikdev/pydbm/issues/24)
+
 ### Fixed
 - Fix find object annotations from the model.
 

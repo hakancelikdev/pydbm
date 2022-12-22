@@ -1,4 +1,4 @@
-Models you create using BaseModel look similar to your Pydantic or Django models. 
+Models you create using DbmModel look similar to your Pydantic or Django models. 
 
 The purpose of your models is to validate your data, if you want to normalize it and save it using [dbm](https://docs.python.org/3/library/dbm.html). 
 If you wish, you can use your model to perform simple operations on your related data,
@@ -9,13 +9,13 @@ Pydbm can perform type validation, custom validation and custom normalization.
 ## Basic model usage
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
 __all__ = (
     "UserModel",
 )
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     username: str
 ```
 
@@ -46,13 +46,13 @@ assert user.fields == {'username': 'hakancelik'}
 If you want to set a default value for a field, you can assign a default value to the field directly.
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
 __all__ = (
     "UserModel",
 )
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = "my-unpredictable-salt"
     username: str
 ```
@@ -76,13 +76,13 @@ But If you want you can change of the fields while generating id.
 ## Unique Together
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
 __all__ = (
     "UserModel",
 )
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = "my-unpredictable-salt"
     username: str
 
@@ -106,13 +106,13 @@ assert user.fields == {'username': 'hakancelik'}
 In Pydbm, default table name is model name. You can change or control it by using `table_name` attribute in `Config` class.
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
 __all__ = (
     "UserModel",
 )
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = "my-unpredictable-salt"
     username: str
 
@@ -228,13 +228,13 @@ If type of field is int, then it can be validated min_value and max_value.
 When it is used, then the field is a not required field.
 
 ```python
-from pydbm import BaseModel, Field
+from pydbm import DbmModel, Field
 
 __all__ = (
     "UserModel",
 )
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = Field(default="my-unpredictable-salt")
     username: str
 ```
@@ -243,13 +243,13 @@ class UserModel(BaseModel):
 When it is used, then the field is a not required field.
 
 ```python
-from pydbm import BaseModel, Field
+from pydbm import DbmModel, Field
 
 __all__ = (
     "UserModel",
 )
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = Field(default_factory=lambda: "my-unpredictable-salt")
     username: str
 ```
@@ -258,13 +258,13 @@ class UserModel(BaseModel):
 It can be defined list of normalization functions, to normalize the field value.
 
 ```python
-from pydbm import BaseModel, Field
+from pydbm import DbmModel, Field
 
 __all__ = (
     "UserModel",
 )
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     username: str = Field(normalize=[lambda x: x.lower()])
 ```
 
@@ -275,13 +275,13 @@ We have some built-in validators, but you can also create your own validator.
 For more information, see [Validators](/validators).
 
 ```python
-from pydbm import BaseModel, Field
+from pydbm import DbmModel, Field
 
 __all__ = (
     "UserModel",
 )
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     username: str = Field(
         validators=[lambda value: value.startswith("@")]
     )

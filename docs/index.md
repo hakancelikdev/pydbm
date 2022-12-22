@@ -43,14 +43,14 @@ This can make it easier to manage and interact with the database in their applic
 **Here is a quick example;**
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
 __all__ = (
     "UserModel",
 )
 
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     name: str
     surname: str
     age: int

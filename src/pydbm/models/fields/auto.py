@@ -6,7 +6,7 @@ import typing
 from pydbm.models.fields.base import BaseField
 
 if typing.TYPE_CHECKING:
-    from pydbm.models.base import BaseModel
+    from pydbm.models.base import DbmModel
     from pydbm.models.meta import Meta
     from pydbm.typing_extra import SupportedClassT
 
@@ -33,10 +33,10 @@ class AutoField(BaseField):
         self.unique_together = unique_together if unique_together is not None else ()
         super().__init__(default_factory=self.generate_pk, **kwargs)
 
-    def __get__(self, instance: Meta, owner: BaseModel) -> typing.Any:
+    def __get__(self, instance: Meta, owner: DbmModel) -> typing.Any:
         return self.get_default_value()
 
-    def __set__(self, instance: BaseModel, value: typing.Any) -> None:
+    def __set__(self, instance: DbmModel, value: typing.Any) -> None:
         raise AttributeError("AutoField is read-only")
 
     def __call__(self: Self, fields: dict[str, typing.Any] | None = None, *args, **kwargs) -> Self:  # type: ignore[valid-type, override]  # noqa: E501

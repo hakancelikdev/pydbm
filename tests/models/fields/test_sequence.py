@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import pytest
 
-from pydbm import BaseModel, Field, ValidationError
+from pydbm import DbmModel, Field, ValidationError
 
 
 @pytest.mark.parametrize(
@@ -21,7 +21,7 @@ from pydbm import BaseModel, Field, ValidationError
     ],
 )
 def test_valid_str_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: str = Field()
 
     model = Model(field=value)
@@ -29,7 +29,7 @@ def test_valid_str_field(value):
 
 
 def test_str_default():
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: str = Field(default="10")
 
     model = Model()
@@ -37,7 +37,7 @@ def test_str_default():
 
 
 def test_str_default_factory():
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: str = Field(default_factory=lambda: "10")
 
     model = Model()
@@ -47,14 +47,14 @@ def test_str_default_factory():
 def test_str_default_factory_and_default():
     with pytest.raises(AssertionError) as cm:
 
-        class Model(BaseModel):
+        class Model(DbmModel):
             field: str = Field(default_factory=lambda: "10", default="20")
 
     assert str(cm.value) == "default and default_factory are mutually exclusive"
 
 
 def test_str_max_value(caplog):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: str = Field(max_value=10)
 
     caplog.clear()
@@ -66,7 +66,7 @@ def test_str_max_value(caplog):
 
 
 def test_str_min_value(caplog):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: str = Field(min_value="10")
 
     caplog.clear()
@@ -97,7 +97,7 @@ def test_str_min_value(caplog):
     ],
 )
 def test_invalid_str_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: str = Field()
 
     with pytest.raises(ValidationError) as cm:
@@ -124,7 +124,7 @@ def test_invalid_str_field(value):
     ],
 )
 def test_valid_bytes_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: bytes = Field()
 
     model = Model(field=value)
@@ -153,7 +153,7 @@ def test_valid_bytes_field(value):
     ],
 )
 def test_invalid_bytes_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: bytes = Field()
 
     with pytest.raises(ValidationError) as cm:

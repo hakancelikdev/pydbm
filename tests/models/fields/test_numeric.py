@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import pytest
 
-from pydbm import BaseModel, Field, ValidationError
+from pydbm import DbmModel, Field, ValidationError
 
 
 @pytest.mark.parametrize(
@@ -14,7 +14,7 @@ from pydbm import BaseModel, Field, ValidationError
     ],
 )
 def test_valid_int_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: int = Field()
 
     model = Model(field=value)
@@ -22,7 +22,7 @@ def test_valid_int_field(value):
 
 
 def test_int_default():
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: int = Field(default=10)
 
     model = Model()
@@ -30,7 +30,7 @@ def test_int_default():
 
 
 def test_int_default_factory():
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: int = Field(default_factory=lambda: 10)
 
     model = Model()
@@ -38,7 +38,7 @@ def test_int_default_factory():
 
 
 def test_int_max_value():
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: int = Field(max_value=10)
 
     with pytest.raises(ValidationError) as cm:
@@ -47,7 +47,7 @@ def test_int_max_value():
 
 
 def test_int_min_value():
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: int = Field(min_value=10)
 
     with pytest.raises(ValidationError) as cm:
@@ -56,7 +56,7 @@ def test_int_min_value():
 
 
 def test_int_min_and_max_value():
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: int = Field(min_value=10, max_value=20)
 
     with pytest.raises(ValidationError) as cm:
@@ -88,7 +88,7 @@ def test_int_min_and_max_value():
     ],
 )
 def test_invalid_int_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: int = Field()
 
     with pytest.raises(ValidationError) as cm:
@@ -107,7 +107,7 @@ def test_invalid_int_field(value):
     ],
 )
 def test_valid_float_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: float = Field()
 
     model = Model(field=value)
@@ -135,7 +135,7 @@ def test_valid_float_field(value):
     ],
 )
 def test_invalid_float_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: float = Field()
 
     with pytest.raises(ValidationError) as cm:
