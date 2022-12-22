@@ -22,7 +22,10 @@ __all__ = (
 Self = typing.TypeVar("Self", bound="DatabaseManager")  # unexport: not-public
 
 
-class DatabaseMeta(type):  # unexport: not-public
+class DatabaseManager:
+    if typing.TYPE_CHECKING:
+        __database_headers__: dict[str, SupportedClassT]  # TODO: make this more generic
+
     __header_name__: typing.ClassVar[str] = "__database_headers__"
     __header_mapping__: dict[SupportedClassT, str] = {
         bool: "bool",
@@ -35,37 +38,14 @@ class DatabaseMeta(type):  # unexport: not-public
         str: "str",
     }
 
-    def __call__(cls, *args, **kwargs):
-        model = kwargs["model"]
-        instance = super().__call__(*args, **kwargs)
-        mcs = type(cls)
-
-        ann = get_obj_annotations(obj=model)
-        db_headers = bytes(str({key: mcs.__header_mapping__[value] for key, value in ann.items()}), "utf-8")
-
-        with instance as db:
-            first_key: bytes | None = db.firstkey()
-            if first_key is None:
-                db[mcs.__header_name__] = db_headers
-            else:
-                assert first_key == mcs.__header_name__.encode(), f"First key is not {mcs.__header_name__}"
-                # TODO: migrations
-                assert db[first_key] == db_headers, f"Database headers are not equal: '{db[mcs.__header_name__]}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
-
-        setattr(instance, mcs.__header_name__, ann)
-        return instance
-
-
-class DatabaseManager(metaclass=DatabaseMeta):
-    if typing.TYPE_CHECKING:
-        __database_headers__: dict[str, SupportedClassT]
-
     __slots__ = (
         "model",
         "table_name",
         "db_path",
+
         "db",
-        "__database_headers__",
+        __header_name__,
+
         "__key",
     )
 
@@ -76,6 +56,21 @@ class DatabaseManager(metaclass=DatabaseMeta):
         self.table_name = table_name
 
         self.db_path = self.database_path / f"{self.table_name}.db"
+
+        ann = get_obj_annotations(obj=model)
+        db_headers = bytes(str({key: self.__class__.__header_mapping__[value] for key, value in ann.items()}), "utf-8")
+
+        db = self.open()
+        first_key: bytes | None = db.firstkey()
+        if first_key is None:
+            db[self.__class__.__header_name__] = db_headers
+        else:
+            assert first_key == self.__class__.__header_name__.encode(), f"First key is not {self.__class__.__header_name__}"  # noqa: E501
+            # TODO: migrations
+            assert db[first_key] == db_headers, f"Database headers are not equal: '{db[self.__class__.__header_name__]}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
+        db.close()
+
+        setattr(self, self.__class__.__header_name__, ann)
 
     def __enter__(self, *args, **kwargs):
         return self.open()
