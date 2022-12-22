@@ -6,17 +6,14 @@ from pydbm import BaseModel, DoesNotExists
 
 
 class Model(BaseModel):
-    str: str
-    int: int
-    float: float
-    tuple: tuple
-    list: list
-    dict: dict
-    set: set
     bool: bool
     bytes: bytes
     date: datetime.date
     datetime: datetime.datetime
+    float: float
+    int: int
+    none: None
+    str: str
 
 
 def test_base_slots():
@@ -25,110 +22,87 @@ def test_base_slots():
 
 def test_base_init():
     model = Model(
-        str="str",
-        int=1,
-        float=1.0,
-        tuple=(1, 2),
-        list=[1, 2],
-        dict={"a": 1},
-        set={1, 2},
         bool=True,
         bytes=b"123",
         date=datetime.date(2020, 1, 1),
         datetime=datetime.datetime(2020, 1, 1, 2, 10, 40),
+        float=1.0,
+        int=1,
+        none=None,
+        str="str",
     )
 
-    assert model.str == "str"
-    assert model.int == 1
-    assert model.float == 1.0
-    assert model.tuple == (1, 2)
-    assert model.list == [1, 2]
-    assert model.dict == {"a": 1}
-    assert model.set == {1, 2}
     assert model.bool is True
     assert model.bytes == b"123"
     assert model.date == datetime.date(2020, 1, 1)
     assert model.datetime == datetime.datetime(2020, 1, 1, 2, 10, 40)
+    assert model.float == 1.0
+    assert model.int == 1
+    assert model.none is None
+    assert model.str == "str"
+
     assert model.pk == model.id
-    assert model.pk == "74e5cebd6d8f4c58d0bbb879ed4e3322"
+    assert model.pk == "552eb2e66df095304137be35af85aaed"
     assert model.fields == {
-        "str": "str",
-        "int": 1,
-        "float": 1.0,
-        "tuple": (1, 2),
-        "list": [1, 2],
-        "dict": {"a": 1},
-        "set": {1, 2},
         "bool": True,
         "bytes": b"123",
         "date": datetime.date(2020, 1, 1),
         "datetime": datetime.datetime(2020, 1, 1, 2, 10, 40),
+        "float": 1.0,
+        "int": 1,
+        "none": None,
+        "str": "str",
     }
 
 
 def test_base_repr():
     model = Model(
-        str="str",
-        int=1,
-        float=1.0,
-        tuple=(1, 2),
-        list=[1, 2],
-        dict={"a": 1},
-        set={1, 2},
         bool=True,
         bytes=b"123",
         date=datetime.date(2020, 1, 1),
         datetime=datetime.datetime(2020, 1, 1, 2, 10, 40),
+        float=1.0,
+        int=1,
+        none=None,
+        str="str",
     )
 
-    assert (
-        repr(model)
-        == "Model(str='str', int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={'a': 1}, set={1, 2}, bool=True, bytes=b'123', date=datetime.date(2020, 1, 1), datetime=datetime.datetime(2020, 1, 1, 2, 10, 40))"  # noqa: E501
-    )
+    assert repr(model) == "Model(bool=True, bytes=b'123', date=datetime.date(2020, 1, 1), datetime=datetime.datetime(2020, 1, 1, 2, 10, 40), float=1.0, int=1, none=None, str='str')"  # noqa: E501
 
 
 def test_base_eq():
     model_1 = Model(
-        str="str",
-        int=1,
-        float=1.0,
-        tuple=(1, 2),
-        list=[1, 2],
-        dict={"a": 1},
-        set={1, 2},
         bool=True,
         bytes=b"123",
         date=datetime.date(2020, 1, 1),
         datetime=datetime.datetime(2020, 1, 1, 2, 10, 40),
+        float=1.0,
+        int=1,
+        none=None,
+        str="str",
     )
     model_2 = Model(
-        str="str",
-        int=1,
-        float=1.0,
-        tuple=(1, 2),
-        list=[1, 2],
-        dict={"a": 1},
-        set={1, 2},
         bool=True,
         bytes=b"123",
         date=datetime.date(2020, 1, 1),
         datetime=datetime.datetime(2020, 1, 1, 2, 10, 40),
+        float=1.0,
+        int=1,
+        none=None,
+        str="str",
     )
 
     assert model_1 == model_2
 
     model_3 = Model(
-        str="str",
-        int=1,
-        float=1.0,
-        tuple=(1, 2),
-        list=[1, 2],
-        dict={"a": 1},
-        set={1, 2},
-        bool=True,
-        bytes=b"12",
+        bool=False,
+        bytes=b"123",
         date=datetime.date(2020, 1, 1),
         datetime=datetime.datetime(2020, 1, 1, 2, 10, 40),
+        float=1.0,
+        int=1,
+        none=None,
+        str="str",
     )
     assert model_1 != model_3
     assert model_2 != model_3
@@ -151,17 +125,14 @@ def test_base_hash():
 @pytest.mark.parametrize(
     "field_type, field_value",
     [
-        (str, "str"),
-        (int, 1),
-        (float, 1.0),
-        # (tuple, (1, 2)),
-        # (list, [1, 2]),
-        # (dict, {"a": 1}),
-        # (set, {1, 2}),
         (bool, True),
         (bytes, b"123"),
         (datetime.date, datetime.date(2020, 1, 1)),
         (datetime.datetime, datetime.datetime(2020, 1, 1, 2, 10, 40)),
+        (float, 1.0),
+        (int, 1),
+        (None, None),
+        (str, "str"),
     ],
 )
 def test_base_save(teardown_db, field_type, field_value):

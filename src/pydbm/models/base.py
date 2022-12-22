@@ -5,7 +5,9 @@ import typing
 from pydbm.database import DatabaseManager
 from pydbm.models.meta import Meta
 
-__all__ = ("BaseModel",)
+__all__ = (
+    "BaseModel",
+)
 
 
 class BaseModel(metaclass=Meta):

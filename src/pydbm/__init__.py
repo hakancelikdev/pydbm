@@ -7,17 +7,14 @@ from pydbm.models import (
     validate_bytes,
     validate_date,
     validate_datetime,
-    validate_dict,
     validate_float,
     validate_int,
-    validate_list,
     validate_max_value,
     validate_min_value,
-    validate_nonetype,
-    validate_set,
+    validate_none,
     validate_str,
-    validate_tuple,
 )
+from pydbm.typing_extra import NormalizationT, ValidatorT
 
 __all__ = (
     "DoesNotExists",
@@ -31,14 +28,12 @@ __all__ = (
     "validate_bytes",
     "validate_date",
     "validate_datetime",
-    "validate_dict",
     "validate_float",
     "validate_int",
-    "validate_list",
     "validate_max_value",
     "validate_min_value",
-    "validate_nonetype",
-    "validate_set",
+    "validate_none",
     "validate_str",
-    "validate_tuple",
+    "NormalizationT",
+    "ValidatorT",
 )

@@ -1,56 +1,64 @@
 from __future__ import annotations
 
 import ast
+import datetime
 import dbm
 import typing
 from pathlib import Path
 
 from pydbm.database.data_types import BaseDataType
 from pydbm.exceptions import DoesNotExists
-
-__all__ = ["DatabaseManager", "DatabaseMeta"]
+from pydbm.inspect_extra import get_obj_annotations
 
 if typing.TYPE_CHECKING:
     from pydbm import BaseModel
+    from pydbm.typing_extra import SupportedClassT
 
 
-class DatabaseMeta(type):
+__all__ = (
+    "DatabaseManager",
+)
+
+Self = typing.TypeVar("Self", bound="DatabaseManager")  # unexport: not-public
+
+
+class DatabaseMeta(type):  # unexport: not-public
     __header_name__: typing.ClassVar[str] = "__database_headers__"
+    __header_mapping__: dict[SupportedClassT, str] = {
+        bool: "bool",
+        bytes: "bytes",
+        datetime.date: "date",
+        datetime.datetime: "datetime",
+        float: "float",
+        int: "int",
+        None: "null",
+        str: "str",
+    }
 
     def __call__(cls, *args, **kwargs):
+        model = kwargs["model"]
         instance = super().__call__(*args, **kwargs)
-
         mcs = type(cls)
 
-        model = kwargs.pop("model")
-        headers, db_headers = mcs.get_headers(model=model)
+        ann = get_obj_annotations(obj=model)
+        db_headers = bytes(str({key: mcs.__header_mapping__[value] for key, value in ann.items()}), "utf-8")
 
-        if mcs.__header_name__ not in instance:
-            with instance as db:
+        with instance as db:
+            first_key: bytes | None = db.firstkey()
+            if first_key is None:
                 db[mcs.__header_name__] = db_headers
-        else:
-            with instance as db:
-                # TODO: migrations
-                assert db[mcs.__header_name__] == db_headers, f"Database headers are not equal: '{db[mcs.__header_name__]}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
-
-        instance.__database_headers__ = headers
-        return instance
-
-    @staticmethod
-    def get_headers(model: typing.Type[BaseModel]) -> tuple[dict[str, str], bytes]:
-        headers = {}
-        for field_name, field_type_or_type_name in model.__annotations__.items():
-            if isinstance(field_type_or_type_name, str):
-                headers[field_name] = field_type_or_type_name
             else:
-                headers[field_name] = field_type_or_type_name.__name__
+                assert first_key == mcs.__header_name__.encode(), f"First key is not {mcs.__header_name__}"
+                # TODO: migrations
+                assert db[first_key] == db_headers, f"Database headers are not equal: '{db[mcs.__header_name__]}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
 
-        return headers, bytes(str(headers), "utf-8")
+        setattr(instance, mcs.__header_name__, ann)
+        return instance
 
 
 class DatabaseManager(metaclass=DatabaseMeta):
     if typing.TYPE_CHECKING:
-        __database_headers__: dict[str, str]
+        __database_headers__: dict[str, SupportedClassT]
 
     __slots__ = (
         "model",
@@ -58,6 +66,7 @@ class DatabaseManager(metaclass=DatabaseMeta):
         "db_path",
         "db",
         "__database_headers__",
+        "__key",
     )
 
     database_path: typing.ClassVar[Path] = Path("pydbm")  # TODO: take from env
@@ -90,6 +99,20 @@ class DatabaseManager(metaclass=DatabaseMeta):
     def __contains__(self, pk: str) -> bool:
         with self as db:
             return pk in db
+
+    def __iter__(self: Self) -> Self:
+        self.__key: bytes = self.__class__.__header_name__.encode()  # NOTE: this is the first key in the database
+        return self
+
+    def __next__(self) -> str:
+        with self as db:
+            self.__key: bytes | None = db.nextkey(self.__key)  # type: ignore
+
+        if self.__key is not None:
+            return self.__key.decode("utf-8")
+        else:
+            del self.__key
+            raise StopIteration
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(model={self.model!r}, table_name={self.table_name!r})"
@@ -149,14 +172,8 @@ class DatabaseManager(metaclass=DatabaseMeta):
         with self as db:
             del db[pk]
 
-    def keys(self) -> list[str]:
-        with self as db:
-            keys = list(db.keys())[1:]
-
-        return keys
-
     def all(self) -> typing.Iterable[BaseModel]:
-        for key in self.keys():
+        for key in self:
             yield self.get(pk=key)
 
     def filter(self, **kwargs) -> typing.Iterable[BaseModel]:

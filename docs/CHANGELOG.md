@@ -18,6 +18,21 @@ All notable changes to this project will be documented in this file.
   - model.save
   - model.update
 
+### Fixed
+- Fix get class annotations from the model.
+
+### Removed
+- Removed some supported types
+  - dict
+  - list
+  - set
+  - tuple
+- Removed some supported validation
+  - validate_dict
+  - validate_list
+  - validate_set
+  - validate_tuple
+
 ## [0.3.0] - 2022-12-04
 
 ### Added

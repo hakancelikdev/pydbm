@@ -3,11 +3,16 @@ from __future__ import annotations
 import abc
 import typing
 
-__all__ = ("BaseDataType",)
+if typing.TYPE_CHECKING:
+    from pydbm.typing_extra import SupportedClassT
+
+__all__ = (
+    "BaseDataType",
+)
 
 
 class BaseDataType(abc.ABC):
-    data_types: dict[str, typing.Type[BaseDataType]] = {}
+    data_types: dict[SupportedClassT, typing.Type[BaseDataType]] = {}
 
     @staticmethod
     @abc.abstractmethod
@@ -19,14 +24,12 @@ class BaseDataType(abc.ABC):
     def set(value: typing.Any) -> str:
         pass
 
-    def __init_subclass__(cls, data_type: typing.Type[typing.Any] | None = None, **kwargs):
+    def __init_subclass__(cls, data_type: SupportedClassT, **kwargs):  # noqa
         super().__init_subclass__(**kwargs)
-
-        if data_type is not None:
-            cls.data_types[data_type.__name__] = cls
+        cls.data_types[data_type] = cls
 
     @classmethod
-    def get_data_type(cls, item: str) -> typing.Type[BaseDataType]:
+    def get_data_type(cls, item: SupportedClassT) -> typing.Type[BaseDataType]:
         try:
             return cls.data_types[item]
         except KeyError:

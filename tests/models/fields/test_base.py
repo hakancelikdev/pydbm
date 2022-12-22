@@ -4,16 +4,16 @@ from pydbm import Field, Undefined, ValidationError, validate_str
 
 
 def test_base_attributes_with_call():
-    field = Field()("field", "str")
+    field = Field()("field", str)
 
-    assert repr(field) == "Field('field', 'str')"
-    assert str(field) == "Field('field', 'str')"
+    assert repr(field) == f"Field('field', {str!r})"
+    assert str(field) == f"Field('field', {str!r})"
 
     assert field.default == Undefined
     assert field.default_factory == Undefined
     assert field.get_default_value() is None
     assert field.field_name == "field"
-    assert field.field_type_name == "str"
+    assert field.field_type == str
     assert field.is_required() is True
     assert field.normalizers == []
     assert field.private_name == "_field"
@@ -37,7 +37,7 @@ def test_base_attributes():
 
 def test_base_set_attr():
     class Model:
-        field = Field()("field", "str")
+        field = Field()("field", str)
 
     model = Model()
 
@@ -64,7 +64,7 @@ def test_base_default_mutually_exclusive():
 
 def test_base_validator_not_raise_value_error():
     class Model:
-        field = Field(validators=[lambda value: False])("field", "str")
+        field = Field(validators=[lambda value: False])("field", str)
 
     with pytest.raises(ValidationError) as cm:
         Model().field = "test"

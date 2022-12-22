@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 from pydbm import exceptions
@@ -85,51 +87,36 @@ def test_meta_is_required_error():
 @pytest.mark.parametrize(
     "updated_fields, expected_error_ms",
     [
-        ({"str": 1}, "Invalid value for str=1; It must be str."),
-        ({"int": 1.1}, "Invalid value for int=1.1; It must be int."),
-        ({"float": (1.0,)}, "Invalid value for float=(1.0,); It must be float."),
-        ({"tuple": [1, 2]}, "Invalid value for tuple=[1, 2]; It must be tuple."),
-        ({"list": (1, 2)}, "Invalid value for list=(1, 2); It must be list."),
-        # ({"dict": {"a", 1}}, "Invalid value for dict={'a', 1}; It must be dict."),  # TODO: fix it
-        ({"set": {"1": 2}}, "Invalid value for set={'1': 2}; It must be set."),
         ({"bool": 1}, "Invalid value for bool=1; It must be bool."),
         ({"bytes": "123"}, "Invalid value for bytes='123'; It must be bytes."),
-        # (
-        #     {"date": datetime.datetime(2020, 1, 1)},
-        #     "Invalid value for date=datetime.datetime(2020, 1, 1, 0, 0); It must be date.",
-        # ),  # noqa: E501
-        # (
-        #     {"datetime": datetime.date(2020, 1, 1)},
-        #     "Invalid value for datetime=datetime.date(2020, 1, 1); It must be datetime.",
-        # ),  # noqa: E501
+        ({"date": datetime.datetime(2020, 1, 1)}, "Invalid value for date=datetime.datetime(2020, 1, 1, 0, 0); It must be date."),  # noqa: E501
+        ({"datetime": datetime.date(2020, 1, 1)}, "Invalid value for datetime=datetime.date(2020, 1, 1); It must be datetime."),  # noqa: E501
+        ({"float": (1.0,)}, "Invalid value for float=(1.0,); It must be float."),
+        ({"int": 1.1}, "Invalid value for int=1.1; It must be int."),
+        ({"none": b"test"}, "Invalid value for none=b'test'; It must be None."),
+        ({"str": 1}, "Invalid value for str=1; It must be str."),
     ],
 )
 def test_base_type_validator(updated_fields, expected_error_ms):
     class Model(BaseModel):
-        str: str
-        int: int
-        float: float
-        tuple: tuple
-        list: list
-        dict: dict
-        set: set
         bool: bool
         bytes: bytes
-        # date: datetime.date
-        # datetime: datetime.datetime
+        date: datetime.date
+        datetime: datetime.datetime
+        float: float
+        int: int
+        none: None
+        str: str
 
     model_body = {
-        "str": "str",
-        "int": 1,
-        "float": 1.0,
-        "tuple": (1, 2),
-        "list": [1, 2],
-        "dict": {"a": 1},
-        "set": {1, 2},
         "bool": True,
         "bytes": b"123",
-        # "date": datetime.date.today(),
-        # "datetime": datetime.datetime.now(),
+        "date": datetime.date.today(),
+        "datetime": datetime.datetime.now(),
+        "float": 1.0,
+        "int": 1,
+        "none": None,
+        "str": "str",
     }
     model_body.update(updated_fields)
 

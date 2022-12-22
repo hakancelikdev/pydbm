@@ -4,13 +4,15 @@ import typing
 
 __all__ = (
     "dataclass_transform",
-    "AnyCallableFunctionT",
-    "ValidatorsT",
+    "NormalizationT",
+    "ValidatorT",
+    "SupportedClassT",
 )
 
 
-AnyCallableFunctionT = typing.Callable[[typing.Any], typing.Any]
-ValidatorsT = typing.Callable[[typing.Any], typing.Optional[bool]]
+NormalizationT = typing.Callable[[typing.Any], typing.Any]
+ValidatorT = typing.Callable[[typing.Any], typing.Optional[bool]]
+SupportedClassT = typing.Type[typing.Any]  # TODO: Improve this annotations, It must be more correctly
 
 
 def dataclass_transform(

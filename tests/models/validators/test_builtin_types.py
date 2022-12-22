@@ -13,14 +13,10 @@ from pydbm.models.validators import builtin_types
         ("validate_bytes", b""),
         ("validate_date", datetime.date.today()),
         ("validate_datetime", datetime.datetime.now()),
-        ("validate_dict", {}),
         ("validate_float", 1.0),
         ("validate_int", 1),
-        ("validate_list", []),
-        ("validate_nonetype", None),
-        ("validate_set", set()),
+        ("validate_none", None),
         ("validate_str", ""),
-        ("validate_tuple", ()),
     ],
 )
 def test_builtin_types_valid(validator_name, value):
@@ -36,14 +32,10 @@ def test_builtin_types_valid(validator_name, value):
         ("validate_bytes", 1, "It must be bytes"),
         ("validate_date", 1, "It must be date"),
         ("validate_datetime", 1, "It must be datetime"),
-        ("validate_dict", 1, "It must be dict"),
         ("validate_float", 1, "It must be float"),
         ("validate_int", 1.1, "It must be int"),
-        ("validate_list", 1, "It must be list"),
-        ("validate_nonetype", 1, "It must be None"),
-        ("validate_set", 1, "It must be set"),
+        ("validate_none", 1, "It must be None"),
         ("validate_str", 1, "It must be str"),
-        ("validate_tuple", 1, "It must be tuple"),
     ],
 )
 def test_builtin_types_invalid(validator_name, value, exception_msg):

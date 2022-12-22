@@ -9,14 +9,10 @@ __all__ = (
     "BytesDataType",
     "DateDataType",
     "DateTimeDataType",
-    # "DictDataType",
     "FloatDataType",
     "IntDataType",
-    # "ListDataType",
     "NoneDataType",
-    # "SetDataType",
     "StrDataType",
-    # "TupleDataType",
 )
 
 
@@ -65,16 +61,6 @@ class DateTimeDataType(BaseDataType, data_type=datetime.datetime):
         return value.isoformat()
 
 
-# class DictDataType(BaseDataType, data_type=dict):
-#     @classmethod
-#     def get(cls, value) -> dict:
-#         return normalizations.normalize_dict(value)
-#
-#     @staticmethod
-#     def set(value: dict) -> str:
-#         return str(value)
-
-
 class FloatDataType(BaseDataType, data_type=float):
     @classmethod
     def get(cls, value: str) -> float:
@@ -95,17 +81,7 @@ class IntDataType(BaseDataType, data_type=int):
         return str(value)
 
 
-# class ListDataType(BaseDataType, data_type=list):
-#     @classmethod
-#     def get(cls, value) -> list:
-#         return normalizations.normalize_list(value)
-#
-#     @staticmethod
-#     def set(value: list) -> str:
-#         return str(value)
-
-
-class NoneDataType(BaseDataType, data_type=type(None)):
+class NoneDataType(BaseDataType, data_type=None):
     @classmethod
     def get(cls, value: str) -> None:
         return None
@@ -113,16 +89,6 @@ class NoneDataType(BaseDataType, data_type=type(None)):
     @staticmethod
     def set(value: None) -> str:
         return str(value)
-
-
-# class SetDataType(BaseDataType, data_type=set):
-#     @classmethod
-#     def get(cls, value) -> set:
-#         return set(value)
-#
-#     @staticmethod
-#     def set(value: set) -> str:
-#         return str(value)
 
 
 class StrDataType(BaseDataType, data_type=str):
@@ -133,14 +99,3 @@ class StrDataType(BaseDataType, data_type=str):
     @staticmethod
     def set(value: str) -> str:
         return str(value)
-
-
-#
-# class TupleDataType(BaseDataType, data_type=tuple):
-#     @classmethod
-#     def get(cls, value: str) -> tuple:
-#         return tuple(value)
-#
-#     @staticmethod
-#     def set(value: tuple) -> str:
-#         return str(value)

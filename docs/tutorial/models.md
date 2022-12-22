@@ -232,7 +232,9 @@ When it is used, then the field is a not required field.
 ```python
 from pydbm import BaseModel, Field
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
 class UserModel(BaseModel):
     salt: str = Field(default="my-unpredictable-salt")
@@ -245,7 +247,9 @@ When it is used, then the field is a not required field.
 ```python
 from pydbm import BaseModel, Field
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
 class UserModel(BaseModel):
     salt: str = Field(default_factory=lambda: "my-unpredictable-salt")
@@ -258,7 +262,9 @@ It can be defined list of normalization functions, to normalize the field value.
 ```python
 from pydbm import BaseModel, Field
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
 class UserModel(BaseModel):
     username: str = Field(normalize=[lambda x: x.lower()])
@@ -273,7 +279,9 @@ For more information, see [Validators](/validators).
 ```python
 from pydbm import BaseModel, Field
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
 class UserModel(BaseModel):
     username: str = Field(
