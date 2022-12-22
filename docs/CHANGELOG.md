@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
   - model.update
 
 ### Fixed
-- Fix get class annotations from the model.
+- Fix find object annotations from the model.
 
 ### Removed
 - Removed some supported types
