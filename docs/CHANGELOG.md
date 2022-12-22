@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
   - model.objects.filter
   - model.save
   - model.update
+- Implement DoesNotExist exception under Model [#23](https://github.com/hakancelikdev/pydbm/issues/23)
 
 ### Fixed
 - Fix find object annotations from the model.
