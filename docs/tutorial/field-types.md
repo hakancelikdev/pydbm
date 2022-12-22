@@ -6,76 +6,76 @@
 `bytes`
 > Field value can be any sequence of bytes.
 
-`dict`
-> Field value can be a dictionary.
->> But for now, Pydbm can not validators dict of type.
-> Only validate type of the field is dict.
+`date`
+> Field value can be a date object.
+
+`datetime`
+> Field value can be a datetime object.
 
 `float`
 > Field value can be a floating point number.
 
-`list`
-> Field value can be a list.
->> But for now, Pydbm can not validators list of type.
-> Only validate type of the field is list.
+`int`
+> Field value can be an integer.
 
-`set`
-> Field value can be a set.
->> But for now, Pydbm can not validators set of type.
-> Only validate type of the field is set.
+`None`
+> Field value can be `None`.
 
 `str`
 > Field value can be a string.
 
-`tuple`
-> Field value can be a tuple.
->> But for now, Pydbm can not validators tuple of type.
-> Only validate type of the field is tuple.
+```python
+import datetime
 
----
+from pydbm import DbmModel
+
+
+class User(DbmModel):
+    bool_field: bool
+    bytes_field: bytes
+    date_field: datetime.date
+    datetime_field: datetime.datetime
+    float_field: float
+    int_field: int
+    none_field: None
+    str_field: str
+```
+
+## Supported types can run after future annotations import.
 
 ```python
-from pydbm import BaseModel
+from __future__ import annotations
+
+import datetime
+
+from pydbm import DbmModel
+
+class User(DbmModel):
+    bool_field: bool
+    bytes_field: bytes
+    date_field: datetime.date
+    datetime_field: datetime.datetime
+    float_field: float
+    int_field: int
+    none_field: None
+    str_field: str
+```
 
 
-class User(BaseModel):
-    age: bool
-    avatar: bytes
-    extra_data: dict
-    height: float
-    friends: list
-    friends_set: set
-    bio: str
-    friends_tuple: tuple
+## Supported types can be defined as a string form.
 
+```python
+import datetime
 
-user = User(
-    age=True,
-    avatar=b"avatar",
-    extra_data={"name": "hakan"},
-    height=1.80,
-    friends=["hakan", "ali"],
-    friends_set={"hakan", "ali"},
-    bio="bio",
-    friends_tuple=("hakan", "ali"),
-)
+from pydbm import DbmModel
 
-# >>> User(
-#   age=True,
-#   avatar=b'avatar',
-#   birthday=datetime.date(2000, 1, 1),
-#   created_at=datetime.datetime(2021, 1, 1, 1, 1, 1),
-#   extra_data={'name': 'hakan'},
-#   height=1.8,
-#   friends=['hakan', 'ali'],
-#   friends_set={'ali', 'hakan'},
-#   bio='bio',
-#   friends_tuple=('hakan', 'ali')
-#)
-
-
-user.save()
-
-get_user = User.get(user.id)
-assert get_user == user
+class User(DbmModel):
+    bool_field: "bool"
+    bytes_field: "bytes"
+    date_field: "datetime.date"
+    datetime_field: "datetime.datetime"
+    float_field: "float"
+    int_field: "int"
+    none_field: "None"
+    str_field: "str"
 ```

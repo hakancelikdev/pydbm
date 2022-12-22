@@ -1,4 +1,4 @@
-Models you create using BaseModel look similar to your Pydantic or Django models. 
+Models you create using DbmModel look similar to your Pydantic or Django models. 
 
 The purpose of your models is to validate your data, if you want to normalize it and save it using [dbm](https://docs.python.org/3/library/dbm.html). 
 If you wish, you can use your model to perform simple operations on your related data,
@@ -9,11 +9,13 @@ Pydbm can perform type validation, custom validation and custom normalization.
 ## Basic model usage
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     username: str
 ```
 
@@ -44,11 +46,13 @@ assert user.fields == {'username': 'hakancelik'}
 If you want to set a default value for a field, you can assign a default value to the field directly.
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = "my-unpredictable-salt"
     username: str
 ```
@@ -72,11 +76,13 @@ But If you want you can change of the fields while generating id.
 ## Unique Together
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = "my-unpredictable-salt"
     username: str
 
@@ -100,11 +106,13 @@ assert user.fields == {'username': 'hakancelik'}
 In Pydbm, default table name is model name. You can change or control it by using `table_name` attribute in `Config` class.
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = "my-unpredictable-salt"
     username: str
 
@@ -136,17 +144,20 @@ That's it, now we have saved our user to the database.
 Get method is used to get the data from the database and return it as a model instance.
 
 ```python
-user = UserModel.get(user.id, default=None)
+try:
+    user = UserModel.objects.get(user.id)
+except UserModel.DoesNotExist:
+    print("User does not exist")
 ```
 
-If the user exists in the database, it will return the user, otherwise it raises `DoesNotExists` exception.
+If the user exists in the database, it will return the user, otherwise it raises `UserModel.DoesNotExists` exception.
 
 
 ### Update
 Update method is used to update the data in the database, when you use this method id is not changed.
 
 ```python
-user = UserModel.get(user.id)
+user = UserModel.objects.get(user.id)
 user.update(username="hakan")
 
 assert user.username == "hakan"
@@ -158,7 +169,7 @@ assert user.id == "908cbfedd18749b69a39d3771f6762a2"  # id is not changed
 Delete user from database.
     
 ```python
-user = UserModel.get(user.id)
+user = UserModel.objects.get(user.id)
 user.delete()
 ```
 
@@ -168,7 +179,7 @@ user.delete()
 Create method is used to save the data to the database and return the data as a model instance.
 
 ```python
-user = UserModel.create(username="hakancelik")
+user = UserModel.objects.create(username="hakancelik")
 ```
 
 It is the same as save, but it returns the user.
@@ -179,7 +190,7 @@ It is the same as save, but it returns the user.
 All method is used to get all data from the database and iterate model instances.
 
 ```python
-users = list(UserModel.all())
+users = list(UserModel.objects.all())
 ```
 
 
@@ -189,13 +200,13 @@ Filter method is used to filter data from the database and iterate model instanc
 You can filter data by using the fields of the model.
 
 ```python
-users = list(UserModel.filter(username="hakancelik"))
+users = list(UserModel.objects.filter(username="hakancelik"))
 ```
 
 
 ## Model properties
 
-`dict()`
+`as_dict()`
 
 returns a dictionary of the model's fields and values.
 
@@ -217,11 +228,13 @@ If type of field is int, then it can be validated min_value and max_value.
 When it is used, then the field is a not required field.
 
 ```python
-from pydbm import BaseModel, Field
+from pydbm import DbmModel, Field
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = Field(default="my-unpredictable-salt")
     username: str
 ```
@@ -230,11 +243,13 @@ class UserModel(BaseModel):
 When it is used, then the field is a not required field.
 
 ```python
-from pydbm import BaseModel, Field
+from pydbm import DbmModel, Field
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     salt: str = Field(default_factory=lambda: "my-unpredictable-salt")
     username: str
 ```
@@ -243,11 +258,13 @@ class UserModel(BaseModel):
 It can be defined list of normalization functions, to normalize the field value.
 
 ```python
-from pydbm import BaseModel, Field
+from pydbm import DbmModel, Field
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     username: str = Field(normalize=[lambda x: x.lower()])
 ```
 
@@ -258,11 +275,13 @@ We have some built-in validators, but you can also create your own validator.
 For more information, see [Validators](/validators).
 
 ```python
-from pydbm import BaseModel, Field
+from pydbm import DbmModel, Field
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     username: str = Field(
         validators=[lambda value: value.startswith("@")]
     )

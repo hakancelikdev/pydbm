@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+## [0.4.0] - 2022-12-23
+
+### Added
+- Support for Python3.8 [#5](https://github.com/hakancelikdev/pydbm/issues/5)
+- Support date and datetime data types [#14](https://github.com/hakancelikdev/pydbm/issues/14)
+- Add database manager, now database operations are as below.
+  - model.objects.get
+  - model.objects.create
+  - model.objects.delete
+  - model.objects.all
+  - model.objects.filter
+  - model.save
+  - model.update
+- Implement DoesNotExist exception under Model [#23](https://github.com/hakancelikdev/pydbm/issues/23)
+
+### Changed
+- BaseMode -> DbmModel [#24](https://github.com/hakancelikdev/pydbm/issues/24)
+
+### Fixed
+- Fix find object annotations from the model.
+
+### Removed
+- Removed some supported types
+  - dict
+  - list
+  - set
+  - tuple
+- Removed some supported validation
+  - validate_dict
+  - validate_list
+  - validate_set
+  - validate_tuple
 
 ## [0.3.0] - 2022-12-04
 

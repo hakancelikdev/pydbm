@@ -2,7 +2,6 @@ import typing
 
 __all__ = (
     "PydbmBaseException",
-    "DoesNotExists",
     "PydbmTypeError",
     "ValidationError",
 )
@@ -10,12 +9,6 @@ __all__ = (
 
 class PydbmBaseException(Exception):
     """Base exception for pydbm models."""
-
-    pass
-
-
-class DoesNotExists(PydbmBaseException):
-    """Exception for not found id in the models."""
 
     pass
 
@@ -35,4 +28,4 @@ class ValidationError(PydbmBaseException):
         self.error = error
 
     def __str__(self) -> str:
-        return f"Invalid value for {self.field_name}={self.field_value!r}; {self.error}."  # noqa: E501
+        return f"Invalid value for {self.field_name}={self.field_value!r}; {self.error}."

@@ -2,6 +2,12 @@ site_name: Pydbm
 site_description: Pydbm is a more pythonic way to use dbm.
 site_url: https://pydbm.hakancelik.dev
 
+repo_url: https://github.com/hakancelikdev/pydbm
+repo_name: hakancelikdev/pydbm
+edit_uri: https://github.com/hakancelikdev/pydbm/tree/main/docs
+
+copyright: Copyright &copy; 2020 - 2020 Hakan Çelik
+
 markdown_extensions:
   - fenced_code
   - footnotes
@@ -47,13 +53,13 @@ plugins:
   - search:
       separator: '[\s\-\.]+'
       prebuild_index: true
-
   - git-revision-date-localized:
       type: date
       enable_creation_date: true
-
   - minify:
       minify_html: true
+  - mike:
+      canonical_version: latest
 
 extra:
   version:
@@ -69,17 +75,13 @@ extra:
       as to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
       make our documentation better.
-
   social:
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/hakancelikdev
-
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/in/hakancelikdev
-
     - icon: fontawesome/solid/globe
       link: https://hakancelik.dev
-
   homepage: https://pydbm.hakancelik.dev
 
 theme:
@@ -97,7 +99,6 @@ theme:
     - search.share
     - header.autohide
     - navigation.top
-
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -106,7 +107,6 @@ theme:
       toggle:
         icon: material/weather-sunny
         name: Switch to dark mode
-
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: black
@@ -114,19 +114,11 @@ theme:
       toggle:
         icon: material/weather-night
         name: Switch to light mode
-
   font:
     text: Noto Sans
     code: Roboto Mono
-
   icon:
     repo: fontawesome/brands/github
-
-copyright: Copyright &copy; 2020 - 2020 Hakan Çelik
-repo_url: https://github.com/hakancelikdev/pydbm
-repo_name: hakancelikdev/pydbm
-edit_uri: https://github.com/hakancelikdev/pydbm/tree/main/docs
-
 
 nav:
   - Overview: index.md

@@ -3,7 +3,7 @@ all: lint test clean
 .PHONY: dev
 dev:
 	pip install -e .[tests]
-	pip install pre-commit
+	pip install pre-commit tox
 
 .PHONY: lint
 lint:
@@ -33,6 +33,7 @@ clean:
 	rm -f .coverage.*
 	rm -rf .tox
 	rm -rf build
+	rm -rf src/pythonic_dbm.egg-info
 
 .PHONY: push
 push:

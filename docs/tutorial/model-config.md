@@ -1,11 +1,13 @@
 The behavior of Pydbm can be controlled via the Config class on a model.
 
 ```python
-from pydbm import BaseModel
+from pydbm import DbmModel
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     username: str
     password: str
 

@@ -6,72 +6,48 @@ __all__ = (
     "validate_bytes",
     "validate_date",
     "validate_datetime",
-    "validate_dict",
     "validate_float",
     "validate_int",
-    "validate_list",
     "validate_none",
-    "validate_set",
     "validate_str",
-    "validate_tuple",
 )
 
 
 def validate_bool(value: typing.Any) -> None:
-    if not isinstance(value, bool):
+    if value.__class__ is not bool:
         raise ValueError("It must be bool")
 
 
 def validate_bytes(value: typing.Any) -> None:
-    if not isinstance(value, bytes):
+    if value.__class__ is not bytes:
         raise ValueError("It must be bytes")
 
 
 def validate_date(value: typing.Any) -> None:
-    if not isinstance(value, datetime.date):
+    if value.__class__ is not datetime.date:
         raise ValueError("It must be date")
 
 
 def validate_datetime(value: typing.Any) -> None:
-    if not isinstance(value, datetime.datetime):
+    if value.__class__ is not datetime.datetime:
         raise ValueError("It must be datetime")
 
 
-def validate_dict(value: typing.Any) -> None:
-    if not isinstance(value, dict):
-        raise ValueError("It must be dict")
-
-
 def validate_float(value: typing.Any) -> None:
-    if not isinstance(value, float):
+    if value.__class__ is not float:
         raise ValueError("It must be float")
 
 
 def validate_int(value: typing.Any) -> None:
-    if not isinstance(value, int):
+    if value.__class__ is not int:
         raise ValueError("It must be int")
 
 
-def validate_list(value: typing.Any) -> None:
-    if not isinstance(value, list):
-        raise ValueError("It must be list")
-
-
 def validate_none(value: typing.Any) -> None:
-    if not isinstance(value, type(None)):
+    if value is not None:
         raise ValueError("It must be None")
 
 
-def validate_set(value: typing.Any) -> None:
-    if not isinstance(value, set):
-        raise ValueError("It must be set")
-
-
 def validate_str(value: typing.Any) -> None:
-    if not isinstance(value, str):
+    if value.__class__ is not str:
         raise ValueError("It must be str")
-
-
-def validate_tuple(value: typing.Any) -> None:
-    if not isinstance(value, tuple):
-        raise ValueError("It must be tuple")

@@ -2,12 +2,12 @@ from datetime import date, datetime
 
 import pytest
 
-from pydbm import BaseModel, Field, ValidationError
+from pydbm import DbmModel, Field, ValidationError
 
 
 @pytest.mark.parametrize("value", [True, False])
 def test_valid_bool_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: bool = Field()
 
     model = Model(field=value)
@@ -37,7 +37,7 @@ def test_valid_bool_field(value):
     ],
 )
 def test_invalid_bool_field(value):
-    class Model(BaseModel):
+    class Model(DbmModel):
         field: bool = Field()
 
     with pytest.raises(ValidationError) as cm:
