@@ -144,15 +144,13 @@ That's it, now we have saved our user to the database.
 Get method is used to get the data from the database and return it as a model instance.
 
 ```python
-from pydbm import DoesNotExist
-
 try:
     user = UserModel.objects.get(user.id)
-except DoesNotExist:
+except UserModel.DoesNotExist:
     print("User does not exist")
 ```
 
-If the user exists in the database, it will return the user, otherwise it raises `DoesNotExists` exception.
+If the user exists in the database, it will return the user, otherwise it raises `UserModel.DoesNotExists` exception.
 
 
 ### Update

@@ -7,7 +7,6 @@ import typing
 from pathlib import Path
 
 from pydbm.database.data_types import BaseDataType
-from pydbm.exceptions import DoesNotExists
 from pydbm.inspect_extra import get_obj_annotations
 
 if typing.TYPE_CHECKING:
@@ -152,7 +151,7 @@ class DatabaseManager:
 
             return self.model(**fields)
 
-        raise DoesNotExists(f"{self.model.__name__} with pk {pk} does not exists")
+        raise self.model.DoesNotExists(f"{self.model.__name__} with pk {pk} does not exists")
 
     def update(self, *, pk: str, **updated_fields) -> None:
         model = self.get(pk=pk)

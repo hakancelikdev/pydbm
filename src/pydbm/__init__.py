@@ -1,4 +1,4 @@
-from pydbm.exceptions import DoesNotExists, PydbmBaseException, PydbmTypeError, ValidationError
+from pydbm.exceptions import PydbmBaseException, PydbmTypeError, ValidationError
 from pydbm.models import (
     BaseModel,
     Field,
@@ -17,7 +17,6 @@ from pydbm.models import (
 from pydbm.typing_extra import NormalizationT, ValidatorT
 
 __all__ = (
-    "DoesNotExists",
     "PydbmBaseException",
     "PydbmTypeError",
     "ValidationError",

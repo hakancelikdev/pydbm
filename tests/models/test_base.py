@@ -2,7 +2,7 @@ import datetime as datetime
 
 import pytest
 
-from pydbm import BaseModel, DoesNotExists
+from pydbm import BaseModel
 
 
 class Model(BaseModel):
@@ -168,7 +168,7 @@ def test_base_delete(teardown_db):
     model = Example.objects.create(str="str")
 
     model.delete()
-    with pytest.raises(DoesNotExists) as cm:
+    with pytest.raises(model.DoesNotExists) as cm:
         Example.objects.get(pk=model.id)
     assert str(cm.value) == "Example with pk 341be97d9aff90c9978347f66f945b77 does not exists"
 

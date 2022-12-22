@@ -4,6 +4,7 @@ import typing
 
 from pydbm import typing_extra
 from pydbm.database import DatabaseManager
+from pydbm.exceptions import PydbmBaseException
 from pydbm.inspect_extra import get_obj_annotations
 from pydbm.models.fields import AutoField, Field, Undefined
 
@@ -48,6 +49,7 @@ class Meta(type):
 
             cls.required_fields, cls.not_required_fields = mcs.split_fields(list(fields.values()))
             cls.objects = DatabaseManager(model=cls, table_name=config.table_name)  # type: ignore
+            cls.DoesNotExists = type("DoesNotExists", (PydbmBaseException,), {"__doc__": "Exception for not found id in the models."})  # noqa: E501
 
             for key, value in fields.items():
                 setattr(cls, key, value)
