@@ -1,6 +1,8 @@
 import logging
 
-__all__ = ("logger",)
+__all__ = (
+    "logger",
+)
 
 # create logger
 logger = logging.getLogger("pydbm")  # unexport: public

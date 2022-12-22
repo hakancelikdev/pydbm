@@ -5,7 +5,9 @@ For more information, see [Built-in Validators](#built-in-validators).
 ```python
 from pydbm import BaseModel, Field
 
-__all__ = ["UserModel"]
+__all__ = (
+    "UserModel",
+)
 
 class UserModel(BaseModel):
     username: str = Field(
@@ -19,14 +21,10 @@ class UserModel(BaseModel):
 - validate_bytes
 - validate_date
 - validate_datetime
-- validate_dict
 - validate_float
 - validate_int
-- validate_list
 - validate_none
-- validate_set
 - validate_str
-- validate_tuple
 - validate_max_value
 - validate_min_value
 
@@ -38,14 +36,10 @@ from pydbm import (
     validate_bytes,
     validate_date,
     validate_datetime,
-    validate_dict,
     validate_float,
     validate_int,
-    validate_list,
     validate_none,
-    validate_set,
     validate_str,
-    validate_tuple,
     validate_max_value,
     validate_min_value,
 )

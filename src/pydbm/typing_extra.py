@@ -1,8 +1,18 @@
 from __future__ import annotations
 
-__all__ = ["dataclass_transform"]
-
 import typing
+
+__all__ = (
+    "dataclass_transform",
+    "NormalizationT",
+    "ValidatorT",
+    "SupportedClassT",
+)
+
+
+NormalizationT = typing.Callable[[typing.Any], typing.Any]
+ValidatorT = typing.Callable[[typing.Any], typing.Optional[bool]]
+SupportedClassT = typing.Type[typing.Any]  # TODO: Improve this annotations, It must be more correctly
 
 
 def dataclass_transform(

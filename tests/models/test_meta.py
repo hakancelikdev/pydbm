@@ -1,7 +1,10 @@
+import datetime
+
 import pytest
 
-from pydbm import AutoField, exceptions
+from pydbm import exceptions
 from pydbm.models import meta
+from pydbm.models.fields import AutoField
 
 
 class BaseModel(metaclass=meta.Meta):
@@ -50,9 +53,9 @@ def test_meta():
     assert user.required_fields == ["email", "username"]
     assert isinstance(user.not_required_fields[0], AutoField)
     assert user.not_required_fields[0].public_name == "pk"
-    assert user.database.table_name == "users"
-    assert user.__dict__ == {}
-    assert user.__slots__ == ("_email", "_pk", "_username")
+    assert user.objects.table_name == "users"
+    assert not hasattr(user, "__dict__")
+    assert user.__slots__ == ("_email", "_pk", "_username", "database")
 
 
 def test_meta_config():
@@ -68,7 +71,7 @@ def test_meta_config():
     assert user.pk == "7caae990504a6f4c4c8f436a3d8d009f"
     assert isinstance(user.not_required_fields[0], AutoField)
     assert user.not_required_fields[0].public_name == "pk"
-    assert user.database.table_name == "user_table"
+    assert user.objects.table_name == "user_table"
 
 
 def test_meta_is_required_error():
@@ -81,70 +84,42 @@ def test_meta_is_required_error():
     assert cm.value.args[0] == "field is required"
 
 
-def test_base_type_validator():
+@pytest.mark.parametrize(
+    "updated_fields, expected_error_ms",
+    [
+        ({"bool": 1}, "Invalid value for bool=1; It must be bool."),
+        ({"bytes": "123"}, "Invalid value for bytes='123'; It must be bytes."),
+        ({"date": datetime.datetime(2020, 1, 1)}, "Invalid value for date=datetime.datetime(2020, 1, 1, 0, 0); It must be date."),  # noqa: E501
+        ({"datetime": datetime.date(2020, 1, 1)}, "Invalid value for datetime=datetime.date(2020, 1, 1); It must be datetime."),  # noqa: E501
+        ({"float": (1.0,)}, "Invalid value for float=(1.0,); It must be float."),
+        ({"int": 1.1}, "Invalid value for int=1.1; It must be int."),
+        ({"none": b"test"}, "Invalid value for none=b'test'; It must be None."),
+        ({"str": 1}, "Invalid value for str=1; It must be str."),
+    ],
+)
+def test_base_type_validator(updated_fields, expected_error_ms):
     class Model(BaseModel):
-        str: str
-        int: int
-        float: float
-        tuple: tuple
-        list: list
-        dict: dict
-        set: set
         bool: bool
         bytes: bytes
+        date: datetime.date
+        datetime: datetime.datetime
+        float: float
+        int: int
+        none: None
+        str: str
+
+    model_body = {
+        "bool": True,
+        "bytes": b"123",
+        "date": datetime.date.today(),
+        "datetime": datetime.datetime.now(),
+        "float": 1.0,
+        "int": 1,
+        "none": None,
+        "str": "str",
+    }
+    model_body.update(updated_fields)
 
     with pytest.raises(exceptions.ValidationError) as cm:
-        Model(str=1, int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={1, 2}, bool=True, bytes=b"123")
-    assert str(cm.value) == "Invalid value for str=1; It must be str."
-
-    with pytest.raises(exceptions.ValidationError) as cm:
-        Model(
-            str="str", int=1.1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={1, 2}, bool=True, bytes=b"123"
-        )
-    assert str(cm.value) == "Invalid value for int=1.1; It must be int."
-
-    with pytest.raises(exceptions.ValidationError) as cm:
-        Model(
-            str="str",
-            int=1,
-            float=(1.0,),
-            tuple=(1, 2),
-            list=[1, 2],
-            dict={"a": 1},
-            set={1, 2},
-            bool=True,
-            bytes=b"123",
-        )
-    assert str(cm.value) == "Invalid value for float=(1.0,); It must be float."
-
-    with pytest.raises(exceptions.ValidationError) as cm:
-        Model(
-            str="str", int=1, float=1.0, tuple=[1, 2], list=[1, 2], dict={"a": 1}, set={1, 2}, bool=True, bytes=b"123"
-        )
-    assert str(cm.value) == "Invalid value for tuple=[1, 2]; It must be tuple."
-
-    with pytest.raises(exceptions.ValidationError) as cm:
-        Model(
-            str="str", int=1, float=1.0, tuple=(1, 2), list=(1, 2), dict={"a": 1}, set={1, 2}, bool=True, bytes=b"123"
-        )
-    assert str(cm.value) == "Invalid value for list=(1, 2); It must be list."
-
-    # with pytest.raises(exceptions.ValidationError) as cm:  # TODO: fix it
-    #     Model(
-    #         str="str", int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a", 1}, set={1, 2}, bool=True, bytes=b"123"
-    #     )
-    # assert str(cm.value) == "Invalid value for dict={1, 'a'}; It must be dict."
-
-    with pytest.raises(exceptions.ValidationError) as cm:
-        Model(
-            str="str", int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={"1": 2}, bool=True, bytes=b"123"
-        )
-    assert str(cm.value) == "Invalid value for set={'1': 2}; It must be set."
-
-    with pytest.raises(exceptions.ValidationError) as cm:
-        Model(str="str", int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={1, 2}, bool=1, bytes=b"123")
-    assert str(cm.value) == "Invalid value for bool=1; It must be bool."
-
-    with pytest.raises(exceptions.ValidationError) as cm:
-        Model(str="str", int=1, float=1.0, tuple=(1, 2), list=[1, 2], dict={"a": 1}, set={1, 2}, bool=True, bytes="123")
-    assert str(cm.value) == "Invalid value for bytes='123'; It must be bytes."
+        Model(**model_body)
+    assert str(cm.value) == expected_error_ms

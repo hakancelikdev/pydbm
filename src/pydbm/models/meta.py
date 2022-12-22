@@ -3,18 +3,21 @@ from __future__ import annotations
 import typing
 
 from pydbm import typing_extra
-from pydbm.database import Database
+from pydbm.database import DatabaseManager
+from pydbm.inspect_extra import get_obj_annotations
 from pydbm.models.fields import AutoField, Field, Undefined
 
-__all__ = ["CLASS_CONFIG_NAME", "Config", "Meta", "PRIMARY_KEY", "UNIQUE_TOGETHER"]
+__all__ = (
+    "Meta",
+)
 
 
-PRIMARY_KEY: typing.Final[str] = "pk"
-UNIQUE_TOGETHER = ()
-CLASS_CONFIG_NAME: typing.Final[str] = "Config"
+PRIMARY_KEY: typing.Final[str] = "pk"  # unexport: not-public
+UNIQUE_TOGETHER = ()  # unexport: not-public
+CLASS_CONFIG_NAME: typing.Final[str] = "Config"  # unexport: not-public
 
 
-class Config(typing.NamedTuple):
+class Config(typing.NamedTuple):  # unexport: not-public
     table_name: str
     unique_together: tuple[str, ...]
 
@@ -24,36 +27,30 @@ class Meta(type):
     if typing.TYPE_CHECKING:
         not_required_fields: list[Field | AutoField]
         required_fields: list[str]
-        database: Database
+        database: DatabaseManager
 
-    def __new__(
-        mcs,
-        cls_name: str,
-        bases: tuple[Meta, ...],
-        namespace: dict[str, typing.Any],
-        **kwargs: typing.Any,
-    ) -> type:
+    @staticmethod
+    def __new__(mcs, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any) -> type:  # noqa: E501
         if not [b for b in bases if isinstance(b, mcs)]:
-            return super().__new__(mcs, cls_name, bases, namespace, **kwargs)
+            namespace["__slots__"] = mcs.generate_slots(namespace) + ("fields", "id")
+            return super().__new__(mcs, cls_name, bases, namespace)
 
-        namespace["__slots__"] = mcs.generate_slots(cls_name, namespace)
-        return super().__new__(mcs, cls_name, bases, namespace, **kwargs)
+        namespace["__slots__"] = mcs.generate_slots(namespace) + ("database",)
+        return super().__new__(mcs, cls_name, bases, namespace)
 
-    def __init__(
-        cls, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any
-    ) -> None:
+    def __init__(cls, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any) -> None:  # noqa: E501
         super().__init__(cls_name, bases, namespace, **kwargs)
+        if [b for b in bases if isinstance(b, type(cls))]:
+            mcs = type(cls)
 
-        mcs = Meta
+            config = mcs.get_config(cls_name, namespace)
+            fields = mcs.generate_fields(cls, cls_name, namespace)
 
-        config = mcs.get_config(cls_name, namespace)
-        fields = mcs.generate_fields(cls_name, namespace)
+            cls.required_fields, cls.not_required_fields = mcs.split_fields(list(fields.values()))
+            cls.objects = DatabaseManager(model=cls, table_name=config.table_name)  # type: ignore
 
-        cls.required_fields, cls.not_required_fields = mcs.split_fields(list(fields.values()))
-        cls.database = Database(table_name=config.table_name)
-
-        for key, value in fields.items():
-            setattr(cls, key, value)
+            for key, value in fields.items():
+                setattr(cls, key, value)
 
     def __call__(cls, **kwargs):
         for field in cls.not_required_fields:
@@ -64,7 +61,7 @@ class Meta(type):
             if field not in kwargs:
                 raise ValueError(f"{field} is required")
 
-        primary_key_field: AutoField | None = next(
+        primary_key_field: AutoField | None = next(  # TODO: Always AutoField must be exists ?
             filter(
                 lambda field: field.public_name not in kwargs and field.public_name == PRIMARY_KEY,  # type: ignore[arg-type]  # noqa: E501
                 cls.not_required_fields,
@@ -94,31 +91,27 @@ class Meta(type):
         return f"{cls_name.lower()}s"
 
     @classmethod
-    def generate_slots(mcs, cls_name, namespace: dict[str, typing.Any]) -> tuple[str, ...]:
-        fields = mcs.generate_fields(cls_name, namespace)
-        return tuple(sorted({field.private_name for field in fields.values()}))
+    def generate_slots(mcs, namespace: dict[str, typing.Any]) -> tuple[str, ...]:
+        slots = {"_pk"}
+        ann = namespace.get("__annotations__", {})
+        for field_name, field_type in ann.items():
+            private_name = "_" + field_name
+            slots.add(private_name)
+        return tuple(sorted(slots))
 
     @classmethod
-    def generate_fields(mcs, cls_name: str, namespace: dict[str, typing.Any]) -> dict[str, Field | AutoField]:
+    def generate_fields(mcs, cls, cls_name: str, namespace: dict[str, typing.Any]) -> dict[str, Field | AutoField]:
         """Inspect namespace and return fields."""
-        config = mcs.get_config(cls_name, namespace)
-
         fields: dict[str, Field | AutoField] = {}
-        ann = namespace.get("__annotations__", {})
+        ann = get_obj_annotations(obj=cls)
 
-        for field_name, field_type_or_type_name in ann.items():
-            if not isinstance(field_type_or_type_name, str):
-                field_type_name = field_type_or_type_name.__name__
-            else:
-                field_type_name = field_type_or_type_name
+        for field_name, field_type in ann.items():
+            default_value: Field | typing.Any = namespace.get(field_name, Undefined)
+            field = default_value if isinstance(default_value, Field) else Field(default=default_value)
+            fields.update({field_name: field(field_name, field_type)})
 
-            default: Field | typing.Any = namespace.get(field_name, Undefined)
-            field = default if isinstance(default, Field) else Field(default=default)
-            fields.update(**{field_name: field(field_name, field_type_name)})
-
-        unique_together: tuple[str, ...] = config.unique_together or tuple(fields.keys())
-        fields[PRIMARY_KEY] = AutoField("pk", "str", unique_together=unique_together)
-
+        unique_together = mcs.get_config(cls_name, namespace).unique_together or tuple(fields.keys())
+        fields[PRIMARY_KEY] = AutoField("pk", str, unique_together=unique_together)
         return fields
 
     @staticmethod

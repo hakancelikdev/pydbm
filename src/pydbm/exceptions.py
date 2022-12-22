@@ -35,4 +35,4 @@ class ValidationError(PydbmBaseException):
         self.error = error
 
     def __str__(self) -> str:
-        return f"Invalid value for {self.field_name}={self.field_value!r}; {self.error}."  # noqa: E501
+        return f"Invalid value for {self.field_name}={self.field_value!r}; {self.error}."

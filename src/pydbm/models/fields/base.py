@@ -5,18 +5,21 @@ import typing
 
 from pydbm.exceptions import ValidationError
 from pydbm.logging import logger
-from pydbm.models import validators as odbm_validators
+from pydbm.models.validators import validate_max_value, validate_min_value, validator_mapping
 
 if typing.TYPE_CHECKING:
     from pydbm.models.base import BaseModel
     from pydbm.models.meta import Meta
+    from pydbm.typing_extra import NormalizationT, SupportedClassT, ValidatorT
 
 
-__all__ = ["AnyCallableFunctionT", "BaseField", "Field", "Undefined", "ValidatorsT"]
+__all__ = (
+    "BaseField",
+    "Field",
+    "Undefined",
+)
 
 
-AnyCallableFunctionT = typing.List[typing.Callable[[typing.Any], typing.Any]]
-ValidatorsT = typing.List[typing.Callable[[typing.Any], typing.Optional[bool]]]
 Self = typing.TypeVar("Self", bound="BaseField")  # unexport: not-public
 
 Undefined = type("Undefined", (), {"__repr__": lambda self: "Undefined", "__name__": "Undefined"})()
@@ -25,30 +28,27 @@ Undefined = type("Undefined", (), {"__repr__": lambda self: "Undefined", "__name
 class BaseField:
     __slots__ = (
         "field_name",
-        "field_type_name",
+        "field_type",
         "default",
         "default_factory",
         "normalizers",
         "validators",
         "public_name",
         "private_name",
-        "field_name",
-        "field_type_name",
         "max_value",
         "min_value",
         "kwargs",
-        "__is_call_run",
+        "_is_call_run",
     )
 
     def __init__(
         self,
         default: typing.Any = Undefined,
         default_factory: typing.Callable[[], typing.Any] = Undefined,
-        normalizers: AnyCallableFunctionT | None = None,
-        validators: ValidatorsT | None = None,
+        normalizers: list[NormalizationT] | None = None,
+        validators: list[ValidatorT] | None = None,
         max_value: int | None = None,
         min_value: int | None = None,
-        **kwargs,
     ) -> None:  # noqa: E501
         assert not (
             default is not Undefined and default_factory is not Undefined
@@ -56,12 +56,12 @@ class BaseField:
 
         self.default = default
         self.default_factory = default_factory
-        self.normalizers: AnyCallableFunctionT = [] if normalizers is None else normalizers
-        self.validators: ValidatorsT = [] if validators is None else validators
+        self.normalizers: list[NormalizationT] = [] if normalizers is None else normalizers
+        self.validators: list[ValidatorT] = [] if validators is None else validators
         self.max_value = max_value
         self.min_value = min_value
 
-        self.__is_call_run = False
+        self._is_call_run = False
 
     def __set_name__(self, instance: Meta, name: str) -> None:
         self.public_name = name
@@ -76,9 +76,9 @@ class BaseField:
     def __set__(self, instance: BaseModel, value: typing.Any) -> None:
         if value.__class__ is int:
             if self.min_value:
-                self.validators.append(odbm_validators.validate_min_value(self.min_value))
+                self.validators.append(validate_min_value(self.min_value))
             if self.max_value:
-                self.validators.append(odbm_validators.validate_max_value(self.max_value))
+                self.validators.append(validate_max_value(self.max_value))
         else:
             if self.min_value or self.max_value:
                 logger.warning(
@@ -89,21 +89,21 @@ class BaseField:
         normalize_and_validate_value = self.before_set(value)
         setattr(instance, self.private_name, normalize_and_validate_value)
 
-    def __call__(self: Self, field_name: str, field_type_name: str, *args, **kwargs) -> Self:  # type: ignore[valid-type]  # noqa: E501
-        self.__is_call_run = True
+    def __call__(self: Self, field_name: str, field_type: SupportedClassT, *args, **kwargs) -> Self:  # type: ignore[valid-type]  # noqa: E501
+        self._is_call_run = True
 
         self.field_name = field_name
-        self.field_type_name = field_type_name
+        self.field_type = field_type
 
         self.public_name = field_name
         self.private_name = "_" + field_name
 
-        self.validators.append(getattr(odbm_validators, f"validate_{self.field_type_name}"))
+        self.validators.append(validator_mapping[field_type])
         return self
 
     def __repr__(self) -> str:
-        if self.__is_call_run:
-            return f"{self.__class__.__name__}({self.field_name!r}, {self.field_type_name!r})"
+        if self._is_call_run:
+            return f"{self.__class__.__name__}({self.field_name!r}, {self.field_type!r})"
         return (
             f"{self.__class__.__name__}("
             f"default={self.default!r}, "
