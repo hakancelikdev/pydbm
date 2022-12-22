@@ -36,7 +36,7 @@ def test_get_obj_annotations(type_, expected_type):
     obj = type("o", (), {"__annotations__": {"t": type_}})
     assert get_obj_annotations(obj=obj) == {"t": expected_type}
 
-    # BaseModel
+    # DbmModel
     # TODO: https://github.com/hakancelikdev/pydbm/issues/25
-    # obj = type("o", (BaseModel,), {"__annotations__": {"t": type_}})
+    # obj = type("o", (DbmModel,), {"__annotations__": {"t": type_}})
     # assert get_obj_annotations(obj=obj) == {"t": expected_type}

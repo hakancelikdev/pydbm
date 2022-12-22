@@ -2,10 +2,10 @@ import datetime as datetime
 
 import pytest
 
-from pydbm import BaseModel
+from pydbm import DbmModel
 
 
-class Model(BaseModel):
+class Model(DbmModel):
     bool: bool
     bytes: bytes
     date: datetime.date
@@ -17,7 +17,7 @@ class Model(BaseModel):
 
 
 def test_base_slots():
-    assert BaseModel.__slots__ == ("_pk", "fields", "id")
+    assert DbmModel.__slots__ == ("_pk", "fields", "id")
 
 
 def test_base_init():
@@ -109,7 +109,7 @@ def test_base_eq():
 
 
 def test_base_hash():
-    class Account(BaseModel):
+    class Account(DbmModel):
         ids: int
         name: str
 
@@ -136,7 +136,7 @@ def test_base_hash():
     ],
 )
 def test_base_save(teardown_db, field_type, field_value):
-    example_model: BaseModel = type("Example", (BaseModel,), {"__annotations__": {"field": field_type}})  # type: ignore
+    example_model: DbmModel = type("Example", (DbmModel,), {"__annotations__": {"field": field_type}})  # type: ignore
 
     model = example_model(field=field_value)
     assert model.save() is None
@@ -146,14 +146,14 @@ def test_base_save(teardown_db, field_type, field_value):
 
 
 def test_base_create(teardown_db):
-    class Example(BaseModel):
+    class Example(DbmModel):
         str: str
 
     assert Example.objects.create(str="str") == Example(str="str")
 
 
 def test_base_get(teardown_db):
-    class Example(BaseModel):
+    class Example(DbmModel):
         str: str
 
     model = Example.objects.create(str="str")
@@ -162,7 +162,7 @@ def test_base_get(teardown_db):
 
 
 def test_base_delete(teardown_db):
-    class Example(BaseModel):
+    class Example(DbmModel):
         str: str
 
     model = Example.objects.create(str="str")
@@ -174,7 +174,7 @@ def test_base_delete(teardown_db):
 
 
 def test_base_update(teardown_db):
-    class Example(BaseModel):
+    class Example(DbmModel):
         str: str
 
     model = Example.objects.create(str="str")
@@ -185,7 +185,7 @@ def test_base_update(teardown_db):
 
 
 def test_base_all(teardown_db):
-    class Example(BaseModel):
+    class Example(DbmModel):
         str: str
 
     assert Example.objects.create(str="str") == Example(str="str")
@@ -195,7 +195,7 @@ def test_base_all(teardown_db):
 
 
 def test_base_filter(teardown_db):
-    class Example(BaseModel):
+    class Example(DbmModel):
         str: str
 
     Example.objects.create(str="str")

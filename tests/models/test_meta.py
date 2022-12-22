@@ -7,7 +7,7 @@ from pydbm.models import meta
 from pydbm.models.fields import AutoField
 
 
-class BaseModel(metaclass=meta.Meta):
+class DbmModel(metaclass=meta.Meta):
     def __init__(self, **kwargs):
         kwargs.pop("pk")
         for name, value in kwargs.items():
@@ -41,7 +41,7 @@ def test_get_config():
 
 
 def test_meta():
-    class User(BaseModel):
+    class User(DbmModel):
         email: str
         username: str
 
@@ -59,7 +59,7 @@ def test_meta():
 
 
 def test_meta_config():
-    class User(BaseModel):
+    class User(DbmModel):
         email: str
         username: str
 
@@ -75,7 +75,7 @@ def test_meta_config():
 
 
 def test_meta_is_required_error():
-    class Example(BaseModel):
+    class Example(DbmModel):
         field: str
 
     with pytest.raises(ValueError) as cm:
@@ -98,7 +98,7 @@ def test_meta_is_required_error():
     ],
 )
 def test_base_type_validator(updated_fields, expected_error_ms):
-    class Model(BaseModel):
+    class Model(DbmModel):
         bool: bool
         bytes: bytes
         date: datetime.date

@@ -1,6 +1,6 @@
 from pydbm.exceptions import PydbmBaseException, PydbmTypeError, ValidationError
 from pydbm.models import (
-    BaseModel,
+    DbmModel,
     Field,
     Undefined,
     validate_bool,
@@ -20,7 +20,7 @@ __all__ = (
     "PydbmBaseException",
     "PydbmTypeError",
     "ValidationError",
-    "BaseModel",
+    "DbmModel",
     "Field",
     "Undefined",
     "validate_bool",

@@ -6,11 +6,11 @@ from pydbm.database import DatabaseManager
 from pydbm.models.meta import Meta
 
 __all__ = (
-    "BaseModel",
+    "DbmModel",
 )
 
 
-class BaseModel(metaclass=Meta):
+class DbmModel(metaclass=Meta):
     if typing.TYPE_CHECKING:
         required_fields: typing.ClassVar[list[str]]
         objects: typing.ClassVar[DatabaseManager]

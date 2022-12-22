@@ -3,15 +3,15 @@ import dbm
 
 import pytest
 
-from pydbm import BaseModel
+from pydbm import DbmModel
 from pydbm.database import DatabaseManager
 
 
 @pytest.fixture(scope="function")
 def minimum_manager() -> DatabaseManager:
-    minimum_manager: BaseModel = type(  # type: ignore
+    minimum_manager: DbmModel = type(  # type: ignore
         "minimum_manager",
-        (BaseModel,),
+        (DbmModel,),
         {
             "__annotations__": {"str": str},
         },
@@ -70,7 +70,7 @@ def test__database_headers__minimum_manager(minimum_manager):
     },
 ])
 def test__database_headers__maximum_manager(annotations):
-    class MaximumManager(BaseModel):
+    class MaximumManager(DbmModel):
         __annotations__ = annotations
 
     objects = MaximumManager.objects
@@ -119,7 +119,7 @@ def test__database_headers__maximum_manager(annotations):
     ],
 )
 def test_save_get_delete(teardown_db, field_type, expected_field_type, field_value):
-    class SaveGetDeleteTestModel(BaseModel):
+    class SaveGetDeleteTestModel(DbmModel):
         __annotations__ = {"field": field_type}
 
     assert SaveGetDeleteTestModel.objects.__database_headers__ == {"field": expected_field_type}
@@ -165,7 +165,7 @@ def test_save_get_delete(teardown_db, field_type, expected_field_type, field_val
     ],
 )
 def test_create_update(teardown_db, field_type, expected_field_type, field_value, updated_value):
-    class CreateUpdateTestModel(BaseModel):
+    class CreateUpdateTestModel(DbmModel):
         __annotations__ = {"field": field_type}
 
     assert CreateUpdateTestModel.objects.__database_headers__ == {"field": expected_field_type}

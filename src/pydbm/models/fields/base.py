@@ -8,7 +8,7 @@ from pydbm.logging import logger
 from pydbm.models.validators import validate_max_value, validate_min_value, validator_mapping
 
 if typing.TYPE_CHECKING:
-    from pydbm.models.base import BaseModel
+    from pydbm.models.base import DbmModel
     from pydbm.models.meta import Meta
     from pydbm.typing_extra import NormalizationT, SupportedClassT, ValidatorT
 
@@ -67,13 +67,13 @@ class BaseField:
         self.public_name = name
         self.private_name = "_" + name
 
-    def __get__(self, instance: Meta, owner: BaseModel) -> typing.Any:
+    def __get__(self, instance: Meta, owner: DbmModel) -> typing.Any:
         with contextlib.suppress(AttributeError):
             return getattr(instance, self.private_name)
 
         return self.get_default_value()
 
-    def __set__(self, instance: BaseModel, value: typing.Any) -> None:
+    def __set__(self, instance: DbmModel, value: typing.Any) -> None:
         if value.__class__ is int:
             if self.min_value:
                 self.validators.append(validate_min_value(self.min_value))

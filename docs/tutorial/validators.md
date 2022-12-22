@@ -3,13 +3,13 @@ We have some built-in validators, but you can also create your own validator.
 For more information, see [Built-in Validators](#built-in-validators).
 
 ```python
-from pydbm import BaseModel, Field
+from pydbm import DbmModel, Field
 
 __all__ = (
     "UserModel",
 )
 
-class UserModel(BaseModel):
+class UserModel(DbmModel):
     username: str = Field(
         validators=[lambda value: value.startswith("@")]
     )
