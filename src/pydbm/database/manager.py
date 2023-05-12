@@ -41,10 +41,8 @@ class DatabaseManager:
         "model",
         "table_name",
         "db_path",
-
         "db",
         __header_name__,
-
         "__key",
     )
 
@@ -54,7 +52,7 @@ class DatabaseManager:
         self.model = model
         self.table_name = table_name
 
-        self.db_path = self.database_path / f"{self.table_name}.db"
+        self.db_path = self.database_path / f"{self.table_name}.pydbm"
 
         ann = get_obj_annotations(obj=model)
         db_headers = bytes(str({key: self.__class__.__header_mapping__[value] for key, value in ann.items()}), "utf-8")

@@ -21,7 +21,7 @@ def minimum_manager() -> DatabaseManager:
 
 def test_init(minimum_manager):
     assert minimum_manager.table_name == "minimum_managers"
-    assert minimum_manager.db_path.as_posix() == "pydbm/minimum_managers.db"
+    assert minimum_manager.db_path.as_posix() == "pydbm/minimum_managers.pydbm"
 
 
 def test_context_manager(minimum_manager):

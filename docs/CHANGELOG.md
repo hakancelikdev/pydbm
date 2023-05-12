@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+## [0.5.0] - YYYY-MM-DD
+
+### Added
+- EmptyModelError exception added
+
+### Changed
+- .db extension changed to .pydbm
+
 ## [0.4.0] - 2022-12-23
 
 ### Added

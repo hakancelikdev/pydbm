@@ -4,7 +4,7 @@ import typing
 
 from pydbm import typing_extra
 from pydbm.database import DatabaseManager
-from pydbm.exceptions import PydbmBaseException
+from pydbm.exceptions import EmptyModelError, PydbmBaseException
 from pydbm.inspect_extra import get_obj_annotations
 from pydbm.models.fields import AutoField, Field, Undefined
 
@@ -28,20 +28,24 @@ class Meta(type):
     if typing.TYPE_CHECKING:
         not_required_fields: list[Field | AutoField]
         required_fields: list[str]
-        database: DatabaseManager
+        objects: DatabaseManager
+        DoesNotExists: typing.Type[PydbmBaseException]
 
     @staticmethod
     def __new__(mcs, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any) -> type:  # noqa: E501
         if not [b for b in bases if isinstance(b, mcs)]:
             namespace["__slots__"] = mcs.generate_slots(namespace) + ("fields", "id")
             return super().__new__(mcs, cls_name, bases, namespace)
-
-        namespace["__slots__"] = mcs.generate_slots(namespace) + ("database",)
-        return super().__new__(mcs, cls_name, bases, namespace)
+        else:
+            namespace["__slots__"] = mcs.generate_slots(namespace) + ("database",)
+            return super().__new__(mcs, cls_name, bases, namespace)
 
     def __init__(cls, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any) -> None:  # noqa: E501
         super().__init__(cls_name, bases, namespace, **kwargs)
         if [b for b in bases if isinstance(b, type(cls))]:
+            if not namespace.get("__annotations__", {}):
+                raise EmptyModelError("Empty model is not allowed.")
+
             mcs = type(cls)
 
             config = mcs.get_config(cls_name, namespace)
@@ -49,7 +53,7 @@ class Meta(type):
 
             cls.required_fields, cls.not_required_fields = mcs.split_fields(list(fields.values()))
             cls.objects = DatabaseManager(model=cls, table_name=config.table_name)  # type: ignore
-            cls.DoesNotExists = type("DoesNotExists", (PydbmBaseException,), {"__doc__": "Exception for not found id in the models."})  # noqa: E501
+            cls.DoesNotExists = type("DoesNotExists", (PydbmBaseException,), {"__doc__": "Exception for not found id in the models."})  # type: ignore # noqa: E501
 
             for key, value in fields.items():
                 setattr(cls, key, value)

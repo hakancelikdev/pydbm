@@ -8,7 +8,7 @@ from pydbm.database import DatabaseManager
 @pytest.fixture(scope="function", autouse=True)
 def teardown_db():
     yield
-    for path in DatabaseManager.database_path.glob("*.db"):
+    for path in DatabaseManager.database_path.glob("*.pydbm"):
         path.unlink()
 
 
@@ -16,7 +16,7 @@ def teardown_db():
 def _():
     yield
 
-    for path in DatabaseManager.database_path.glob("*.db"):
+    for path in DatabaseManager.database_path.glob("*.pydbm"):
         path.unlink()
 
     with contextlib.suppress(FileNotFoundError):

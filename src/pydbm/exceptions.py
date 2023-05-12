@@ -1,9 +1,11 @@
+# TODO: Add to docs.
 import typing
 
 __all__ = (
     "PydbmBaseException",
     "PydbmTypeError",
     "ValidationError",
+    "EmptyModelError",
 )
 
 
@@ -29,3 +31,9 @@ class ValidationError(PydbmBaseException):
 
     def __str__(self) -> str:
         return f"Invalid value for {self.field_name}={self.field_value!r}; {self.error}."
+
+
+class EmptyModelError(PydbmBaseException):
+    """Exception for empty model."""
+
+    pass
