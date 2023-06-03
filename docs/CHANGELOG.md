@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - EmptyModelError exception added
+- Implement UnnecessaryParamsError
+  Throw an exception when a non-existent field is entered on the model.
+
 
 ### Changed
 - .db extension changed to .pydbm

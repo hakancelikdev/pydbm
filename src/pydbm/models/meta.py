@@ -4,7 +4,7 @@ import typing
 
 from pydbm import typing_extra
 from pydbm.database import DatabaseManager
-from pydbm.exceptions import EmptyModelError, PydbmBaseException
+from pydbm.exceptions import EmptyModelError, PydbmBaseException, UnnecessaryParamsError
 from pydbm.inspect_extra import get_obj_annotations
 from pydbm.models.fields import AutoField, Field, Undefined
 
@@ -37,6 +37,8 @@ class Meta(type):
             namespace["__slots__"] = mcs.generate_slots(namespace) + ("fields", "id")
             return super().__new__(mcs, cls_name, bases, namespace)
         else:
+            if "__annotations__" in namespace:
+                namespace["__annotations__"]["pk"] = str
             namespace["__slots__"] = mcs.generate_slots(namespace) + ("database",)
             return super().__new__(mcs, cls_name, bases, namespace)
 
@@ -59,6 +61,9 @@ class Meta(type):
                 setattr(cls, key, value)
 
     def __call__(cls, **kwargs):
+        for extra_field_name in (set(kwargs.keys()) - set(cls.__annotations__.keys())):
+            raise UnnecessaryParamsError(f"{extra_field_name} is not defined in {cls.__name__}")
+
         for field in cls.not_required_fields:
             if field.public_name not in kwargs and field.public_name != PRIMARY_KEY:
                 kwargs[field.public_name] = field.get_default_value()  # type: ignore[attr-defined]  # noqa: E501

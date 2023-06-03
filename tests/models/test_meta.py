@@ -123,3 +123,14 @@ def test_base_type_validator(updated_fields, expected_error_ms):
     with pytest.raises(exceptions.ValidationError) as cm:
         Model(**model_body)
     assert str(cm.value) == expected_error_ms
+
+
+def test_meta_unnecessary_params_error():
+    class TestModel(DbmModel):
+        email: str
+        username: str
+
+    with pytest.raises(exceptions.UnnecessaryParamsError) as cm:
+        TestModel(email="email", username="username", extra_field="test")
+
+    assert cm.value.args == ("extra_field is not defined in TestModel",)
