@@ -10,6 +10,17 @@ All notable changes to this project will be documented in this file.
 - EmptyModelError exception added
 - Implement UnnecessaryParamsError [#41](https://github.com/hakancelikdev/pydbm/pull/41)
   Throw an exception when a non-existent field is entered on the model.
+- Add count method to get model's data count. [#44](https://github.com/hakancelikdev/pydbm/pull/44)
+  ````python
+  import pydbm
+  
+  
+  class Model(pydbm.DbmModel):
+      username: str
+  
+  
+  assert Model.objects.count() == 0
+  ````
 
 
 ### Changed

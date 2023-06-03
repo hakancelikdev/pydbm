@@ -224,3 +224,16 @@ def test_base_update_obj_on_db_when_updating_the_field_on_the_instance():
     model.save()
 
     assert Model.objects.get(pk=model.pk) == Model(username="new_username")
+
+
+def test_base_count():
+    class Model(DbmModel):
+        username: str
+
+    assert Model.objects.count() == 0
+
+    Model(username="hakan").save()
+    assert Model.objects.count() == 1
+
+    Model(username="celik").save()
+    assert Model.objects.count() == 2
