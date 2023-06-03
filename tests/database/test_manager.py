@@ -39,7 +39,7 @@ def test_close(minimum_manager):
 
 
 def test__database_headers__minimum_manager(minimum_manager):
-    assert len(minimum_manager) == 1
+    assert len(minimum_manager) == 0
     assert minimum_manager.__database_headers__ == {"pk": str, "str": str}
 
     with minimum_manager as db:
@@ -74,8 +74,7 @@ def test__database_headers__maximum_manager(annotations):
         __annotations__ = annotations
 
     objects = MaximumManager.objects
-
-    assert len(objects) == 1
+    assert len(objects) == 0
     assert objects.__database_headers__ == {
         "pk": str,
         "bool": bool,
@@ -129,10 +128,10 @@ def test_save_get_delete(teardown_db, field_type, expected_field_type, field_val
     }
 
     # save
-    assert len(SaveGetDeleteTestModel.objects) == 1
+    assert len(SaveGetDeleteTestModel.objects) == 0
     pk = SaveGetDeleteTestModel(field=field_value).pk
     SaveGetDeleteTestModel.objects.save(pk=pk, fields={"field": field_value})
-    assert len(SaveGetDeleteTestModel.objects) == 2
+    assert len(SaveGetDeleteTestModel.objects) == 1
 
     # get
     _model = SaveGetDeleteTestModel.objects.get(pk=pk)
@@ -142,7 +141,7 @@ def test_save_get_delete(teardown_db, field_type, expected_field_type, field_val
 
     # delete
     SaveGetDeleteTestModel.objects.delete(pk=pk)
-    assert len(SaveGetDeleteTestModel.objects) == 1
+    assert len(SaveGetDeleteTestModel.objects) == 0
 
 
 @pytest.mark.parametrize(
@@ -175,9 +174,9 @@ def test_create_update(teardown_db, field_type, expected_field_type, field_value
     assert CreateUpdateTestModel.objects.__database_headers__ == {"pk": str, "field": expected_field_type}
 
     # create
-    assert len(CreateUpdateTestModel.objects) == 1
+    assert len(CreateUpdateTestModel.objects) == 0
     _model = CreateUpdateTestModel.objects.create(field=field_value)
-    assert len(CreateUpdateTestModel.objects) == 2
+    assert len(CreateUpdateTestModel.objects) == 1
     assert _model.field == field_value
 
     pk = _model.pk
@@ -187,11 +186,11 @@ def test_create_update(teardown_db, field_type, expected_field_type, field_value
 
     # update
     CreateUpdateTestModel.objects.update(pk=pk, field=updated_value)
-    assert len(CreateUpdateTestModel.objects) == 2
+    assert len(CreateUpdateTestModel.objects) == 1
 
     # get
     assert CreateUpdateTestModel.objects.get(pk=pk).field == updated_value
 
     # delete
     CreateUpdateTestModel.objects.delete(pk=pk)
-    assert len(CreateUpdateTestModel.objects) == 1
+    assert len(CreateUpdateTestModel.objects) == 0

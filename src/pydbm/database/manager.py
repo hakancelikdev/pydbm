@@ -80,7 +80,7 @@ class DatabaseManager:
 
     def __len__(self) -> int:
         with self as db:
-            return len(db)
+            return len(db) - 1  # NOTE: subtract 1 for the database header
 
     def __getitem__(self, pk: str) -> DbmModel:
         return self.get(pk=pk)
@@ -176,3 +176,6 @@ class DatabaseManager:
             return all(model.fields[key] == value for key, value in kwargs.items())
 
         yield from filter(check, self.all())
+
+    def count(self):
+        return len(self)
