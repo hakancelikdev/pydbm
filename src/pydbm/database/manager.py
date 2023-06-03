@@ -62,13 +62,12 @@ class DatabaseManager:
         db_headers = bytes(str({key: DATABASE_HEADER_MAPPING[value] for key, value in ann.items()}), "utf-8")
 
         db = self.open()
-        first_key: bytes | None = db.firstkey()
-        if first_key is None:
+        database_header: bytes | None
+        if (database_header := db.get(DATABASE_HEADER_NAME, None)) is None:
             db[DATABASE_HEADER_NAME] = db_headers
         else:
-            assert first_key == DATABASE_HEADER_NAME.encode(), f"First key is not {DATABASE_HEADER_MAPPING}"  # noqa: E501
             # TODO: migrations
-            assert db[first_key] == db_headers, f"Database headers are not equal: '{db[DATABASE_HEADER_MAPPING]}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
+            assert database_header == db_headers, f"Database headers are not equal: '{database_header}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
         db.close()
 
         setattr(self, DATABASE_HEADER_NAME, ann)

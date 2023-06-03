@@ -211,3 +211,16 @@ def test_base_empty_model():
             pass
 
     assert str(cm.value) == "Empty model is not allowed."
+
+
+def test_base_update_obj_on_db_when_updating_the_field_on_the_instance():
+    class Model(DbmModel):
+        username: str
+
+    model = Model(username="username")
+    model.save()
+
+    model.username = "new_username"
+    model.save()
+
+    assert Model.objects.get(pk=model.pk) == Model(username="new_username")
