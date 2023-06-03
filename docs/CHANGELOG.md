@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - EmptyModelError exception added
-- Implement UnnecessaryParamsError
+- Implement UnnecessaryParamsError [#41](https://github.com/hakancelikdev/pydbm/pull/41)
   Throw an exception when a non-existent field is entered on the model.
 
 
