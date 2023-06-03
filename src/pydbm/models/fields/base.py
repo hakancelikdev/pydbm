@@ -86,8 +86,10 @@ class BaseField:
                     f"They are ignored for {value.__class__.__name__} type."
                 )
 
-        normalize_and_validate_value = self.before_set(value)
-        setattr(instance, self.private_name, normalize_and_validate_value)
+        eligible_value = self.before_set(value)
+
+        setattr(instance, self.private_name, eligible_value)
+        instance.fields[self.field_name] = eligible_value
 
     def __call__(self: Self, field_name: str, field_type: SupportedClassT, *args, **kwargs) -> Self:  # type: ignore[valid-type]  # noqa: E501
         self._is_call_run = True

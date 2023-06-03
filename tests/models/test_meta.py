@@ -2,16 +2,9 @@ import datetime
 
 import pytest
 
-from pydbm import exceptions
+from pydbm import DbmModel, exceptions
 from pydbm.models import meta
 from pydbm.models.fields import AutoField
-
-
-class DbmModel(metaclass=meta.Meta):
-    def __init__(self, **kwargs):
-        kwargs.pop("pk")
-        for name, value in kwargs.items():
-            setattr(self, name, value)
 
 
 def test_generate_table_name():

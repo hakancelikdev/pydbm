@@ -39,6 +39,9 @@ def test_base_set_attr():
     class Model:
         field = Field()("field", str)
 
+        def __init__(self):
+            self.fields = {}
+
     model = Model()
 
     model.field = "value"  # set
