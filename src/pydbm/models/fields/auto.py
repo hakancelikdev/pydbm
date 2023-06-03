@@ -40,10 +40,16 @@ class AutoField(BaseField):
         raise AttributeError("AutoField is read-only")
 
     def __call__(self: Self, fields: dict[str, typing.Any] | None = None, *args, **kwargs) -> Self:  # type: ignore[valid-type, override]  # noqa: E501
-        if self.unique_together and not fields:
+        if fields is not None:
+            _fields = fields.copy()
+            _fields.pop("pk", None)
+        else:
+            _fields = None
+
+        if self.unique_together and not _fields:
             raise ValueError("unique_together ise set, fields must be passed")
 
-        self.fields = fields
+        self.fields = _fields
         return super().__call__(self.field_name, self.field_type, *args, **kwargs)  # type: ignore
 
     def generate_pk(self) -> str:

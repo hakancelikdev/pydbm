@@ -6,6 +6,7 @@ __all__ = (
     "PydbmTypeError",
     "ValidationError",
     "EmptyModelError",
+    "UnnecessaryParamsError",
 )
 
 
@@ -21,7 +22,7 @@ class PydbmTypeError(PydbmBaseException, TypeError):
     pass
 
 
-class ValidationError(PydbmBaseException):
+class ValidationError(PydbmBaseException, ValueError):
     """Exception for not valid value."""
 
     def __init__(self, field_name: str, field_value: typing.Any, error: ValueError) -> None:
@@ -35,5 +36,11 @@ class ValidationError(PydbmBaseException):
 
 class EmptyModelError(PydbmBaseException):
     """Exception for empty model."""
+
+    pass
+
+
+class UnnecessaryParamsError(PydbmBaseException, ValueError):
+    """Exception for invalid params."""
 
     pass
