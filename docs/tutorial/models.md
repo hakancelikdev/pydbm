@@ -137,8 +137,19 @@ Save method is used to save the valid data to the database.
 user = UserModel(username="hakancelik")
 user.save()
 ```
-That's it, now we have saved our user to the database.
+That's it, now we have saved our user to the database. In addition If you wish, you can update any field belonging
+to the instance and then have it updated in your database.
 
+```python
+user = UserModel(username="hakan")
+user.save()  # save user to database for the first time
+
+user.username="hakancelik"
+user.save()  # update username field
+```
+
+UserModel.objects.get(pk=user.pk) == UserModel(username="hakancelik")
+```
 
 ### Get
 Get method is used to get the data from the database and return it as a model instance.

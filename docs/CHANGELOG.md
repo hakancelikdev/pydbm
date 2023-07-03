@@ -4,6 +4,47 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+## [0.5.0] - 2023-07-03
+
+### Added
+- EmptyModelError exception added
+- Implement UnnecessaryParamsError [#41](https://github.com/hakancelikdev/pydbm/pull/41)
+  Throw an exception when a non-existent field is entered on the model.
+- Add count method to get model's data count. [#44](https://github.com/hakancelikdev/pydbm/pull/44)
+  ````python
+  import pydbm
+  
+  
+  class Model(pydbm.DbmModel):
+      username: str
+  
+  
+  assert Model.objects.count() == 0
+  ````
+
+
+### Changed
+- .db extension changed to .pydbm
+
+### Fixed
+- Fix: Update obj on DB when updating the field on the instance. [#43](https://github.com/hakancelikdev/pydbm/pull/43)
+  ````python
+  import pydbm
+  
+  
+  class Model(pydbm.DbmModel):
+    username: str
+  
+  
+  model = Model(username="username")
+  model.save()
+  
+  model.username = "new_username"
+  model.save()
+  
+  assert Model.objects.get(pk=model.pk) == Model(username="new_username")
+  ````
+
 ## [0.4.0] - 2022-12-23
 
 ### Added

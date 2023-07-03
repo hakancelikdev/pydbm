@@ -1,9 +1,12 @@
+# TODO: Add to docs.
 import typing
 
 __all__ = (
     "PydbmBaseException",
     "PydbmTypeError",
     "ValidationError",
+    "EmptyModelError",
+    "UnnecessaryParamsError",
 )
 
 
@@ -19,7 +22,7 @@ class PydbmTypeError(PydbmBaseException, TypeError):
     pass
 
 
-class ValidationError(PydbmBaseException):
+class ValidationError(PydbmBaseException, ValueError):
     """Exception for not valid value."""
 
     def __init__(self, field_name: str, field_value: typing.Any, error: ValueError) -> None:
@@ -29,3 +32,15 @@ class ValidationError(PydbmBaseException):
 
     def __str__(self) -> str:
         return f"Invalid value for {self.field_name}={self.field_value!r}; {self.error}."
+
+
+class EmptyModelError(PydbmBaseException):
+    """Exception for empty model."""
+
+    pass
+
+
+class UnnecessaryParamsError(PydbmBaseException, ValueError):
+    """Exception for invalid params."""
+
+    pass

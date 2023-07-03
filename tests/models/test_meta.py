@@ -2,16 +2,9 @@ import datetime
 
 import pytest
 
-from pydbm import exceptions
+from pydbm import DbmModel, exceptions
 from pydbm.models import meta
 from pydbm.models.fields import AutoField
-
-
-class DbmModel(metaclass=meta.Meta):
-    def __init__(self, **kwargs):
-        kwargs.pop("pk")
-        for name, value in kwargs.items():
-            setattr(self, name, value)
 
 
 def test_generate_table_name():
@@ -123,3 +116,14 @@ def test_base_type_validator(updated_fields, expected_error_ms):
     with pytest.raises(exceptions.ValidationError) as cm:
         Model(**model_body)
     assert str(cm.value) == expected_error_ms
+
+
+def test_meta_unnecessary_params_error():
+    class TestModel(DbmModel):
+        email: str
+        username: str
+
+    with pytest.raises(exceptions.UnnecessaryParamsError) as cm:
+        TestModel(email="email", username="username", extra_field="test")
+
+    assert cm.value.args == ("extra_field is not defined in TestModel",)

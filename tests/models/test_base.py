@@ -3,6 +3,7 @@ import datetime as datetime
 import pytest
 
 from pydbm import DbmModel
+from pydbm.exceptions import EmptyModelError
 
 
 class Model(DbmModel):
@@ -202,3 +203,37 @@ def test_base_filter(teardown_db):
     Example.objects.create(str="another str")
 
     assert list(Example.objects.filter(str="str")) == [Example(str="str")]
+
+
+def test_base_empty_model():
+    with pytest.raises(EmptyModelError) as cm:
+        class EmptyModel(DbmModel):
+            pass
+
+    assert str(cm.value) == "Empty model is not allowed."
+
+
+def test_base_update_obj_on_db_when_updating_the_field_on_the_instance():
+    class Model(DbmModel):
+        username: str
+
+    model = Model(username="username")
+    model.save()
+
+    model.username = "new_username"
+    model.save()
+
+    assert Model.objects.get(pk=model.pk) == Model(username="new_username")
+
+
+def test_base_count():
+    class Model(DbmModel):
+        username: str
+
+    assert Model.objects.count() == 0
+
+    Model(username="hakan").save()
+    assert Model.objects.count() == 1
+
+    Model(username="celik").save()
+    assert Model.objects.count() == 2

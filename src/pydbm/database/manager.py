@@ -15,61 +15,62 @@ if typing.TYPE_CHECKING:
 
 
 __all__ = (
+    "DATABASE_EXTENSION",
+    "DATABASE_HEADER_MAPPING",
+    "DATABASE_HEADER_NAME",
+    "DATABASE_PATH",
     "DatabaseManager",
 )
 
 Self = typing.TypeVar("Self", bound="DatabaseManager")  # unexport: not-public
+
+DATABASE_HEADER_NAME: str = "__database_headers__"
+DATABASE_HEADER_MAPPING: dict[SupportedClassT, str] = {
+    bool: "bool",
+    bytes: "bytes",
+    datetime.date: "date",
+    datetime.datetime: "datetime",
+    float: "float",
+    int: "int",
+    None: "null",
+    str: "str",
+}
+DATABASE_EXTENSION: str = "pydbm"
+DATABASE_PATH: Path = Path("pydbm")  # TODO: take from env
 
 
 class DatabaseManager:
     if typing.TYPE_CHECKING:
         __database_headers__: dict[str, SupportedClassT]  # TODO: make this more generic
 
-    __header_name__: typing.ClassVar[str] = "__database_headers__"
-    __header_mapping__: dict[SupportedClassT, str] = {
-        bool: "bool",
-        bytes: "bytes",
-        datetime.date: "date",
-        datetime.datetime: "datetime",
-        float: "float",
-        int: "int",
-        None: "null",
-        str: "str",
-    }
-
     __slots__ = (
         "model",
         "table_name",
         "db_path",
-
         "db",
-        __header_name__,
-
+        DATABASE_HEADER_NAME,
         "__key",
     )
-
-    database_path: typing.ClassVar[Path] = Path("pydbm")  # TODO: take from env
 
     def __init__(self, *, model: typing.Type[DbmModel], table_name: str) -> None:  # TODO: table_name -> db_name
         self.model = model
         self.table_name = table_name
 
-        self.db_path = self.database_path / f"{self.table_name}.db"
+        self.db_path = DATABASE_PATH / f"{self.table_name}.{DATABASE_EXTENSION}"
 
         ann = get_obj_annotations(obj=model)
-        db_headers = bytes(str({key: self.__class__.__header_mapping__[value] for key, value in ann.items()}), "utf-8")
+        db_headers = bytes(str({key: DATABASE_HEADER_MAPPING[value] for key, value in ann.items()}), "utf-8")
 
         db = self.open()
-        first_key: bytes | None = db.firstkey()
-        if first_key is None:
-            db[self.__class__.__header_name__] = db_headers
+        database_header: bytes | None
+        if (database_header := db.get(DATABASE_HEADER_NAME, None)) is None:
+            db[DATABASE_HEADER_NAME] = db_headers
         else:
-            assert first_key == self.__class__.__header_name__.encode(), f"First key is not {self.__class__.__header_name__}"  # noqa: E501
             # TODO: migrations
-            assert db[first_key] == db_headers, f"Database headers are not equal: '{db[self.__class__.__header_name__]}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
+            assert database_header == db_headers, f"Database headers are not equal: '{database_header}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
         db.close()
 
-        setattr(self, self.__class__.__header_name__, ann)
+        setattr(self, DATABASE_HEADER_NAME, ann)
 
     def __enter__(self, *args, **kwargs):
         return self.open()
@@ -79,7 +80,7 @@ class DatabaseManager:
 
     def __len__(self) -> int:
         with self as db:
-            return len(db)
+            return len(db) - 1  # NOTE: subtract 1 for the database header
 
     def __getitem__(self, pk: str) -> DbmModel:
         return self.get(pk=pk)
@@ -95,7 +96,7 @@ class DatabaseManager:
             return pk in db
 
     def __iter__(self: Self) -> Self:
-        self.__key: bytes = self.__class__.__header_name__.encode()  # NOTE: this is the first key in the database
+        self.__key: bytes = DATABASE_HEADER_NAME.encode()  # NOTE: this is the first key in the database
         return self
 
     def __next__(self) -> str:
@@ -112,7 +113,7 @@ class DatabaseManager:
         return f"{self.__class__.__name__}(model={self.model!r}, table_name={self.table_name!r})"
 
     def open(self):
-        Path(self.database_path).mkdir(parents=True, exist_ok=True)
+        Path(DATABASE_PATH).mkdir(parents=True, exist_ok=True)
 
         self.db = dbm.open(self.db_path.as_posix(), "c")
         return self.db
@@ -175,3 +176,6 @@ class DatabaseManager:
             return all(model.fields[key] == value for key, value in kwargs.items())
 
         yield from filter(check, self.all())
+
+    def count(self):
+        return len(self)

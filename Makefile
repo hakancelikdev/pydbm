@@ -2,16 +2,20 @@ all: lint test clean
 
 .PHONY: dev
 dev:
-	pip install -e .[tests]
+	python3.10 -m venv venv; \
+	source venv/bin/activate; \
+	pip install -e .[tests]; \
 	pip install pre-commit tox
 
 .PHONY: lint
 lint:
 	git add .
+	source venv/bin/activate; \
 	pre-commit run --all-files
 
 .PHONY: test
 test:
+	source venv/bin/activate; \
 	pytest tests -x -v --disable-warnings
 
 .PHONY: tox
@@ -60,13 +64,15 @@ git:
 
 .PHONY: publish
 publish:
-	python -m pip install --upgrade pip
-	python -m pip install --upgrade build
-	python -m pip install --upgrade twine
-	python -m build
+	source venv/bin/activate; \
+	python -m pip install --upgrade pip; \
+	python -m pip install --upgrade build; \
+	python -m pip install --upgrade twine; \
+	python -m build; \
 	python -m twine upload dist/*
 
 .PHONY: doc
 doc:
-	pip install -e .[docs]
+	source venv/bin/activate; \
+	pip install -e .[docs]; \
 	mkdocs serve

@@ -21,7 +21,7 @@ def minimum_manager() -> DatabaseManager:
 
 def test_init(minimum_manager):
     assert minimum_manager.table_name == "minimum_managers"
-    assert minimum_manager.db_path.as_posix() == "pydbm/minimum_managers.db"
+    assert minimum_manager.db_path.as_posix() == "pydbm/minimum_managers.pydbm"
 
 
 def test_context_manager(minimum_manager):
@@ -39,12 +39,12 @@ def test_close(minimum_manager):
 
 
 def test__database_headers__minimum_manager(minimum_manager):
-    assert len(minimum_manager) == 1
-    assert minimum_manager.__database_headers__ == {"str": str}
+    assert len(minimum_manager) == 0
+    assert minimum_manager.__database_headers__ == {"pk": str, "str": str}
 
     with minimum_manager as db:
         assert "__database_headers__" in db
-        assert db["__database_headers__"] == b"{'str': 'str'}"
+        assert db["__database_headers__"] == b"{'str': 'str', 'pk': 'str'}"
 
 
 @pytest.mark.parametrize("annotations", [
@@ -74,9 +74,9 @@ def test__database_headers__maximum_manager(annotations):
         __annotations__ = annotations
 
     objects = MaximumManager.objects
-
-    assert len(objects) == 1
+    assert len(objects) == 0
     assert objects.__database_headers__ == {
+        "pk": str,
         "bool": bool,
         "bytes": bytes,
         "date": datetime.date,
@@ -90,7 +90,7 @@ def test__database_headers__maximum_manager(annotations):
     with objects as db:
         assert "__database_headers__" in db
         assert (
-            b"{'bool': 'bool', 'bytes': 'bytes', 'date': 'date', 'datetime': 'datetime', 'float': 'float', 'int': 'int', 'none': 'null', 'str': 'str'}"  # noqa: E501
+            b"{'bool': 'bool', 'bytes': 'bytes', 'date': 'date', 'datetime': 'datetime', 'float': 'float', 'int': 'int', 'none': 'null', 'str': 'str', 'pk': 'str'}"  # noqa: E501
             == db["__database_headers__"]
         )
 
@@ -122,13 +122,16 @@ def test_save_get_delete(teardown_db, field_type, expected_field_type, field_val
     class SaveGetDeleteTestModel(DbmModel):
         __annotations__ = {"field": field_type}
 
-    assert SaveGetDeleteTestModel.objects.__database_headers__ == {"field": expected_field_type}
+    assert SaveGetDeleteTestModel.objects.__database_headers__ == {
+        "pk": str,
+        "field": expected_field_type
+    }
 
     # save
-    assert len(SaveGetDeleteTestModel.objects) == 1
+    assert len(SaveGetDeleteTestModel.objects) == 0
     pk = SaveGetDeleteTestModel(field=field_value).pk
     SaveGetDeleteTestModel.objects.save(pk=pk, fields={"field": field_value})
-    assert len(SaveGetDeleteTestModel.objects) == 2
+    assert len(SaveGetDeleteTestModel.objects) == 1
 
     # get
     _model = SaveGetDeleteTestModel.objects.get(pk=pk)
@@ -138,7 +141,7 @@ def test_save_get_delete(teardown_db, field_type, expected_field_type, field_val
 
     # delete
     SaveGetDeleteTestModel.objects.delete(pk=pk)
-    assert len(SaveGetDeleteTestModel.objects) == 1
+    assert len(SaveGetDeleteTestModel.objects) == 0
 
 
 @pytest.mark.parametrize(
@@ -168,12 +171,12 @@ def test_create_update(teardown_db, field_type, expected_field_type, field_value
     class CreateUpdateTestModel(DbmModel):
         __annotations__ = {"field": field_type}
 
-    assert CreateUpdateTestModel.objects.__database_headers__ == {"field": expected_field_type}
+    assert CreateUpdateTestModel.objects.__database_headers__ == {"pk": str, "field": expected_field_type}
 
     # create
-    assert len(CreateUpdateTestModel.objects) == 1
+    assert len(CreateUpdateTestModel.objects) == 0
     _model = CreateUpdateTestModel.objects.create(field=field_value)
-    assert len(CreateUpdateTestModel.objects) == 2
+    assert len(CreateUpdateTestModel.objects) == 1
     assert _model.field == field_value
 
     pk = _model.pk
@@ -183,11 +186,11 @@ def test_create_update(teardown_db, field_type, expected_field_type, field_value
 
     # update
     CreateUpdateTestModel.objects.update(pk=pk, field=updated_value)
-    assert len(CreateUpdateTestModel.objects) == 2
+    assert len(CreateUpdateTestModel.objects) == 1
 
     # get
     assert CreateUpdateTestModel.objects.get(pk=pk).field == updated_value
 
     # delete
     CreateUpdateTestModel.objects.delete(pk=pk)
-    assert len(CreateUpdateTestModel.objects) == 1
+    assert len(CreateUpdateTestModel.objects) == 0
