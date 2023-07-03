@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
-## [0.5.0] - YYYY-MM-DD
+## [0.5.0] - 2023-07-03
 
 ### Added
 - EmptyModelError exception added
