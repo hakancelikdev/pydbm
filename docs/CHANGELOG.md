@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+## [0.5.1] - 2023-07-04
+### Fixed
+- Fix objects.all and filter does not work properly [#46](https://github.com/hakancelikdev/pydbm/issues/46)
+
+
+
 ## [0.5.0] - 2023-07-03
 
 ### Added
