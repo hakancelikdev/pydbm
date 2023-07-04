@@ -185,14 +185,17 @@ def test_base_update(teardown_db):
     assert Example.objects.get(pk=model.pk).str == "new_str"
 
 
-def test_base_all(teardown_db):
+def test_base_all_and_filter(teardown_db):
     class Example(DbmModel):
-        str: str
+        field1: str
+        field2: int
 
-    assert Example.objects.create(str="str") == Example(str="str")
-    assert Example.objects.create(str="another str") == Example(str="another str")
-
-    assert list(Example.objects.all()) == [Example(str="another str"), Example(str="str")]
+    assert Example.objects.create(field1="str", field2=1) == Example(field1="str", field2=1)
+    assert Example.objects.create(field1="another str", field2=2) == Example(field1="another str", field2=2)
+    assert len(list(Example.objects.all())) == Example.objects.count()
+    assert list(Example.objects.all()) == [Example(field1="another str", field2=2), Example(field1="str", field2=1)]
+    assert list(Example.objects.filter()) == [Example(field1="another str", field2=2), Example(field1="str", field2=1)]
+    assert list(Example.objects.filter(field2=1)) == [Example(field1="str", field2=1)]
 
 
 def test_base_filter(teardown_db):

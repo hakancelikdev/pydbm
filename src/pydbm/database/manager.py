@@ -49,7 +49,7 @@ class DatabaseManager:
         "db_path",
         "db",
         DATABASE_HEADER_NAME,
-        "__key",
+        "_keys",
     )
 
     def __init__(self, *, model: typing.Type[DbmModel], table_name: str) -> None:  # TODO: table_name -> db_name
@@ -96,17 +96,20 @@ class DatabaseManager:
             return pk in db
 
     def __iter__(self: Self) -> Self:
-        self.__key: bytes = DATABASE_HEADER_NAME.encode()  # NOTE: this is the first key in the database
+        with self as db:
+            # TODO: take key one by one to improve performance
+            self._keys: typing.Iterator[bytes] = iter(db.keys())
         return self
 
     def __next__(self) -> str:
-        with self as db:
-            self.__key: bytes | None = db.nextkey(self.__key)  # type: ignore
-
-        if self.__key is not None:
-            return self.__key.decode("utf-8")
+        _key: bytes | None = next(self._keys, None)
+        if _key is not None:
+            key: str = _key.decode("utf-8")
+            if key == DATABASE_HEADER_NAME:
+                return next(self)
+            return key
         else:
-            del self.__key
+            del self._keys
             raise StopIteration
 
     def __repr__(self) -> str:
