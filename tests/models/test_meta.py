@@ -42,13 +42,13 @@ def test_meta():
 
     assert user.email == "hakancelikdev@gmail.com"
     assert user.username == "hakancelikdev"
-    assert user.pk == "7caae990504a6f4c4c8f436a3d8d009f"
+    assert user.id == "7caae990504a6f4c4c8f436a3d8d009f"
     assert user.required_fields == ["email", "username"]
     assert isinstance(user.not_required_fields[0], AutoField)
-    assert user.not_required_fields[0].public_name == "pk"
+    assert user.not_required_fields[0].public_name == "id"
     assert user.objects.table_name == "users"
     assert not hasattr(user, "__dict__")
-    assert user.__slots__ == ("_email", "_pk", "_username", "database")
+    assert user.__slots__ == ("_email", "_id", "_username", "database")
 
 
 def test_meta_config():
@@ -61,9 +61,9 @@ def test_meta_config():
             unique_together = ("email", "username")
 
     user = User(email="hakancelikdev@gmail.com", username="hakancelikdev")
-    assert user.pk == "7caae990504a6f4c4c8f436a3d8d009f"
+    assert user.id == "7caae990504a6f4c4c8f436a3d8d009f"
     assert isinstance(user.not_required_fields[0], AutoField)
-    assert user.not_required_fields[0].public_name == "pk"
+    assert user.not_required_fields[0].public_name == "id"
     assert user.objects.table_name == "user_table"
 
 

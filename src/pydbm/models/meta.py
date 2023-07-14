@@ -13,7 +13,7 @@ __all__ = (
 )
 
 
-PRIMARY_KEY: typing.Final[str] = "pk"  # unexport: not-public
+PRIMARY_KEY: typing.Final[str] = "id"  # unexport: not-public
 UNIQUE_TOGETHER = ()  # unexport: not-public
 CLASS_CONFIG_NAME: typing.Final[str] = "Config"  # unexport: not-public
 
@@ -38,14 +38,14 @@ class Meta(type):
             return super().__new__(mcs, cls_name, bases, namespace)
         else:
             if "__annotations__" in namespace:
-                namespace["__annotations__"]["pk"] = str
+                namespace["__annotations__"]["id"] = str
             namespace["__slots__"] = mcs.generate_slots(namespace) + ("database",)
             return super().__new__(mcs, cls_name, bases, namespace)
 
     def __init__(cls, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any) -> None:  # noqa: E501
         super().__init__(cls_name, bases, namespace, **kwargs)
         if [b for b in bases if isinstance(b, type(cls))]:
-            if not namespace.get("__annotations__", {}):
+            if not (annotations := namespace.get("__annotations__", {})) or list(annotations.keys()) == ["id"]:
                 raise EmptyModelError("Empty model is not allowed.")
 
             mcs = type(cls)
@@ -103,7 +103,7 @@ class Meta(type):
 
     @classmethod
     def generate_slots(mcs, namespace: dict[str, typing.Any]) -> tuple[str, ...]:
-        slots = {"_pk"}
+        slots = {"_id"}
         ann = namespace.get("__annotations__", {})
         for field_name, field_type in ann.items():
             private_name = "_" + field_name
@@ -122,7 +122,7 @@ class Meta(type):
             fields.update({field_name: field(field_name, field_type)})
 
         unique_together = mcs.get_config(cls_name, namespace).unique_together or tuple(fields.keys())
-        fields[PRIMARY_KEY] = AutoField("pk", str, unique_together=unique_together)
+        fields[PRIMARY_KEY] = AutoField("id", str, unique_together=unique_together)
         return fields
 
     @staticmethod

@@ -40,11 +40,11 @@ def test_close(minimum_manager):
 
 def test__database_headers__minimum_manager(minimum_manager):
     assert len(minimum_manager) == 0
-    assert minimum_manager.__database_headers__ == {"pk": str, "str": str}
+    assert minimum_manager.__database_headers__ == {"id": str, "str": str}
 
     with minimum_manager as db:
         assert "__database_headers__" in db
-        assert db["__database_headers__"] == b"{'str': 'str', 'pk': 'str'}"
+        assert db["__database_headers__"] == b"{'str': 'str', 'id': 'str'}"
 
 
 @pytest.mark.parametrize("annotations", [
@@ -76,7 +76,7 @@ def test__database_headers__maximum_manager(annotations):
     objects = MaximumManager.objects
     assert len(objects) == 0
     assert objects.__database_headers__ == {
-        "pk": str,
+        "id": str,
         "bool": bool,
         "bytes": bytes,
         "date": datetime.date,
@@ -90,7 +90,7 @@ def test__database_headers__maximum_manager(annotations):
     with objects as db:
         assert "__database_headers__" in db
         assert (
-            b"{'bool': 'bool', 'bytes': 'bytes', 'date': 'date', 'datetime': 'datetime', 'float': 'float', 'int': 'int', 'none': 'null', 'str': 'str', 'pk': 'str'}"  # noqa: E501
+            b"{'bool': 'bool', 'bytes': 'bytes', 'date': 'date', 'datetime': 'datetime', 'float': 'float', 'int': 'int', 'none': 'null', 'str': 'str', 'id': 'str'}"  # noqa: E501
             == db["__database_headers__"]
         )
 
@@ -123,24 +123,23 @@ def test_save_get_delete(teardown_db, field_type, expected_field_type, field_val
         __annotations__ = {"field": field_type}
 
     assert SaveGetDeleteTestModel.objects.__database_headers__ == {
-        "pk": str,
+        "id": str,
         "field": expected_field_type
     }
 
     # save
     assert len(SaveGetDeleteTestModel.objects) == 0
-    pk = SaveGetDeleteTestModel(field=field_value).pk
-    SaveGetDeleteTestModel.objects.save(pk=pk, fields={"field": field_value})
+    id_ = SaveGetDeleteTestModel(field=field_value).id
+    SaveGetDeleteTestModel.objects.save(id=id_, fields={"field": field_value})
     assert len(SaveGetDeleteTestModel.objects) == 1
 
     # get
-    _model = SaveGetDeleteTestModel.objects.get(pk=pk)
+    _model = SaveGetDeleteTestModel.objects.get(id=id_)
     assert _model.field == field_value
-    assert _model.pk == pk
-    assert _model.id == pk
+    assert _model.id == id_
 
     # delete
-    SaveGetDeleteTestModel.objects.delete(pk=pk)
+    SaveGetDeleteTestModel.objects.delete(id=id_)
     assert len(SaveGetDeleteTestModel.objects) == 0
 
 
@@ -171,7 +170,7 @@ def test_create_update(teardown_db, field_type, expected_field_type, field_value
     class CreateUpdateTestModel(DbmModel):
         __annotations__ = {"field": field_type}
 
-    assert CreateUpdateTestModel.objects.__database_headers__ == {"pk": str, "field": expected_field_type}
+    assert CreateUpdateTestModel.objects.__database_headers__ == {"id": str, "field": expected_field_type}
 
     # create
     assert len(CreateUpdateTestModel.objects) == 0
@@ -179,18 +178,18 @@ def test_create_update(teardown_db, field_type, expected_field_type, field_value
     assert len(CreateUpdateTestModel.objects) == 1
     assert _model.field == field_value
 
-    pk = _model.pk
+    id_ = _model.id
 
     # get
-    assert CreateUpdateTestModel.objects.get(pk=pk).field == field_value
+    assert CreateUpdateTestModel.objects.get(id=id_).field == field_value
 
     # update
-    CreateUpdateTestModel.objects.update(pk=pk, field=updated_value)
+    CreateUpdateTestModel.objects.update(id=id_, field=updated_value)
     assert len(CreateUpdateTestModel.objects) == 1
 
     # get
-    assert CreateUpdateTestModel.objects.get(pk=pk).field == updated_value
+    assert CreateUpdateTestModel.objects.get(id=id_).field == updated_value
 
     # delete
-    CreateUpdateTestModel.objects.delete(pk=pk)
+    CreateUpdateTestModel.objects.delete(id=id_)
     assert len(CreateUpdateTestModel.objects) == 0

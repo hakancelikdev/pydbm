@@ -31,18 +31,18 @@ class AutoField(BaseField):
         self.private_name = "_" + field_name
 
         self.unique_together = unique_together if unique_together is not None else ()
-        super().__init__(default_factory=self.generate_pk, **kwargs)
+        super().__init__(default_factory=self.generate_id, **kwargs)
 
     def __get__(self, instance: Meta, owner: DbmModel) -> typing.Any:
         return self.get_default_value()
 
     def __set__(self, instance: DbmModel, value: typing.Any) -> None:
-        raise AttributeError("AutoField is read-only")
+        pass
 
     def __call__(self: Self, fields: dict[str, typing.Any] | None = None, *args, **kwargs) -> Self:  # type: ignore[valid-type, override]  # noqa: E501
         if fields is not None:
             _fields = fields.copy()
-            _fields.pop("pk", None)
+            _fields.pop("id", None)
         else:
             _fields = None
 
@@ -52,7 +52,7 @@ class AutoField(BaseField):
         self.fields = _fields
         return super().__call__(self.field_name, self.field_type, *args, **kwargs)  # type: ignore
 
-    def generate_pk(self) -> str:
+    def generate_id(self) -> str:
         if self.unique_together and self._is_call_run:
             text = "*".join(map(str, (attr for name in self.unique_together if (attr := self.fields.get(name, None)))))
             return hashlib.md5(bytes(text, "utf-8")).hexdigest()
