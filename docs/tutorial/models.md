@@ -222,6 +222,14 @@ You can filter data by using the fields of the model.
 users = list(UserModel.objects.filter(username="hakancelik"))
 ```
 
+### Exists
+
+Exists method is used to check if the data exists in the database, returns True if the data exists, otherwise returns False.
+If you pass unique together fields of the model, it will be faster.
+
+```python
+is_exists: bool = UserModel.objects.exists(username="hakancelik")
+``````
 
 ## Model properties
 

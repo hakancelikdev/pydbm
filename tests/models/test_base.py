@@ -291,3 +291,46 @@ def test_base_count():
 
     Model(username="celik").save()
     assert Model.objects.count() == 2
+
+
+def test_base_exists_true():
+    class Model(DbmModel):
+        username: str
+
+        class Config:
+            unique_together = ("username",)
+
+    Model(username="hakan").save()
+    assert Model.objects.exists(username="hakan") is True
+
+
+def test_base_exists_false():
+    class Model(DbmModel):
+        username: str
+
+    assert Model.objects.exists(username="hakan") is False
+
+
+def test_base_exists_true_more_fields():
+    class Model(DbmModel):
+        username: str
+        name: str
+        surname: str
+
+        class Config:
+            unique_together = ("username",)
+
+    Model(username="hakan", name="hakan", surname="celik").save()
+    assert Model.objects.exists(name="hakan", surname="celik") is True
+
+
+def test_base_exists_false_more_fields():
+    class Model(DbmModel):
+        username: str
+        name: str
+        surname: str
+
+        class Config:
+            unique_together = ("username",)
+
+    assert Model.objects.exists(name="hakan", surname="celik") is False
