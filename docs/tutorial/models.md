@@ -146,19 +146,30 @@ user.save()  # update username field
 ```
 
 UserModel.objects.get(id=user.id) == UserModel(username="hakancelik")
-```
 
 ### Get
 Get method is used to get the data from the database and return it as a model instance.
+To fetch single data from the database and get it as a model instance, you can pass the unique together fields of the model.
+
 
 ```python
 try:
-    user = UserModel.objects.get(user.id)
+    user = UserModel.objects.get(id=user.id)
 except UserModel.DoesNotExist:
     print("User does not exist")
 ```
 
 If the user exists in the database, it will return the user, otherwise it raises `UserModel.DoesNotExists` exception.
+
+
+```python
+try:
+    user = UserModel.objects.get(name="hakan", surname="celik")
+except UserModel.RiskofReturningMultipleObjects:
+    print("Risk of Returning Multiple Users")
+```
+
+If name and surname fields are unique together, it will return the user, otherwise it raises `UserModel.RiskofReturningMultipleObjects` exception.
 
 
 ### Update

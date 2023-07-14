@@ -161,6 +161,50 @@ def test_base_get(teardown_db):
     assert Example.objects.get(id=model.id) == model
 
 
+def test_base_get_with_unique_together(teardown_db):
+    class Example(DbmModel):
+        str: str
+        int: int
+
+    model = Example.objects.create(str="str", int=1)
+    assert Example.objects.get(str="str", int=1) == model
+
+    class Example(DbmModel):
+        str: str
+        int: int
+
+        class Config:
+            unique_together = ("str", "int")
+
+    model = Example.objects.create(str="str", int=1)
+    assert Example.objects.get(str="str", int=1) == model
+
+
+def test_base_exception_get_with_unique_together(teardown_db):
+    class Example(DbmModel):
+        field1: str
+        field2: int
+
+    model = Example.objects.create(field1="str", field2=1)
+
+    with pytest.raises(model.RiskofReturningMultipleObjects) as cm:
+        assert Example.objects.get(field1="str") == model
+    assert str(cm.value) == "To get single data from database you must pass all unique_together fields: ('field1', 'field2')"  # noqa: E501
+
+    class Example(DbmModel):
+        field1: str
+        field2: int
+
+        class Config:
+            unique_together = ("field1", "field2")
+
+    model = Example.objects.create(field1="str", field2=1)
+
+    with pytest.raises(model.RiskofReturningMultipleObjects) as cm:
+        assert Example.objects.get(field2=1) == model
+    assert str(cm.value) == "To get single data from database you must pass all unique_together fields: ('field1', 'field2')"  # noqa: E501
+
+
 def test_base_delete(teardown_db):
     class Example(DbmModel):
         str: str
