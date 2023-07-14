@@ -193,11 +193,27 @@ class DatabaseManager:
         for key in self:
             yield self.get(id=key)
 
-    def filter(self, **kwargs) -> typing.Iterable[DbmModel]:
+    def filter(self, **kwargs) -> typing.Iterator[DbmModel]:
         def check(model: DbmModel) -> bool:
             return all(model.fields[key] == value for key, value in kwargs.items())
 
         yield from filter(check, self.all())
+
+    def exists(self, **kwargs) -> bool:
+        if (id := kwargs.pop("id", None)) is None and self.model._config.unique_together == tuple(kwargs.keys()):
+            auto_field = AutoField(
+                field_name=PRIMARY_KEY,
+                field_type=str,
+                unique_together=self.model._config.unique_together
+            )
+            id = auto_field(fields=kwargs).get_default_value()
+
+        if id is not None:
+            with self as db:
+                data_from_dbm: bytes = db.get(id, None)
+            return data_from_dbm is not None
+        else:
+            return not (next(self.filter(**kwargs), False) is False)
 
     def count(self):
         return len(self)
