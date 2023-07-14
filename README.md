@@ -56,7 +56,7 @@ class UserModel(DbmModel):
     age: int
     username: str
 
-    class Meta:
+    class Config:
         unique_together = ("username", )
 
     def get_fullname(self) -> str:
