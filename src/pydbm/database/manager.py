@@ -82,18 +82,18 @@ class DatabaseManager:
         with self as db:
             return len(db) - 1  # NOTE: subtract 1 for the database header
 
-    def __getitem__(self, pk: str) -> DbmModel:
-        return self.get(pk=pk)
+    def __getitem__(self, id: str) -> DbmModel:
+        return self.get(id=id)
 
-    def __setitem__(self, pk: str, fields: dict[str, typing.Any]) -> None:
-        self.save(pk=pk, fields=fields)
+    def __setitem__(self, id: str, fields: dict[str, typing.Any]) -> None:
+        self.save(id=id, fields=fields)
 
-    def __delitem__(self, pk: str) -> None:
-        self.delete(pk=pk)
+    def __delitem__(self, id: str) -> None:
+        self.delete(id=id)
 
-    def __contains__(self, pk: str) -> bool:
+    def __contains__(self, id: str) -> bool:
         with self as db:
-            return pk in db
+            return id in db
 
     def __iter__(self: Self) -> Self:
         with self as db:
@@ -125,14 +125,14 @@ class DatabaseManager:
         self.db.close()
         del self.db
 
-    def save(self, *, pk: str, fields: dict[str, typing.Any]) -> None:
+    def save(self, *, id: str, fields: dict[str, typing.Any]) -> None:
         data: dict[str, typing.Any] = {
             key: BaseDataType.get_data_type(self.__database_headers__[key]).set(value) for key, value in fields.items()
         }
         data_for_dbm = bytes(str(data), "utf-8")
 
         with self as db:
-            db[pk] = data_for_dbm
+            db[id] = data_for_dbm
 
     def create(self, **kwargs) -> DbmModel:
         if not kwargs:
@@ -143,36 +143,36 @@ class DatabaseManager:
 
         return model
 
-    def get(self, *, pk: str) -> DbmModel:
+    def get(self, *, id: str) -> DbmModel:
         with self as db:
-            data_from_dbm: bytes = db.get(pk, None)
+            data_from_dbm: bytes = db.get(id, None)
 
         if data_from_dbm is not None:
             to_python = ast.literal_eval(data_from_dbm.decode("utf-8"))  # TODO: implement own parser
-            fields: dict[str, typing.Any] = {"pk": pk}
+            fields: dict[str, typing.Any] = {"id": id}
             for key, value in to_python.items():
                 fields[key] = BaseDataType.get_data_type(self.__database_headers__[key]).get(value)
 
             return self.model(**fields)
 
-        raise self.model.DoesNotExists(f"{self.model.__name__} with pk {pk} does not exists")
+        raise self.model.DoesNotExists(f"{self.model.__name__} with id {id} does not exists")
 
-    def update(self, *, pk: str, **updated_fields) -> None:
-        model = self.get(pk=pk)
+    def update(self, *, id: str, **updated_fields) -> None:
+        model = self.get(id=id)
         fields = model.fields
 
         for key, value in updated_fields.items():
             fields[key] = value
 
-        self.save(pk=pk, fields=fields)
+        self.save(id=id, fields=fields)
 
-    def delete(self, *, pk: str) -> None:
+    def delete(self, *, id: str) -> None:
         with self as db:
-            del db[pk]
+            del db[id]
 
     def all(self) -> typing.Iterable[DbmModel]:
         for key in self:
-            yield self.get(pk=key)
+            yield self.get(id=key)
 
     def filter(self, **kwargs) -> typing.Iterable[DbmModel]:
         def check(model: DbmModel) -> bool:

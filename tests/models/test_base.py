@@ -18,7 +18,7 @@ class Model(DbmModel):
 
 
 def test_base_slots():
-    assert DbmModel.__slots__ == ("_pk", "fields", "id")
+    assert DbmModel.__slots__ == ("_id", "fields", "id")
 
 
 def test_base_init():
@@ -42,8 +42,7 @@ def test_base_init():
     assert model.none is None
     assert model.str == "str"
 
-    assert model.pk == model.id
-    assert model.pk == "552eb2e66df095304137be35af85aaed"
+    assert model.id == "552eb2e66df095304137be35af85aaed"
     assert model.fields == {
         "bool": True,
         "bytes": b"123",
@@ -142,7 +141,7 @@ def test_base_save(teardown_db, field_type, field_value):
     model = example_model(field=field_value)
     assert model.save() is None
 
-    model = example_model.objects.get(pk=model.id)
+    model = example_model.objects.get(id=model.id)
     assert model.field == field_value
 
 
@@ -159,7 +158,7 @@ def test_base_get(teardown_db):
 
     model = Example.objects.create(str="str")
 
-    assert Example.objects.get(pk=model.pk) == model
+    assert Example.objects.get(id=model.id) == model
 
 
 def test_base_delete(teardown_db):
@@ -170,8 +169,8 @@ def test_base_delete(teardown_db):
 
     model.delete()
     with pytest.raises(model.DoesNotExists) as cm:
-        Example.objects.get(pk=model.id)
-    assert str(cm.value) == "Example with pk 341be97d9aff90c9978347f66f945b77 does not exists"
+        Example.objects.get(id=model.id)
+    assert str(cm.value) == "Example with id 341be97d9aff90c9978347f66f945b77 does not exists"
 
 
 def test_base_update(teardown_db):
@@ -182,7 +181,7 @@ def test_base_update(teardown_db):
     model.update(str="new_str")
 
     assert model.str == "new_str"
-    assert Example.objects.get(pk=model.pk).str == "new_str"
+    assert Example.objects.get(id=model.id).str == "new_str"
 
 
 def test_base_all_and_filter(teardown_db):
@@ -216,6 +215,14 @@ def test_base_empty_model():
     assert str(cm.value) == "Empty model is not allowed."
 
 
+def test_base_only_id_field_model():
+    with pytest.raises(EmptyModelError) as cm:
+        class EmptyModel(DbmModel):
+            id: str
+
+    assert str(cm.value) == "Empty model is not allowed."
+
+
 def test_base_update_obj_on_db_when_updating_the_field_on_the_instance():
     class Model(DbmModel):
         username: str
@@ -226,7 +233,7 @@ def test_base_update_obj_on_db_when_updating_the_field_on_the_instance():
     model.username = "new_username"
     model.save()
 
-    assert Model.objects.get(pk=model.pk) == Model(username="new_username")
+    assert Model.objects.get(id=model.id) == Model(username="new_username")
 
 
 def test_base_count():

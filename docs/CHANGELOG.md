@@ -4,11 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+## [0.6.0] - YYYY-MM-DD
+### Added
+- Implement exists() method [#50](https://github.com/hakancelikdev/pydbm/issues/50)
+
+### Changed
+- Add kwargs to objects.get not only take pk [#48](https://github.com/hakancelikdev/pydbm/issues/48)
+
+### Fixed
+- Locks database to ensure that only one request can access the file at any given time [#52](https://github.com/hakancelikdev/pydbm/issues/52)
+- The pk value keeps changing when using all or filter. [#51](https://github.com/hakancelikdev/pydbm/issues/51)
+- Raise EmptyModelError when only defined id field in the model.
+
+### Removed
+- Pk field remove from all codebase.
+
 ## [0.5.1] - 2023-07-04
 ### Fixed
 - Fix objects.all and filter does not work properly [#46](https://github.com/hakancelikdev/pydbm/issues/46)
-
-
 
 ## [0.5.0] - 2023-07-03
 
@@ -48,7 +61,7 @@ All notable changes to this project will be documented in this file.
   model.username = "new_username"
   model.save()
   
-  assert Model.objects.get(pk=model.pk) == Model(username="new_username")
+  assert Model.objects.get(id=model.id) == Model(username="new_username")
   ````
 
 ## [0.4.0] - 2022-12-23
