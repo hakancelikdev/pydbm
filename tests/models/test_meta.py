@@ -20,13 +20,15 @@ def test_config():
 
 
 def test_get_config():
-    config = meta.Meta.get_config("User", {})
+    config = meta.Meta.get_config(meta.Meta, "User", {})
 
     assert config.table_name == "users"
     assert config.unique_together == ()
 
     config = meta.Meta.get_config(
-        "User", {meta.CLASS_CONFIG_NAME: meta.Config(table_name="users", unique_together=("email", "username"))}
+        meta.Meta,
+        "User",
+        {meta.CLASS_CONFIG_NAME: meta.Config(table_name="users", unique_together=("email", "username"))}
     )
 
     assert config.table_name == "users"
@@ -49,6 +51,7 @@ def test_meta():
     assert user.objects.table_name == "users"
     assert not hasattr(user, "__dict__")
     assert user.__slots__ == ("_email", "_id", "_username", "database")
+    assert user._config.unique_together == ("email", "username")
 
 
 def test_meta_config():
@@ -65,6 +68,7 @@ def test_meta_config():
     assert isinstance(user.not_required_fields[0], AutoField)
     assert user.not_required_fields[0].public_name == "id"
     assert user.objects.table_name == "user_table"
+    assert user._config.unique_together == ("email", "username")
 
 
 def test_meta_is_required_error():

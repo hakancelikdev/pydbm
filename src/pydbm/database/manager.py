@@ -6,8 +6,10 @@ import dbm
 import typing
 from pathlib import Path
 
+from pydbm.contstant import PRIMARY_KEY
 from pydbm.database.data_types import BaseDataType
 from pydbm.inspect_extra import get_obj_annotations
+from pydbm.models.fields import AutoField
 
 if typing.TYPE_CHECKING:
     from pydbm import DbmModel
@@ -143,7 +145,21 @@ class DatabaseManager:
 
         return model
 
-    def get(self, *, id: str) -> DbmModel:
+    def get(self, *, id: str | None = None, **unique_together) -> DbmModel:
+        if id is None:
+            if self.model._config.unique_together != tuple(unique_together.keys()):
+                raise self.model.RiskofReturningMultipleObjects(
+                    "To get single data from database you must pass"
+                    f" all unique_together fields: {self.model._config.unique_together}"
+                )
+
+            auto_field = AutoField(
+                field_name=PRIMARY_KEY,
+                field_type=str,
+                unique_together=self.model._config.unique_together
+            )
+            id = auto_field(fields=unique_together).get_default_value()
+
         with self as db:
             data_from_dbm: bytes = db.get(id, None)
 
@@ -155,7 +171,10 @@ class DatabaseManager:
 
             return self.model(**fields)
 
-        raise self.model.DoesNotExists(f"{self.model.__name__} with id {id} does not exists")
+        if id is None:
+            raise self.model.DoesNotExists(f"{self.model.__name__} with {unique_together} does not exists")
+        else:
+            raise self.model.DoesNotExists(f"{self.model.__name__} with id {id} does not exists")
 
     def update(self, *, id: str, **updated_fields) -> None:
         model = self.get(id=id)

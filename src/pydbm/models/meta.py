@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 from pydbm import typing_extra
+from pydbm.contstant import CLASS_CONFIG_NAME, PRIMARY_KEY, UNIQUE_TOGETHER
 from pydbm.database import DatabaseManager
 from pydbm.exceptions import EmptyModelError, PydbmBaseException, UnnecessaryParamsError
 from pydbm.inspect_extra import get_obj_annotations
@@ -11,11 +12,6 @@ from pydbm.models.fields import AutoField, Field, Undefined
 __all__ = (
     "Meta",
 )
-
-
-PRIMARY_KEY: typing.Final[str] = "id"  # unexport: not-public
-UNIQUE_TOGETHER = ()  # unexport: not-public
-CLASS_CONFIG_NAME: typing.Final[str] = "Config"  # unexport: not-public
 
 
 class Config(typing.NamedTuple):  # unexport: not-public
@@ -50,12 +46,13 @@ class Meta(type):
 
             mcs = type(cls)
 
-            config = mcs.get_config(cls_name, namespace)
+            cls._config = mcs.get_config(cls, cls_name, namespace)
             fields = mcs.generate_fields(cls, cls_name, namespace)
 
             cls.required_fields, cls.not_required_fields = mcs.split_fields(list(fields.values()))
-            cls.objects = DatabaseManager(model=cls, table_name=config.table_name)  # type: ignore
+            cls.objects = DatabaseManager(model=cls, table_name=cls._config.table_name)  # type: ignore
             cls.DoesNotExists = type("DoesNotExists", (PydbmBaseException,), {"__doc__": "Exception for not found id in the models."})  # type: ignore # noqa: E501
+            cls.RiskofReturningMultipleObjects = type("RiskofReturningMultipleObjects", (PydbmBaseException,), {"__doc__": "Exception for risk of returning multiple objects."})  # noqa: E501
 
             for key, value in fields.items():
                 setattr(cls, key, value)
@@ -85,7 +82,7 @@ class Meta(type):
         return super().__call__(**kwargs)
 
     @classmethod
-    def get_config(mcs, cls_name: str, namespace: dict[str, typing.Any]) -> Config:
+    def get_config(mcs, cls, cls_name: str, namespace: dict[str, typing.Any]) -> Config:
         config: Config | None = namespace.get(CLASS_CONFIG_NAME, None)
 
         if config is not None:
@@ -94,6 +91,11 @@ class Meta(type):
         else:
             table_name = mcs.generate_table_name(cls_name)
             unique_together = UNIQUE_TOGETHER
+
+        if not unique_together:
+            ann = get_obj_annotations(obj=cls)
+            ann.pop(PRIMARY_KEY, None)  # NOTE: Remove primary key from unique_together
+            unique_together = tuple(ann.keys())
 
         return Config(table_name, unique_together)
 
@@ -121,8 +123,7 @@ class Meta(type):
             field = default_value if isinstance(default_value, Field) else Field(default=default_value)
             fields.update({field_name: field(field_name, field_type)})
 
-        unique_together = mcs.get_config(cls_name, namespace).unique_together or tuple(fields.keys())
-        fields[PRIMARY_KEY] = AutoField("id", str, unique_together=unique_together)
+        fields[PRIMARY_KEY] = AutoField(PRIMARY_KEY, str, unique_together=cls._config.unique_together)
         return fields
 
     @staticmethod

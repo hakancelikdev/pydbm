@@ -56,5 +56,5 @@ class AutoField(BaseField):
         if self.unique_together and self._is_call_run:
             text = "*".join(map(str, (attr for name in self.unique_together if (attr := self.fields.get(name, None)))))
             return hashlib.md5(bytes(text, "utf-8")).hexdigest()
-        else:
+        else:  # TODO: disable all behaviors
             return __import__("uuid").uuid4().hex
