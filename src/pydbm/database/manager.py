@@ -6,7 +6,7 @@ import dbm
 import typing
 from pathlib import Path
 
-from pydbm.contstant import PRIMARY_KEY
+from pydbm import contstant as C
 from pydbm.database.data_types import BaseDataType
 from pydbm.inspect_extra import get_obj_annotations
 from pydbm.models.fields import AutoField
@@ -154,7 +154,7 @@ class DatabaseManager:
                 )
 
             auto_field = AutoField(
-                field_name=PRIMARY_KEY,
+                field_name=C.PRIMARY_KEY,
                 field_type=str,
                 unique_together=self.model._config.unique_together
             )
@@ -165,7 +165,7 @@ class DatabaseManager:
 
         if data_from_dbm is not None:
             to_python = ast.literal_eval(data_from_dbm.decode("utf-8"))  # TODO: implement own parser
-            fields: dict[str, typing.Any] = {"id": id}
+            fields: dict[str, typing.Any] = {}
             for key, value in to_python.items():
                 fields[key] = BaseDataType.get_data_type(self.__database_headers__[key]).get(value)
 
@@ -200,9 +200,9 @@ class DatabaseManager:
         yield from filter(check, self.all())
 
     def exists(self, **kwargs) -> bool:
-        if (id := kwargs.pop("id", None)) is None and self.model._config.unique_together == tuple(kwargs.keys()):
+        if (id := kwargs.pop(C.PRIMARY_KEY, None)) is None and self.model._config.unique_together == tuple(kwargs.keys()):  # noqa: E501
             auto_field = AutoField(
-                field_name=PRIMARY_KEY,
+                field_name=C.PRIMARY_KEY,
                 field_type=str,
                 unique_together=self.model._config.unique_together
             )

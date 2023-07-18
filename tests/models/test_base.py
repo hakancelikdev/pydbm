@@ -18,7 +18,7 @@ class Model(DbmModel):
 
 
 def test_base_slots():
-    assert DbmModel.__slots__ == ("_id", "fields", "id")
+    assert DbmModel.__slots__ == ("fields",)
 
 
 def test_base_init():
@@ -113,13 +113,16 @@ def test_base_hash():
         ids: int
         name: str
 
-    accounts = {
-        Account(ids=1, name="John"),
-        Account(ids=1, name="John"),
-        Account(ids=2, name="Jane"),
-    }
+    account_1 = Account(ids=1, name="John")
+    account_2 = Account(ids=1, name="John")
+    account_3 = Account(ids=2, name="Jane")
 
-    assert accounts == {Account(ids=1, name="John"), Account(ids=2, name="Jane")}
+    assert account_1 == account_2
+
+    assert account_1.id == "db6dede12578a5795f59d25ea68a8289"
+    assert account_2.id == "db6dede12578a5795f59d25ea68a8289"
+    assert account_3.id == "44fab4c4efaeb5f5a751496de67e0285"
+    assert {account_1, account_2, account_3} == {account_1, account_3}
 
 
 @pytest.mark.parametrize(
@@ -233,12 +236,23 @@ def test_base_all_and_filter(teardown_db):
         field1: str
         field2: int
 
-    assert Example.objects.create(field1="str", field2=1) == Example(field1="str", field2=1)
-    assert Example.objects.create(field1="another str", field2=2) == Example(field1="another str", field2=2)
+    model_1 = Example.objects.create(field1="str", field2=1)
+    model_2 = Example.objects.create(field1="another str", field2=2)
+
+    assert model_1.id == "0ece50da8a7fc1d3b2ca9d147db7af6a"
+    assert model_2.id == "bafc344cc206678e99efd8bc660a28dc"
+    assert model_1 == Example(field1="str", field2=1)
+    assert model_2 == Example(field1="another str", field2=2)
     assert len(list(Example.objects.all())) == Example.objects.count()
     assert list(Example.objects.all()) == [Example(field1="another str", field2=2), Example(field1="str", field2=1)]
     assert list(Example.objects.filter()) == [Example(field1="another str", field2=2), Example(field1="str", field2=1)]
     assert list(Example.objects.filter(field2=1)) == [Example(field1="str", field2=1)]
+
+    assert list(Example.objects.filter())[0].id == "bafc344cc206678e99efd8bc660a28dc"
+    assert list(Example.objects.filter())[1].id == "0ece50da8a7fc1d3b2ca9d147db7af6a"
+
+    assert list(Example.objects.all())[0].id == "bafc344cc206678e99efd8bc660a28dc"
+    assert list(Example.objects.all())[1].id == "0ece50da8a7fc1d3b2ca9d147db7af6a"
 
 
 def test_base_filter(teardown_db):
@@ -267,20 +281,24 @@ def test_base_only_id_field_model():
     assert str(cm.value) == "Empty model is not allowed."
 
 
-def test_base_update_obj_on_db_when_updating_the_field_on_the_instance():
-    class Model(DbmModel):
+def test_base_update_obj_on_db_when_updating_the_field_on_the_instance(teardown_db):
+    class TestModel(DbmModel):
         username: str
 
-    model = Model(username="username")
+    model = TestModel(username="username")
     model.save()
+
+    assert model.id == "14c4b06b824ec593239362517f538b29"
 
     model.username = "new_username"
     model.save()
 
-    assert Model.objects.get(id=model.id) == Model(username="new_username")
+    assert model.id == "14c4b06b824ec593239362517f538b29"
+
+    assert TestModel.objects.get(id="14c4b06b824ec593239362517f538b29") == TestModel(username="new_username")
 
 
-def test_base_count():
+def test_base_count(teardown_db):
     class Model(DbmModel):
         username: str
 
@@ -293,7 +311,7 @@ def test_base_count():
     assert Model.objects.count() == 2
 
 
-def test_base_exists_true():
+def test_base_exists_true(teardown_db):
     class Model(DbmModel):
         username: str
 
@@ -311,7 +329,7 @@ def test_base_exists_false():
     assert Model.objects.exists(username="hakan") is False
 
 
-def test_base_exists_true_more_fields():
+def test_base_exists_true_more_fields(teardown_db):
     class Model(DbmModel):
         username: str
         name: str

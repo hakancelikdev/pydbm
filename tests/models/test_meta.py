@@ -2,7 +2,9 @@ import datetime
 
 import pytest
 
-from pydbm import DbmModel, exceptions
+from pydbm import DbmModel
+from pydbm import contstant as C
+from pydbm import exceptions
 from pydbm.models import meta
 from pydbm.models.fields import AutoField
 
@@ -28,7 +30,7 @@ def test_get_config():
     config = meta.Meta.get_config(
         meta.Meta,
         "User",
-        {meta.CLASS_CONFIG_NAME: meta.Config(table_name="users", unique_together=("email", "username"))}
+        {C.CLASS_CONFIG_NAME: meta.Config(table_name="users", unique_together=("email", "username"))}
     )
 
     assert config.table_name == "users"

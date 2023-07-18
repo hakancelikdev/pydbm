@@ -3,11 +3,11 @@ from __future__ import annotations
 import hashlib
 import typing
 
+from pydbm import contstant as C
 from pydbm.models.fields.base import BaseField
 
 if typing.TYPE_CHECKING:
     from pydbm.models.base import DbmModel
-    from pydbm.models.meta import Meta
     from pydbm.typing_extra import SupportedClassT
 
 __all__ = (
@@ -33,16 +33,14 @@ class AutoField(BaseField):
         self.unique_together = unique_together if unique_together is not None else ()
         super().__init__(default_factory=self.generate_id, **kwargs)
 
-    def __get__(self, instance: Meta, owner: DbmModel) -> typing.Any:
-        return self.get_default_value()
-
     def __set__(self, instance: DbmModel, value: typing.Any) -> None:
-        pass
+        if (fields := getattr(instance, "fields", None)) is not None and C.PRIMARY_KEY not in fields:
+            return super().__set__(instance, value)
 
     def __call__(self: Self, fields: dict[str, typing.Any] | None = None, *args, **kwargs) -> Self:  # type: ignore[valid-type, override]  # noqa: E501
         if fields is not None:
             _fields = fields.copy()
-            _fields.pop("id", None)
+            _fields.pop(C.PRIMARY_KEY, None)
         else:
             _fields = None
 

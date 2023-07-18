@@ -14,14 +14,12 @@ class DbmModel(metaclass=Meta):
     if typing.TYPE_CHECKING:
         required_fields: typing.ClassVar[list[str]]
         objects: typing.ClassVar[DatabaseManager]
-        id: str
         empty_model: typing.ClassVar[bool]
+        id: str
 
     def __init__(self, **fields: typing.Any) -> None:
-        self.id = fields.pop("id")
-        self.fields: dict[str, typing.Any] = fields.copy()
-
-        for key, value in self.fields.items():
+        self.fields: dict[str, typing.Any] = {}
+        for key, value in fields.items():
             setattr(self, key, value)
 
     def __repr__(self):
@@ -30,7 +28,11 @@ class DbmModel(metaclass=Meta):
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
-            return self.fields == other.fields and self.id == other.id
+            for key, value in self.fields.items():
+                if getattr(other, key) != value:
+                    break
+            else:
+                return self.id == other.id
         return False
 
     def __hash__(self):
