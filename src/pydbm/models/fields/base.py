@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import typing
 
+from pydbm import contstant as C
 from pydbm.exceptions import ValidationError
 from pydbm.logging import logger
 from pydbm.models.validators import validate_max_value, validate_min_value, validator_mapping
@@ -89,7 +90,8 @@ class BaseField:
         eligible_value = self.before_set(value)
 
         setattr(instance, self.private_name, eligible_value)
-        instance.fields[self.field_name] = eligible_value
+        if self.field_name != C.PRIMARY_KEY:
+            instance.fields[self.field_name] = eligible_value
 
     def __call__(self: Self, field_name: str, field_type: SupportedClassT, *args, **kwargs) -> Self:  # type: ignore[valid-type]  # noqa: E501
         self._is_call_run = True
