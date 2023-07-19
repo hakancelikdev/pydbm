@@ -229,7 +229,6 @@ If you pass unique together fields of the model, it will be faster.
 
 ```python
 is_exists: bool = UserModel.objects.exists(username="hakancelik")
-``````
 
 ## Model properties
 
