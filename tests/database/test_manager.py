@@ -198,3 +198,4 @@ def test_create_update(teardown_db, field_type, expected_field_type, field_value
 def test_multiple_database_open(minimum_manager):
     minimum_manager.open()
     minimum_manager.open()
+    minimum_manager.close()
