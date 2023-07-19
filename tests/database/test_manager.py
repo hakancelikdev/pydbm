@@ -21,7 +21,7 @@ def minimum_manager() -> DatabaseManager:
 
 def test_init(minimum_manager):
     assert minimum_manager.table_name == "minimum_managers"
-    assert minimum_manager.db_path.as_posix() == "pydbm/minimum_managers.pydbm"
+    assert minimum_manager.db_path == "pydbm/minimum_managers.pydbm"
 
 
 def test_context_manager(minimum_manager):
@@ -193,3 +193,8 @@ def test_create_update(teardown_db, field_type, expected_field_type, field_value
     # delete
     CreateUpdateTestModel.objects.delete(id=id_)
     assert len(CreateUpdateTestModel.objects) == 0
+
+
+def test_multiple_database_open(minimum_manager):
+    minimum_manager.open()
+    minimum_manager.open()

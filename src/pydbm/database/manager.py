@@ -52,27 +52,18 @@ class DatabaseManager:
         "db",
         DATABASE_HEADER_NAME,
         "_keys",
+        "__is_db_open",
     )
 
     def __init__(self, *, model: typing.Type[DbmModel], table_name: str) -> None:  # TODO: table_name -> db_name
         self.model = model
         self.table_name = table_name
 
-        self.db_path = DATABASE_PATH / f"{self.table_name}.{DATABASE_EXTENSION}"
+        self.__is_db_open: bool = False
+        Path(DATABASE_PATH).mkdir(parents=True, exist_ok=True)
+        self.db_path = (DATABASE_PATH / f"{self.table_name}.{DATABASE_EXTENSION}").as_posix()
 
-        ann = get_obj_annotations(obj=model)
-        db_headers = bytes(str({key: DATABASE_HEADER_MAPPING[value] for key, value in ann.items()}), "utf-8")
-
-        db = self.open()
-        database_header: bytes | None
-        if (database_header := db.get(DATABASE_HEADER_NAME, None)) is None:
-            db[DATABASE_HEADER_NAME] = db_headers
-        else:
-            # TODO: migrations
-            assert database_header == db_headers, f"Database headers are not equal: '{database_header}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
-        db.close()
-
-        setattr(self, DATABASE_HEADER_NAME, ann)
+        self.set_database_header()
 
     def __enter__(self, *args, **kwargs):
         return self.open()
@@ -117,15 +108,31 @@ class DatabaseManager:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(model={self.model!r}, table_name={self.table_name!r})"
 
-    def open(self):
-        Path(DATABASE_PATH).mkdir(parents=True, exist_ok=True)
+    def set_database_header(self):
+        ann = get_obj_annotations(obj=self.model)
+        db_headers = bytes(str({key: DATABASE_HEADER_MAPPING[value] for key, value in ann.items()}), "utf-8")
 
-        self.db = dbm.open(self.db_path.as_posix(), "c")
+        with self as db:
+            database_header: bytes | None
+            if (database_header := db.get(DATABASE_HEADER_NAME, None)) is None:
+                db[DATABASE_HEADER_NAME] = db_headers
+
+        if database_header is not None:
+            # TODO: migrations
+            assert database_header == db_headers, f"Database headers are not equal: '{database_header}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
+
+        setattr(self, DATABASE_HEADER_NAME, ann)
+
+    def open(self):
+        if not self.__is_db_open:
+            self.db = dbm.open(self.db_path, "c")
+            self.__is_db_open = True
         return self.db
 
-    def close(self):
-        self.db.close()
-        del self.db
+    def close(self) -> None:
+        if self.__is_db_open:
+            self.db.close()
+            self.__is_db_open = False
 
     def save(self, *, id: str, fields: dict[str, typing.Any]) -> None:
         data: dict[str, typing.Any] = {

@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 - Add kwargs to objects.get not only take pk [#48](https://github.com/hakancelikdev/pydbm/issues/48)
 
 ### Fixed
-- Locks database to ensure that only one request can access the file at any given time [#52](https://github.com/hakancelikdev/pydbm/issues/52)
+- The database can only be opened once.
 - The pk value keeps changing when using all or filter. [#51](https://github.com/hakancelikdev/pydbm/issues/51)
 - Raise EmptyModelError when only defined id field in the model.
 
