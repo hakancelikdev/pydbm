@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
-## [0.6.0] - YYYY-MM-DD
+## [0.6.0] - 2023-07-19
 ### Added
 - Implement exists() method [#50](https://github.com/hakancelikdev/pydbm/issues/50)
 
