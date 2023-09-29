@@ -12,7 +12,7 @@ __all__ = (
 
 
 class BaseDataType(abc.ABC):
-    data_types: dict[SupportedClassT, typing.Type[BaseDataType]] = {}
+    data_types: typing.ClassVar[dict[SupportedClassT, typing.Type[BaseDataType]]] = {}
 
     @staticmethod
     @abc.abstractmethod
@@ -33,4 +33,4 @@ class BaseDataType(abc.ABC):
         try:
             return cls.data_types[item]
         except KeyError:
-            raise TypeError(f"Type {item} is not supported yet!")
+            raise TypeError(f"Type {item!r} is not supported yet!")

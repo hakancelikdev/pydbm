@@ -6,7 +6,7 @@ import typing
 from pydbm import contstant as C
 from pydbm.exceptions import ValidationError
 from pydbm.logging import logger
-from pydbm.models.validators import validate_max_value, validate_min_value, validator_mapping
+from pydbm.models.validators import VALIDATOR_MAPPING, validate_max_value, validate_min_value
 
 if typing.TYPE_CHECKING:
     from pydbm.models.base import DbmModel
@@ -64,6 +64,27 @@ class BaseField:
 
         self._is_call_run = False
 
+    def get_default_value(self) -> typing.Any:
+        if self.default is not Undefined:
+            return self.default
+
+        if self.default_factory is not Undefined:
+            return self.default_factory()
+
+    def through_normalizers(self, value: typing.Any) -> typing.Any:
+        for normalizer in self.normalizers:
+            value = normalizer(value)
+
+        return value
+
+    def through_validators(self, value: typing.Any) -> None:
+        for validator in self.validators:
+            try:
+                if validator(value) is False:
+                    raise ValueError("Value is not valid")
+            except ValueError as exc:
+                raise ValidationError(self.field_name, value, exc)
+
     def __set_name__(self, instance: Meta, name: str) -> None:
         self.public_name = name
         self.private_name = "_" + name
@@ -87,11 +108,12 @@ class BaseField:
                     f"They are ignored for {value.__class__.__name__} type."
                 )
 
-        eligible_value = self.before_set(value)
+        value = self.through_normalizers(value)
+        self.through_validators(value)
 
-        setattr(instance, self.private_name, eligible_value)
+        setattr(instance, self.private_name, value)
         if self.field_name != C.PRIMARY_KEY:
-            instance.fields[self.field_name] = eligible_value
+            instance.fields[self.field_name] = value
 
     def __call__(self: Self, field_name: str, field_type: SupportedClassT, *args, **kwargs) -> Self:  # type: ignore[valid-type]  # noqa: E501
         self._is_call_run = True
@@ -102,7 +124,7 @@ class BaseField:
         self.public_name = field_name
         self.private_name = "_" + field_name
 
-        self.validators.append(validator_mapping[field_type])
+        self.validators.append(VALIDATOR_MAPPING[field_type])
         return self
 
     def __repr__(self) -> str:
@@ -117,28 +139,8 @@ class BaseField:
             f")"
         )
 
-    def before_set(self, value: typing.Any) -> typing.Any:
-        for normalizer in self.normalizers:
-            value = normalizer(value)
-
-        for validator in self.validators:
-            try:
-                if validator(value) is False:
-                    raise ValueError("Value is not valid")
-            except ValueError as exc:
-                raise ValidationError(self.field_name, value, exc)
-
-        return value
-
     def is_required(self) -> bool:
         return self.default is Undefined and self.default_factory is Undefined
-
-    def get_default_value(self) -> typing.Any:
-        if self.default is not Undefined:
-            return self.default
-
-        if self.default_factory is not Undefined:
-            return self.default_factory()
 
 
 class Field(BaseField):

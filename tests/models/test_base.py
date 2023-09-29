@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import datetime as datetime
 
 import pytest
 
 from pydbm import DbmModel
 from pydbm.exceptions import EmptyModelError
+from pydbm.typing_extra import array
 
 
 class Model(DbmModel):
@@ -15,6 +18,9 @@ class Model(DbmModel):
     int: int
     none: None
     str: str
+    array_int: array[int]
+    array_float: array[float]
+    array_str: array[str]
 
 
 def test_base_slots():
@@ -31,6 +37,9 @@ def test_base_init():
         int=1,
         none=None,
         str="str",
+        array_int=array(1, 2),
+        array_float=array(1.1, 2.2),
+        array_str=array("a", "b"),
     )
 
     assert model.bool is True
@@ -41,8 +50,11 @@ def test_base_init():
     assert model.int == 1
     assert model.none is None
     assert model.str == "str"
+    assert model.array_int == array(1, 2)
+    assert model.array_float == array(1.1, 2.2)
+    assert model.array_str == array("a", "b")
 
-    assert model.id == "552eb2e66df095304137be35af85aaed"
+    assert model.id == "881e613637953a2a3b9b2f00cf7b7555"
     assert model.fields == {
         "bool": True,
         "bytes": b"123",
@@ -52,6 +64,9 @@ def test_base_init():
         "int": 1,
         "none": None,
         "str": "str",
+        "array_int": array(1, 2),
+        "array_float": array(1.1, 2.2),
+        "array_str": array("a", "b"),
     }
 
 
@@ -65,9 +80,12 @@ def test_base_repr():
         int=1,
         none=None,
         str="str",
+        array_int=array(1, 2),
+        array_float=array(1.1, 2.2),
+        array_str=array("a", "b"),
     )
 
-    assert repr(model) == "Model(bool=True, bytes=b'123', date=datetime.date(2020, 1, 1), datetime=datetime.datetime(2020, 1, 1, 2, 10, 40), float=1.0, int=1, none=None, str='str')"  # noqa: E501
+    assert repr(model) == "Model(bool=True, bytes=b'123', date=datetime.date(2020, 1, 1), datetime=datetime.datetime(2020, 1, 1, 2, 10, 40), float=1.0, int=1, none=None, str='str', array_int=array(1, 2), array_float=array(1.1, 2.2), array_str=array('a', 'b'))"  # noqa: E501
 
 
 def test_base_eq():
@@ -80,6 +98,9 @@ def test_base_eq():
         int=1,
         none=None,
         str="str",
+        array_int=array(1, 2),
+        array_float=array(1.1, 2.2),
+        array_str=array("a", "b"),
     )
     model_2 = Model(
         bool=True,
@@ -90,6 +111,9 @@ def test_base_eq():
         int=1,
         none=None,
         str="str",
+        array_int=array(1, 2),
+        array_float=array(1.1, 2.2),
+        array_str=array("a", "b"),
     )
 
     assert model_1 == model_2
@@ -103,6 +127,9 @@ def test_base_eq():
         int=1,
         none=None,
         str="str",
+        array_int=array(1, 2),
+        array_float=array(1.1, 2.2),
+        array_str=array("a", "b"),
     )
     assert model_1 != model_3
     assert model_2 != model_3

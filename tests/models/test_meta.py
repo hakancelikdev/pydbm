@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 
 import pytest
@@ -7,6 +9,7 @@ from pydbm import contstant as C
 from pydbm import exceptions
 from pydbm.models import meta
 from pydbm.models.fields import AutoField
+from pydbm.typing_extra import array
 
 
 def test_generate_table_name():
@@ -28,9 +31,7 @@ def test_get_config():
     assert config.unique_together == ()
 
     config = meta.Meta.get_config(
-        meta.Meta,
-        "User",
-        {C.CLASS_CONFIG_NAME: meta.Config(table_name="users", unique_together=("email", "username"))}
+        meta.Meta, "User", {C.CLASS_CONFIG_NAME: meta.Config(table_name="users", unique_together=("email", "username"))}
     )
 
     assert config.table_name == "users"
@@ -94,6 +95,7 @@ def test_meta_is_required_error():
         ({"int": 1.1}, "Invalid value for int=1.1; It must be int."),
         ({"none": b"test"}, "Invalid value for none=b'test'; It must be None."),
         ({"str": 1}, "Invalid value for str=1; It must be str."),
+        ({"array_int": "a"}, "Invalid value for array_int='a'; It must be array."),
     ],
 )
 def test_base_type_validator(updated_fields, expected_error_ms):
@@ -106,6 +108,7 @@ def test_base_type_validator(updated_fields, expected_error_ms):
         int: int
         none: None
         str: str
+        array_int: array[int]
 
     model_body = {
         "bool": True,
@@ -116,6 +119,7 @@ def test_base_type_validator(updated_fields, expected_error_ms):
         "int": 1,
         "none": None,
         "str": "str",
+        "array_int": array(1, 2, 3),
     }
     model_body.update(updated_fields)
 

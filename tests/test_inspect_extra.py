@@ -3,6 +3,7 @@ import datetime
 import pytest
 
 from pydbm.inspect_extra import get_obj_annotations
+from pydbm.typing_extra import array
 
 
 def test_get_obj_annotations_not_class():
@@ -22,6 +23,9 @@ def test_get_obj_annotations_not_class():
     (int, int),
     (str, str),
     (None, None),
+    (array[int], array[int]),
+    (array[float], array[float]),
+    (array[str], array[str]),
     ("bool", bool),
     ("bytes", bytes),
     ("datetime.date", datetime.date),
@@ -30,6 +34,9 @@ def test_get_obj_annotations_not_class():
     ("int", int),
     ("str", str),
     ("None", None),
+    ("array[int]", array[int]),
+    ("array[float]", array[float]),
+    ("array[str]", array[str]),
 ])
 def test_get_obj_annotations(type_, expected_type):
     # Normal class

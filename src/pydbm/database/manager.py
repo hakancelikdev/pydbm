@@ -10,6 +10,7 @@ from pydbm import contstant as C
 from pydbm.database.data_types import BaseDataType
 from pydbm.inspect_extra import get_obj_annotations
 from pydbm.models.fields import AutoField
+from pydbm.typing_extra import array
 
 if typing.TYPE_CHECKING:
     from pydbm import DbmModel
@@ -36,6 +37,9 @@ DATABASE_HEADER_MAPPING: dict[SupportedClassT, str] = {
     int: "int",
     None: "null",
     str: "str",
+    array[int]: "array.int",
+    array[float]: "array.float",
+    array[str]: "array.str",
 }
 DATABASE_EXTENSION: str = "pydbm"
 DATABASE_PATH: Path = Path("pydbm")  # TODO: take from env

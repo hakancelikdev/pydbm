@@ -30,19 +30,19 @@ class Meta(type):
 
     @staticmethod
     def __new__(mcs, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any) -> type:  # noqa: E501
-        annotations = namespace.pop("__annotations__", {})
-        annotations[C.PRIMARY_KEY] = str
-        slots = mcs.generate_slots(annotations)
+        _annotations = namespace.pop("__annotations__", {})
+        _annotations[C.PRIMARY_KEY] = str
+        slots = mcs.generate_slots(_annotations)
         if not [b for b in bases if isinstance(b, mcs)]:
             slots.remove("_id")
             slots.append("fields")
         else:
-            if not annotations or list(annotations.keys()) == [C.PRIMARY_KEY]:
+            if not _annotations or list(_annotations.keys()) == [C.PRIMARY_KEY]:
                 raise EmptyModelError("Empty model is not allowed.")
             slots.append("database")
 
         namespace["__slots__"] = tuple(slots)
-        namespace["__annotations__"] = annotations
+        namespace["__annotations__"] = _annotations
         return super().__new__(mcs, cls_name, bases, namespace)
 
     def __init__(cls, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any) -> None:  # noqa: E501
@@ -62,7 +62,7 @@ class Meta(type):
                 setattr(cls, key, value)
 
     def __call__(cls, **kwargs):
-        for extra_field_name in (set(kwargs.keys()) - set(cls.__annotations__.keys())):
+        for extra_field_name in set(kwargs.keys()) - set(cls.__annotations__.keys()):
             raise UnnecessaryParamsError(f"{extra_field_name} is not defined in {cls.__name__}")
 
         for field in cls.not_required_fields:

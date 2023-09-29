@@ -3,6 +3,9 @@ from pydbm.models import (
     DbmModel,
     Field,
     Undefined,
+    validate_array_float,
+    validate_array_int,
+    validate_array_str,
     validate_bool,
     validate_bytes,
     validate_date,
@@ -14,7 +17,7 @@ from pydbm.models import (
     validate_none,
     validate_str,
 )
-from pydbm.typing_extra import NormalizationT, ValidatorT
+from pydbm.typing_extra import NormalizationT, ValidatorT, array
 
 __all__ = (
     "PydbmBaseException",
@@ -33,6 +36,10 @@ __all__ = (
     "validate_min_value",
     "validate_none",
     "validate_str",
+    "validate_array_str",
+    "validate_array_int",
+    "validate_array_float",
     "NormalizationT",
     "ValidatorT",
+    "array",
 )

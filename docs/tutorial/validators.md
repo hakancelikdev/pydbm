@@ -28,7 +28,10 @@ class UserModel(DbmModel):
 - validate_max_value
 - validate_min_value
 
-These can be imported from pydbm.models.validators, or just import from pydbm
+## Array Validators
+- validate_array_int
+- validate_array_float
+- validate_array_str
 
 ```python
 from pydbm import (
@@ -42,5 +45,8 @@ from pydbm import (
     validate_str,
     validate_max_value,
     validate_min_value,
+    validate_array_int,
+    validate_array_float,
+    validate_array_str,
 )
 ```

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import ast
 import datetime
 
 from pydbm.database.data_types.base import BaseDataType
+from pydbm.typing_extra import array
 
 __all__ = (
+    "ArrayFloatDataType",
+    "ArrayIntDataType",
+    "ArrayTextDataType",
     "BoolDataType",
     "BytesDataType",
     "DateDataType",
@@ -98,4 +103,26 @@ class StrDataType(BaseDataType, data_type=str):
 
     @staticmethod
     def set(value: str) -> str:
-        return str(value)
+        return value
+
+
+class _ArrayDataType(BaseDataType, data_type=array):
+    @classmethod
+    def get(cls, value: str) -> array:
+        return array(*ast.literal_eval(value))
+
+    @staticmethod
+    def set(value: array) -> str:
+        return str(value.tolist())
+
+
+class ArrayIntDataType(_ArrayDataType, data_type=array[int]):
+    pass
+
+
+class ArrayFloatDataType(_ArrayDataType, data_type=array[float]):
+    pass
+
+
+class ArrayTextDataType(_ArrayDataType, data_type=array[str]):
+    pass

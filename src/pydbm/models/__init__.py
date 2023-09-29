@@ -1,6 +1,9 @@
 from pydbm.models.base import DbmModel
 from pydbm.models.fields import Field, Undefined
 from pydbm.models.validators import (
+    validate_array_float,
+    validate_array_int,
+    validate_array_str,
     validate_bool,
     validate_bytes,
     validate_date,
@@ -27,4 +30,7 @@ __all__ = (
     "validate_min_value",
     "validate_none",
     "validate_str",
+    "validate_array_float",
+    "validate_array_int",
+    "validate_array_str",
 )
