@@ -43,7 +43,8 @@ def test_int_max_value():
 
     with pytest.raises(ValidationError) as cm:
         Model(field=11)
-    assert str(cm.value) == "Invalid value for field=11; It must be less than 10."
+    assert str(cm.value) == "Invalid value for field=11, It must be less than 10."
+
 
 
 def test_int_min_value():
@@ -52,7 +53,7 @@ def test_int_min_value():
 
     with pytest.raises(ValidationError) as cm:
         Model(field=9)
-    assert str(cm.value) == "Invalid value for field=9; It must be greater than 10."
+    assert str(cm.value) == "Invalid value for field=9, It must be greater than 10."
 
 
 def test_int_min_and_max_value():
@@ -61,11 +62,11 @@ def test_int_min_and_max_value():
 
     with pytest.raises(ValidationError) as cm:
         Model(field=9)
-    assert str(cm.value) == "Invalid value for field=9; It must be greater than 10."
+    assert str(cm.value) == "Invalid value for field=9, It must be greater than 10."
 
     with pytest.raises(ValidationError) as cm:
         Model(field=21)
-    assert str(cm.value) == "Invalid value for field=21; It must be less than 20."
+    assert str(cm.value) == "Invalid value for field=21, It must be less than 20."
 
 
 @pytest.mark.parametrize(

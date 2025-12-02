@@ -1,10 +1,64 @@
 # Build system
 [build-system]
-requires = [
-    "setuptools>=65",
-    "wheel>=0.38.4"
-]
+requires = ["setuptools>=65", "wheel>=0.38.4"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "pythonic-dbm"
+version = "0.6.1"
+description = "Pydbm is a more pythonic way to use dbm."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "GPL-3.0"}
+authors = [
+    {name = "Hakan Celik", email = "hakancelikdev@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://pydbm.hakancelik.dev/"
+Issues = "https://github.com/hakancelikdev/pydbm/issues/"
+Changelog = "https://pydbm.hakancelik.dev/changelog"
+
+[project.optional-dependencies]
+tests = [
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.0",
+    "mkdocs-markdownextradata-plugin>=0.2.6",
+    "mkdocs-minify-plugin>=0.8.0",
+    "mkdocs-git-revision-date-localized-plugin>=1.5.0",
+    "mike>=2.1.3",
+]
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
 
 # Tools
 [tool.pytest.ini_options]
@@ -19,18 +73,12 @@ skip_gitignore = true
 
 [tool.black]
 line-length = 120
-target-version = ['py39']
+target-version = ['py39', 'py310', 'py311', 'py312', 'py313']
 
 [tool.unimport]
 remove = true
 include_star_import = true
 ignore_init = true
-
-[tool.docformatter]
-recursive = true
-wrap-summaries = 79
-wrap-descriptions = 79
-blank = true
 
 [tool.mypy]
 warn_unused_configs = true

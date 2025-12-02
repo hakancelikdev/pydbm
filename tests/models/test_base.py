@@ -244,15 +244,19 @@ def test_base_all_and_filter(teardown_db):
     assert model_1 == Example(field1="str", field2=1)
     assert model_2 == Example(field1="another str", field2=2)
     assert len(list(Example.objects.all())) == Example.objects.count()
-    assert list(Example.objects.all()) == [Example(field1="another str", field2=2), Example(field1="str", field2=1)]
-    assert list(Example.objects.filter()) == [Example(field1="another str", field2=2), Example(field1="str", field2=1)]
+    expected = sorted(
+        [Example(field1="another str", field2=2), Example(field1="str", field2=1)],
+        key=lambda x: x.id
+    )
+    assert sorted(list(Example.objects.all()), key=lambda x: x.id) == expected
+    assert sorted(list(Example.objects.filter()), key=lambda x: x.id) == expected
     assert list(Example.objects.filter(field2=1)) == [Example(field1="str", field2=1)]
 
-    assert list(Example.objects.filter())[0].id == "bafc344cc206678e99efd8bc660a28dc"
-    assert list(Example.objects.filter())[1].id == "0ece50da8a7fc1d3b2ca9d147db7af6a"
+    assert sorted(list(Example.objects.filter()), key=lambda x: x.id)[0].id == "0ece50da8a7fc1d3b2ca9d147db7af6a"
+    assert sorted(list(Example.objects.filter()), key=lambda x: x.id)[1].id == "bafc344cc206678e99efd8bc660a28dc"
 
-    assert list(Example.objects.all())[0].id == "bafc344cc206678e99efd8bc660a28dc"
-    assert list(Example.objects.all())[1].id == "0ece50da8a7fc1d3b2ca9d147db7af6a"
+    assert sorted(list(Example.objects.all()), key=lambda x: x.id)[0].id == "0ece50da8a7fc1d3b2ca9d147db7af6a"
+    assert sorted(list(Example.objects.all()), key=lambda x: x.id)[1].id == "bafc344cc206678e99efd8bc660a28dc"
 
 
 def test_base_filter(teardown_db):

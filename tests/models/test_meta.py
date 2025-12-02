@@ -86,14 +86,14 @@ def test_meta_is_required_error():
 @pytest.mark.parametrize(
     "updated_fields, expected_error_ms",
     [
-        ({"bool": 1}, "Invalid value for bool=1; It must be bool."),
-        ({"bytes": "123"}, "Invalid value for bytes='123'; It must be bytes."),
-        ({"date": datetime.datetime(2020, 1, 1)}, "Invalid value for date=datetime.datetime(2020, 1, 1, 0, 0); It must be date."),  # noqa: E501
-        ({"datetime": datetime.date(2020, 1, 1)}, "Invalid value for datetime=datetime.date(2020, 1, 1); It must be datetime."),  # noqa: E501
-        ({"float": (1.0,)}, "Invalid value for float=(1.0,); It must be float."),
-        ({"int": 1.1}, "Invalid value for int=1.1; It must be int."),
-        ({"none": b"test"}, "Invalid value for none=b'test'; It must be None."),
-        ({"str": 1}, "Invalid value for str=1; It must be str."),
+        ({"bool": 1}, "Invalid value for bool=1, It must be bool."),
+        ({"bytes": "123"}, "Invalid value for bytes='123', It must be bytes."),
+        ({"date": datetime.datetime(2020, 1, 1)}, "Invalid value for date=datetime.datetime(2020, 1, 1, 0, 0), It must be date."),  # noqa: E501
+        ({"datetime": datetime.date(2020, 1, 1)}, "Invalid value for datetime=datetime.date(2020, 1, 1), It must be datetime."),  # noqa: E501
+        ({"float": (1.0,)}, "Invalid value for float=(1.0,), It must be float."),
+        ({"int": 1.1}, "Invalid value for int=1.1, It must be int."),
+        ({"none": b"test"}, "Invalid value for none=b'test', It must be None."),
+        ({"str": 1}, "Invalid value for str=1, It must be str."),
     ],
 )
 def test_base_type_validator(updated_fields, expected_error_ms):

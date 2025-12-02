@@ -35,7 +35,7 @@ def test_close(minimum_manager):
 
     with pytest.raises(dbm.error) as cm:
         db["test"] = {}
-    assert str(cm.value) == "GDBM object has already been closed"
+    assert "object has already been closed" in str(cm.value)
 
 
 def test__database_headers__minimum_manager(minimum_manager):

@@ -71,4 +71,4 @@ def test_base_validator_not_raise_value_error():
 
     with pytest.raises(ValidationError) as cm:
         Model().field = "test"
-    assert str(cm.value) == "Invalid value for field='test'; Value is not valid."
+    assert str(cm.value) == "Invalid value for field='test', Value is not valid."

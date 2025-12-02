@@ -298,7 +298,7 @@ In here, username field will be lowered case.
 
 ### Custom Validation
 We have some built-in validators, but you can also create your own validator.
-For more information, see [Validators](/validators).
+For more information, see [Validators](validators.md).
 
 ```python
 from pydbm import DbmModel, Field
