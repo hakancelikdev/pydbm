@@ -171,6 +171,12 @@ class DatabaseManager:
 
         return model
 
+    def get_or_create(self, **kwargs) -> tuple[DbmModel, bool]:
+        try:
+            return self.get(**kwargs), False
+        except self.model.DoesNotExists:
+            return self.create(**kwargs), True
+
     def get(self, *, id: str | None = None, **unique_together) -> DbmModel:
         if id is None:
             if self.model._config.unique_together != tuple(unique_together.keys()):

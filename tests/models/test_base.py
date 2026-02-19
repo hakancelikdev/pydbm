@@ -404,3 +404,47 @@ def test_base_last_with_multiple_records(teardown_db):
     last = Model.objects.last()
     assert last is not None
     assert last.username in ("hakan", "celik")
+
+
+def test_base_get_or_create_creates(teardown_db):
+    class Model(DbmModel):
+        username: str
+
+        class Config:
+            unique_together = ("username",)
+
+    instance, created = Model.objects.get_or_create(username="hakan")
+    assert created is True
+    assert instance.username == "hakan"
+    assert Model.objects.count() == 1
+
+
+def test_base_get_or_create_gets(teardown_db):
+    class Model(DbmModel):
+        username: str
+
+        class Config:
+            unique_together = ("username",)
+
+    Model.objects.create(username="hakan")
+    instance, created = Model.objects.get_or_create(username="hakan")
+    assert created is False
+    assert instance.username == "hakan"
+    assert Model.objects.count() == 1
+
+
+def test_base_get_or_create_multiple_fields(teardown_db):
+    class Model(DbmModel):
+        name: str
+        surname: str
+
+        class Config:
+            unique_together = ("name", "surname")
+
+    instance, created = Model.objects.get_or_create(name="hakan", surname="celik")
+    assert created is True
+
+    instance2, created2 = Model.objects.get_or_create(name="hakan", surname="celik")
+    assert created2 is False
+    assert instance.id == instance2.id
+    assert Model.objects.count() == 1
