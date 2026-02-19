@@ -127,6 +127,7 @@ nav:
       - tutorial/model-config.md
       - tutorial/field-types.md
       - tutorial/embed-models.md
+      - tutorial/normalizers.md
       - tutorial/validators.md
   - Contributing: CONTRIBUTING.md
   - Changelog: CHANGELOG.md
