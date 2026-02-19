@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pythonic-dbm"
-version = "0.6.1"
+version = "0.7.0"
 description = "Pydbm is a more pythonic way to use dbm."
 readme = "README.md"
 requires-python = ">=3.9"

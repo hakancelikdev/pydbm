@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - YYYY-MM-DD
+## [0.7.0] - 2026-02-19
 
 ### Added
 
@@ -10,6 +10,26 @@ All notable changes to this project will be documented in this file.
   - Concrete inheritance: subclasses inherit all fields from parent models; each concrete model has its own table.
   - Abstract base models: set `Config.abstract = True` to define a model that only supplies fields and optional config for subclasses (no table, no `objects`, cannot be instantiated).
   - Config inheritance: subclasses without a `Config` inherit `unique_together` from the first base that has one; table name is always derived from the subclass name.
+- `model.objects.first()` — return the first record from the database, or `None` if empty.
+- `model.objects.last()` — return the last record from the database, or `None` if empty.
+- `model.objects.get_or_create(**kwargs)` — fetch by unique_together or create if missing; returns `(instance, created)`.
+- Optional `None` for model fields [#65](https://github.com/hakancelikdev/pydbm/issues/65): fields typed as `X | None` or `Optional[X]` accept `None` and are validated/optional accordingly.
+
+### Changed
+
+- Performance: core manager operations optimized; `first()` and `last()` use direct key index access instead of iterating/deserializing all records.
+
+### Fixed
+
+- Protect `id` field from being overwritten or redefined [#55](https://github.com/hakancelikdev/pydbm/issues/55): raise `ReadOnlyFieldError` when `id` is defined in model annotations, passed to the constructor, or modified after creation.
+- Wrap `self.all()` with `iter()` to satisfy mypy type checking.
+
+### Documentation
+
+- Embed model and dict field type documentation.
+- Normalizers tutorial [#59](https://github.com/hakancelikdev/pydbm/issues/59).
+- Model inheritance and Config options (including `abstract`) in models and model-config docs.
+- CLAUDE.md for project guidance and architecture overview.
 
 ## [0.6.0] - 2023-07-19
 ### Added
