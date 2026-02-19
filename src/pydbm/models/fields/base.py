@@ -41,6 +41,7 @@ class BaseField:
         "kwargs",
         "_is_call_run",
         "_is_embed_model",
+        "_is_optional",
     )
 
     def __init__(
@@ -65,6 +66,7 @@ class BaseField:
 
         self._is_call_run = False
         self._is_embed_model = False
+        self._is_optional = False
 
     def __set_name__(self, instance: Meta, name: str) -> None:
         self.public_name = name
@@ -78,6 +80,12 @@ class BaseField:
 
     def __set__(self, instance: DbmModel, value: typing.Any) -> None:
         if self._is_embed_model:
+            if value is None and self._is_optional:
+                setattr(instance, self.private_name, None)
+                if self.field_name != C.PRIMARY_KEY:
+                    instance.fields[self.field_name] = None
+                return
+
             from pydbm.database.data_types import BaseDataType
 
             if isinstance(value, dict):
@@ -102,8 +110,9 @@ class BaseField:
         if self.field_name != C.PRIMARY_KEY:
             instance.fields[self.field_name] = eligible_value
 
-    def __call__(self: Self, field_name: str, field_type: SupportedClassT, *args, **kwargs) -> Self:  # type: ignore[valid-type]  # noqa: E501
+    def __call__(self: Self, field_name: str, field_type: SupportedClassT, *args, is_optional: bool = False, **kwargs) -> Self:  # type: ignore[valid-type]  # noqa: E501
         self._is_call_run = True
+        self._is_optional = is_optional
 
         self.field_name = field_name
         self.field_type = field_type
@@ -122,7 +131,15 @@ class BaseField:
             )
             self.validators.append(validator_mapping[field_type])
         else:
-            self.validators.append(validator_mapping[field_type])
+            inner_validator = validator_mapping[field_type]
+            if is_optional:
+                def optional_validator(value: typing.Any, v: ValidatorT = inner_validator) -> None:
+                    if value is not None:
+                        v(value)
+
+                self.validators.append(optional_validator)
+            else:
+                self.validators.append(inner_validator)
 
         if field_type is int:
             if self.min_value:

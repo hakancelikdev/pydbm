@@ -6,7 +6,33 @@ import typing
 
 __all__ = (
     "get_obj_annotations",
+    "is_optional_type",
+    "unwrap_optional",
 )
+
+
+def is_optional_type(tp: typing.Any) -> bool:
+    """Check if a type is Optional (Union with NoneType), e.g. Optional[str] or str | None."""
+    origin = typing.get_origin(tp)
+    if origin is typing.Union:
+        args = typing.get_args(tp)
+        return type(None) in args and len(args) == 2
+    if sys.version_info >= (3, 10):
+        import types as _types
+
+        if isinstance(tp, _types.UnionType):
+            args = typing.get_args(tp)
+            return type(None) in args and len(args) == 2
+    return False
+
+
+def unwrap_optional(tp: typing.Any) -> typing.Any:
+    """Extract the inner type from Optional[X] / X | None."""
+    args = typing.get_args(tp)
+    for arg in args:
+        if arg is not type(None):
+            return arg
+    return type(None)
 
 
 def get_obj_annotations(*, obj: typing.Type[typing.Any]) -> dict[str, typing.Any]:
