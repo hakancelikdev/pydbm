@@ -204,6 +204,21 @@ user = UserModel.objects.create(username="hakancelik")
 It is the same as save, but it returns the user.
 
 
+### Get or Create
+
+Get or create method tries to get an existing record from the database.
+If the record does not exist, it creates a new one.
+It returns a tuple of `(instance, created)` where `created` is a boolean indicating whether the record was created.
+
+```python
+user, created = UserModel.objects.get_or_create(username="hakancelik")
+
+if created:
+    print("New user created")
+else:
+    print("Existing user found")
+```
+
 ### All
 
 All method is used to get all data from the database and iterate model instances.
