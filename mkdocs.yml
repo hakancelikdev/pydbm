@@ -35,8 +35,8 @@ markdown_extensions:
   - pymdownx.keys
   - pymdownx.magiclink:
       repo_url_shorthand: true
-      user: squidfunk
-      repo: mkdocs-material
+      user: hakancelikdev
+      repo: pydbm
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.superfences:
