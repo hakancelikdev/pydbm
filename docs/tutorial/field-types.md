@@ -30,6 +30,46 @@
 `DbmModel` (Embed Model)
 > Field value can be an instance of another DbmModel subclass. See [Embed Models](embed-models.md) for details.
 
+## Optional Types
+
+Any supported type can be made optional using `Optional[T]` or `T | None` (Python 3.10+).
+Optional fields default to `None` if no value is provided and accept both the inner type value and `None`.
+
+```python
+import typing
+
+from pydbm import DbmModel
+
+
+class User(DbmModel):
+    name: str
+    nickname: typing.Optional[str]  # defaults to None, accepts str or None
+    age: typing.Optional[int]       # defaults to None, accepts int or None
+```
+
+```python
+user = User(name="hakan")
+assert user.nickname is None
+assert user.age is None
+
+user = User(name="hakan", nickname="hako", age=30)
+assert user.nickname == "hako"
+assert user.age == 30
+```
+
+You can also provide a custom default value for optional fields:
+
+```python
+class User(DbmModel):
+    name: str
+    nickname: typing.Optional[str] = "anonymous"
+
+user = User(name="hakan")
+assert user.nickname == "anonymous"
+```
+
+## Example
+
 ```python
 import datetime
 

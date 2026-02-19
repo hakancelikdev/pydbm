@@ -6,7 +6,7 @@ from pydbm import contstant as C
 from pydbm import typing_extra
 from pydbm.database import DatabaseManager
 from pydbm.exceptions import EmptyModelError, PydbmBaseException, ReadOnlyFieldError, UnnecessaryParamsError
-from pydbm.inspect_extra import get_obj_annotations
+from pydbm.inspect_extra import get_obj_annotations, is_optional_type, unwrap_optional
 from pydbm.models.fields import AutoField, Field, Undefined
 
 __all__ = (
@@ -130,9 +130,17 @@ class Meta(type):
             if field_name == C.PRIMARY_KEY:
                 continue
 
+            optional = is_optional_type(field_type)
+            actual_type = unwrap_optional(field_type) if optional else field_type
+
             default_value: Field | typing.Any = namespace.get(field_name, Undefined)
-            field = default_value if isinstance(default_value, Field) else Field(default=default_value)
-            fields.update({field_name: field(field_name, field_type)})
+            if isinstance(default_value, Field):
+                field = default_value
+            elif optional and default_value is Undefined:
+                field = Field(default=None)
+            else:
+                field = Field(default=default_value)
+            fields.update({field_name: field(field_name, actual_type, is_optional=optional)})
         return fields
 
     @staticmethod

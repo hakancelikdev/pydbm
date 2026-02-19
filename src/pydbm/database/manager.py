@@ -8,7 +8,7 @@ from pathlib import Path
 
 from pydbm import contstant as C
 from pydbm.database.data_types import BaseDataType
-from pydbm.inspect_extra import get_obj_annotations
+from pydbm.inspect_extra import get_obj_annotations, is_optional_type, unwrap_optional
 from pydbm.models.fields import AutoField
 
 if typing.TYPE_CHECKING:
@@ -52,6 +52,7 @@ class DatabaseManager:
         "db_path",
         "db",
         DATABASE_HEADER_NAME,
+        "__optional_fields__",
         "_keys",
         "__is_db_open",
     )
@@ -113,8 +114,18 @@ class DatabaseManager:
         ann = get_obj_annotations(obj=self.model)
 
         resolved_ann = {}
+        optional_fields: set[str] = set()
         for key, value in ann.items():
-            if value in DATABASE_HEADER_MAPPING:
+            if is_optional_type(value):
+                inner_type = unwrap_optional(value)
+                optional_fields.add(key)
+                if inner_type in DATABASE_HEADER_MAPPING:
+                    resolved_ann[key] = inner_type
+                elif isinstance(inner_type, type) and hasattr(inner_type, "objects"):
+                    resolved_ann[key] = dict
+                else:
+                    resolved_ann[key] = inner_type
+            elif value in DATABASE_HEADER_MAPPING:
                 resolved_ann[key] = value
             elif isinstance(value, type) and hasattr(value, "objects"):
                 resolved_ann[key] = dict
@@ -133,6 +144,7 @@ class DatabaseManager:
             assert database_header == db_headers, f"Database headers are not equal: '{database_header}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
 
         setattr(self, DATABASE_HEADER_NAME, resolved_ann)
+        self.__optional_fields__ = optional_fields
 
     def open(self):
         if not self.__is_db_open:
@@ -148,6 +160,9 @@ class DatabaseManager:
     def save(self, *, id: str, fields: dict[str, typing.Any]) -> None:
         data: dict[str, typing.Any] = {}
         for key, value in fields.items():
+            if value is None and key in self.__optional_fields__:
+                data[key] = None
+                continue
             header_type = self.__database_headers__[key]
             if header_type is dict and hasattr(value, "as_dict"):
                 embed_headers = value.objects.__database_headers__
@@ -194,7 +209,10 @@ class DatabaseManager:
             to_python = ast.literal_eval(data_from_dbm.decode("utf-8"))  # TODO: implement own parser
             fields: dict[str, typing.Any] = {}
             for key, value in to_python.items():
-                fields[key] = BaseDataType.get_data_type(self.__database_headers__[key]).get(value)
+                if value is None and key in self.__optional_fields__:
+                    fields[key] = None
+                else:
+                    fields[key] = BaseDataType.get_data_type(self.__database_headers__[key]).get(value)
 
             return self.model(**fields)
 
@@ -212,6 +230,9 @@ class DatabaseManager:
 
         data = ast.literal_eval(data_from_dbm.decode("utf-8"))
         for key, value in updated_fields.items():
+            if value is None and key in self.__optional_fields__:
+                data[key] = None
+                continue
             header_type = self.__database_headers__[key]
             if header_type is dict and hasattr(value, "as_dict"):
                 embed_headers = value.objects.__database_headers__
@@ -241,7 +262,10 @@ class DatabaseManager:
             to_python = ast.literal_eval(data_from_dbm.decode("utf-8"))
             fields: dict[str, typing.Any] = {}
             for key, value in to_python.items():
-                fields[key] = BaseDataType.get_data_type(self.__database_headers__[key]).get(value)
+                if value is None and key in self.__optional_fields__:
+                    fields[key] = None
+                else:
+                    fields[key] = BaseDataType.get_data_type(self.__database_headers__[key]).get(value)
             yield self.model(**fields)
 
     def filter(self, **kwargs) -> typing.Iterator[DbmModel]:
