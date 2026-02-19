@@ -5,7 +5,7 @@ import typing
 from pydbm import contstant as C
 from pydbm import typing_extra
 from pydbm.database import DatabaseManager
-from pydbm.exceptions import EmptyModelError, PydbmBaseException, UnnecessaryParamsError
+from pydbm.exceptions import EmptyModelError, PydbmBaseException, ReadOnlyFieldError, UnnecessaryParamsError
 from pydbm.inspect_extra import get_obj_annotations
 from pydbm.models.fields import AutoField, Field, Undefined
 
@@ -31,6 +31,11 @@ class Meta(type):
     @staticmethod
     def __new__(mcs, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any) -> type:  # noqa: E501
         annotations = namespace.pop("__annotations__", {})
+        if [b for b in bases if isinstance(b, mcs)] and C.PRIMARY_KEY in annotations:
+            raise ReadOnlyFieldError(
+                f"'{C.PRIMARY_KEY}' field is auto-generated and cannot be overwritten or change type."
+                " Use 'unique_together' in Config to change id creation behavior."
+            )
         annotations[C.PRIMARY_KEY] = str
         slots = mcs.generate_slots(annotations)
         if not [b for b in bases if isinstance(b, mcs)]:
@@ -62,6 +67,11 @@ class Meta(type):
                 setattr(cls, key, value)
 
     def __call__(cls, **kwargs):
+        if C.PRIMARY_KEY in kwargs:
+            raise ReadOnlyFieldError(
+                f"'{C.PRIMARY_KEY}' field is auto-generated and cannot be passed as an argument."
+            )
+
         for extra_field_name in (set(kwargs.keys()) - set(cls.__annotations__.keys())):
             raise UnnecessaryParamsError(f"{extra_field_name} is not defined in {cls.__name__}")
 

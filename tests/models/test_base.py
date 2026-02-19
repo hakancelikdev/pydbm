@@ -3,7 +3,7 @@ import datetime as datetime
 import pytest
 
 from pydbm import DbmModel
-from pydbm.exceptions import EmptyModelError
+from pydbm.exceptions import EmptyModelError, ReadOnlyFieldError
 
 
 class Model(DbmModel):
@@ -278,11 +278,11 @@ def test_base_empty_model():
 
 
 def test_base_only_id_field_model():
-    with pytest.raises(EmptyModelError) as cm:
+    with pytest.raises(ReadOnlyFieldError) as cm:
         class EmptyModel(DbmModel):
             id: str
 
-    assert str(cm.value) == "Empty model is not allowed."
+    assert str(cm.value) == "'id' field is auto-generated and cannot be overwritten or change type. Use 'unique_together' in Config to change id creation behavior."
 
 
 def test_base_update_obj_on_db_when_updating_the_field_on_the_instance(teardown_db):
@@ -448,3 +448,44 @@ def test_base_get_or_create_multiple_fields(teardown_db):
     assert created2 is False
     assert instance.id == instance2.id
     assert Model.objects.count() == 1
+
+
+def test_id_field_cannot_be_defined_in_model():
+    with pytest.raises(ReadOnlyFieldError) as cm:
+        class Model(DbmModel):
+            id: str
+            name: str
+
+    assert "'id' field is auto-generated" in str(cm.value)
+
+
+def test_id_field_cannot_change_type():
+    with pytest.raises(ReadOnlyFieldError) as cm:
+        class Model(DbmModel):
+            id: int
+            name: str
+
+    assert "'id' field is auto-generated" in str(cm.value)
+
+
+def test_id_field_cannot_be_passed_to_constructor():
+    class Model(DbmModel):
+        name: str
+
+    with pytest.raises(ReadOnlyFieldError) as cm:
+        Model(id="custom_id", name="test")
+
+    assert "'id' field is auto-generated and cannot be passed as an argument" in str(cm.value)
+
+
+def test_id_field_cannot_be_overwritten_after_creation():
+    class Model(DbmModel):
+        name: str
+
+    model = Model(name="test")
+    assert model.id is not None
+
+    with pytest.raises(ReadOnlyFieldError) as cm:
+        model.id = "new_id"
+
+    assert "'id' field is read-only and cannot be modified after creation" in str(cm.value)
