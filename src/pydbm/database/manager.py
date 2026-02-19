@@ -244,5 +244,11 @@ class DatabaseManager:
     def first(self) -> DbmModel | None:
         return next(iter(self.all()), None)
 
+    def last(self) -> DbmModel | None:
+        last_item: DbmModel | None = None
+        for item in self.all():
+            last_item = item
+        return last_item
+
     def count(self):
         return len(self)

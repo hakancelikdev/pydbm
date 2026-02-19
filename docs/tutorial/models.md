@@ -234,6 +234,18 @@ if user is not None:
     print(user.username)
 ```
 
+### Last
+
+Last method returns the last record from the database as a model instance.
+If no records exist, it returns `None`.
+
+```python
+user = UserModel.objects.last()
+
+if user is not None:
+    print(user.username)
+```
+
 ### Exists
 
 Exists method is used to check if the data exists in the database, returns True if the data exists, otherwise returns False.

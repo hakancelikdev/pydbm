@@ -380,3 +380,27 @@ def test_base_first_with_multiple_records(teardown_db):
     first = Model.objects.first()
     assert first is not None
     assert first.username in ("hakan", "celik")
+
+
+def test_base_last(teardown_db):
+    class Model(DbmModel):
+        username: str
+
+    assert Model.objects.last() is None
+
+    Model(username="hakan").save()
+    last = Model.objects.last()
+    assert last is not None
+    assert last.username == "hakan"
+
+
+def test_base_last_with_multiple_records(teardown_db):
+    class Model(DbmModel):
+        username: str
+
+    Model(username="hakan").save()
+    Model(username="celik").save()
+
+    last = Model.objects.last()
+    assert last is not None
+    assert last.username in ("hakan", "celik")
