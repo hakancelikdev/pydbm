@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 import typing
 import warnings
 
@@ -72,10 +71,10 @@ class BaseField:
         self.private_name = "_" + name
 
     def __get__(self, instance: Meta, owner: DbmModel) -> typing.Any:
-        with contextlib.suppress(AttributeError):
+        try:
             return getattr(instance, self.private_name)
-
-        return self.get_default_value()
+        except AttributeError:
+            return self.get_default_value()
 
     def __set__(self, instance: DbmModel, value: typing.Any) -> None:
         if self._is_embed_model:
@@ -96,18 +95,6 @@ class BaseField:
                 if self.field_name != C.PRIMARY_KEY:
                     instance.fields[self.field_name] = value
                 return
-
-        if value.__class__ is int:
-            if self.min_value:
-                self.validators.append(validate_min_value(self.min_value))
-            if self.max_value:
-                self.validators.append(validate_max_value(self.max_value))
-        else:
-            if self.min_value or self.max_value:
-                logger.warning(
-                    "min_value and max_value are only valid for int type. "
-                    f"They are ignored for {value.__class__.__name__} type."
-                )
 
         eligible_value = self.before_set(value)
 
@@ -136,6 +123,17 @@ class BaseField:
             self.validators.append(validator_mapping[field_type])
         else:
             self.validators.append(validator_mapping[field_type])
+
+        if field_type is int:
+            if self.min_value:
+                self.validators.append(validate_min_value(self.min_value))
+            if self.max_value:
+                self.validators.append(validate_max_value(self.max_value))
+        elif self.min_value or self.max_value:
+            logger.warning(
+                "min_value and max_value are only valid for int type. "
+                f"They are ignored for {field_type.__name__ if hasattr(field_type, '__name__') else field_type} type."
+            )
         return self
 
     def __repr__(self) -> str:
