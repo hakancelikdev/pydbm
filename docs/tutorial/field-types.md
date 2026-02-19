@@ -12,6 +12,9 @@
 `datetime`
 > Field value can be a datetime object.
 
+`dict`
+> Field value can be a dictionary. Consider using an [Embed Model](embed-models.md) instead for better type safety.
+
 `float`
 > Field value can be a floating point number.
 
@@ -24,6 +27,9 @@
 `str`
 > Field value can be a string.
 
+`DbmModel` (Embed Model)
+> Field value can be an instance of another DbmModel subclass. See [Embed Models](embed-models.md) for details.
+
 ```python
 import datetime
 
@@ -35,6 +41,7 @@ class User(DbmModel):
     bytes_field: bytes
     date_field: datetime.date
     datetime_field: datetime.datetime
+    dict_field: dict
     float_field: float
     int_field: int
     none_field: None
