@@ -242,14 +242,28 @@ class DatabaseManager:
             return not (next(self.filter(**kwargs), False) is False)
 
     def first(self) -> DbmModel | None:
-        return next(iter(self.all()), None)
+        with self as db:
+            keys = db.keys()
+            if not keys:
+                return None
+            first_key = keys[0].decode("utf-8")
+            if first_key == DATABASE_HEADER_NAME:
+                if len(keys) < 2:
+                    return None
+                first_key = keys[1].decode("utf-8")
+        return self.get(id=first_key)
 
     def last(self) -> DbmModel | None:
         with self as db:
-            keys = [k.decode("utf-8") for k in db.keys() if k.decode("utf-8") != DATABASE_HEADER_NAME]
-        if keys:
-            return self.get(id=keys[-1])
-        return None
+            keys = db.keys()
+            if not keys:
+                return None
+            last_key = keys[-1].decode("utf-8")
+            if last_key == DATABASE_HEADER_NAME:
+                if len(keys) < 2:
+                    return None
+                last_key = keys[-2].decode("utf-8")
+        return self.get(id=last_key)
 
     def count(self):
         return len(self)
