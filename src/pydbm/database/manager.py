@@ -245,11 +245,10 @@ class DatabaseManager:
         return next(iter(self.all()), None)
 
     def last(self) -> DbmModel | None:
-        last_key: str | None = None
-        for key in self:
-            last_key = key
-        if last_key is not None:
-            return self.get(id=last_key)
+        with self as db:
+            keys = [k.decode("utf-8") for k in db.keys() if k.decode("utf-8") != DATABASE_HEADER_NAME]
+        if keys:
+            return self.get(id=keys[-1])
         return None
 
     def count(self):
