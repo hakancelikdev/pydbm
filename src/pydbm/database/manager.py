@@ -32,6 +32,7 @@ DATABASE_HEADER_MAPPING: dict[SupportedClassT, str] = {
     bytes: "bytes",
     datetime.date: "date",
     datetime.datetime: "datetime",
+    dict: "dict",
     float: "float",
     int: "int",
     None: "null",
@@ -110,7 +111,17 @@ class DatabaseManager:
 
     def set_database_header(self):
         ann = get_obj_annotations(obj=self.model)
-        db_headers = bytes(str({key: DATABASE_HEADER_MAPPING[value] for key, value in ann.items()}), "utf-8")
+
+        resolved_ann = {}
+        for key, value in ann.items():
+            if value in DATABASE_HEADER_MAPPING:
+                resolved_ann[key] = value
+            elif isinstance(value, type) and hasattr(value, "objects"):
+                resolved_ann[key] = dict
+            else:
+                resolved_ann[key] = value
+
+        db_headers = bytes(str({key: DATABASE_HEADER_MAPPING[value] for key, value in resolved_ann.items()}), "utf-8")
 
         with self as db:
             database_header: bytes | None
@@ -121,7 +132,7 @@ class DatabaseManager:
             # TODO: migrations
             assert database_header == db_headers, f"Database headers are not equal: '{database_header}' != '{db_headers}'"  # type: ignore[str-bytes-safe]  # noqa: E501
 
-        setattr(self, DATABASE_HEADER_NAME, ann)
+        setattr(self, DATABASE_HEADER_NAME, resolved_ann)
 
     def open(self):
         if not self.__is_db_open:
@@ -135,9 +146,17 @@ class DatabaseManager:
             self.__is_db_open = False
 
     def save(self, *, id: str, fields: dict[str, typing.Any]) -> None:
-        data: dict[str, typing.Any] = {
-            key: BaseDataType.get_data_type(self.__database_headers__[key]).set(value) for key, value in fields.items()
-        }
+        data: dict[str, typing.Any] = {}
+        for key, value in fields.items():
+            header_type = self.__database_headers__[key]
+            if header_type is dict and hasattr(value, "as_dict"):
+                embed_headers = value.objects.__database_headers__
+                serialized = {
+                    k: BaseDataType.get_data_type(embed_headers[k]).set(v) for k, v in value.as_dict().items()
+                }
+                data[key] = BaseDataType.get_data_type(dict).set(serialized)
+            else:
+                data[key] = BaseDataType.get_data_type(header_type).set(value)
         data_for_dbm = bytes(str(data), "utf-8")
 
         with self as db:

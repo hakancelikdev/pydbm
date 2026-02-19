@@ -6,6 +6,7 @@ __all__ = (
     "validate_bytes",
     "validate_date",
     "validate_datetime",
+    "validate_dict",
     "validate_float",
     "validate_int",
     "validate_none",
@@ -51,3 +52,8 @@ def validate_none(value: typing.Any) -> None:
 def validate_str(value: typing.Any) -> None:
     if value.__class__ is not str:
         raise ValueError("It must be str")
+
+
+def validate_dict(value: typing.Any) -> None:
+    if value.__class__ is not dict:
+        raise ValueError("It must be dict")
