@@ -241,5 +241,8 @@ class DatabaseManager:
         else:
             return not (next(self.filter(**kwargs), False) is False)
 
+    def first(self) -> DbmModel | None:
+        return next(self.all(), None)
+
     def count(self):
         return len(self)

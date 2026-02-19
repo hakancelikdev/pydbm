@@ -222,6 +222,18 @@ You can filter data by using the fields of the model.
 users = list(UserModel.objects.filter(username="hakancelik"))
 ```
 
+### First
+
+First method returns the first record from the database as a model instance.
+If no records exist, it returns `None`.
+
+```python
+user = UserModel.objects.first()
+
+if user is not None:
+    print(user.username)
+```
+
 ### Exists
 
 Exists method is used to check if the data exists in the database, returns True if the data exists, otherwise returns False.

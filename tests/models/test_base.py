@@ -356,3 +356,27 @@ def test_base_exists_false_more_fields():
             unique_together = ("username",)
 
     assert Model.objects.exists(name="hakan", surname="celik") is False
+
+
+def test_base_first(teardown_db):
+    class Model(DbmModel):
+        username: str
+
+    assert Model.objects.first() is None
+
+    Model(username="hakan").save()
+    first = Model.objects.first()
+    assert first is not None
+    assert first.username == "hakan"
+
+
+def test_base_first_with_multiple_records(teardown_db):
+    class Model(DbmModel):
+        username: str
+
+    Model(username="hakan").save()
+    Model(username="celik").save()
+
+    first = Model.objects.first()
+    assert first is not None
+    assert first.username in ("hakan", "celik")
