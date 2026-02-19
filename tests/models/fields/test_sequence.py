@@ -54,24 +54,20 @@ def test_str_default_factory_and_default():
 
 
 def test_str_max_value(caplog):
-    class Model(DbmModel):
-        field: str = Field(max_value=10)
-
-    caplog.clear()
     with caplog.at_level("WARNING"):
-        Model(field="11")
+        class Model(DbmModel):
+            field: str = Field(max_value=10)
+
     assert (
         caplog.records[0].msg == "min_value and max_value are only valid for int type. They are ignored for str type."
     )
 
 
 def test_str_min_value(caplog):
-    class Model(DbmModel):
-        field: str = Field(min_value="10")
-
-    caplog.clear()
     with caplog.at_level("WARNING"):
-        Model(field="2")
+        class Model(DbmModel):
+            field: str = Field(min_value="10")
+
     assert (
         caplog.records[0].msg == "min_value and max_value are only valid for int type. They are ignored for str type."
     )

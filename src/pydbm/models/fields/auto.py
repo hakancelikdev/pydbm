@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import typing
+import uuid
 
 from pydbm import contstant as C
 from pydbm.models.fields.base import BaseField
@@ -50,9 +51,13 @@ class AutoField(BaseField):
         self.fields = _fields
         return super().__call__(self.field_name, self.field_type, *args, **kwargs)  # type: ignore
 
+    @staticmethod
+    def compute_id(unique_together: tuple[str, ...], fields: dict[str, typing.Any]) -> str:
+        text = "*".join(map(str, (attr for name in unique_together if (attr := fields.get(name, None)) is not None)))
+        return hashlib.md5(bytes(text, "utf-8")).hexdigest()
+
     def generate_id(self) -> str:
         if self.unique_together and self._is_call_run:
-            text = "*".join(map(str, (attr for name in self.unique_together if (attr := self.fields.get(name, None)) is not None)))
-            return hashlib.md5(bytes(text, "utf-8")).hexdigest()
+            return self.compute_id(self.unique_together, self.fields)
         else:  # TODO: disable all behaviors
-            return __import__("uuid").uuid4().hex
+            return uuid.uuid4().hex

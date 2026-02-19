@@ -179,12 +179,7 @@ class DatabaseManager:
                     f" all unique_together fields: {self.model._config.unique_together}"
                 )
 
-            auto_field = AutoField(
-                field_name=C.PRIMARY_KEY,
-                field_type=str,
-                unique_together=self.model._config.unique_together
-            )
-            id = auto_field(fields=unique_together).get_default_value()
+            id = AutoField.compute_id(self.model._config.unique_together, unique_together)
 
         with self as db:
             data_from_dbm: bytes = db.get(id, None)
@@ -203,21 +198,45 @@ class DatabaseManager:
             raise self.model.DoesNotExists(f"{self.model.__name__} with id {id} does not exists")
 
     def update(self, *, id: str, **updated_fields) -> None:
-        model = self.get(id=id)
-        fields = model.fields
+        with self as db:
+            data_from_dbm: bytes = db.get(id, None)
 
+        if data_from_dbm is None:
+            raise self.model.DoesNotExists(f"{self.model.__name__} with id {id} does not exists")
+
+        data = ast.literal_eval(data_from_dbm.decode("utf-8"))
         for key, value in updated_fields.items():
-            fields[key] = value
+            header_type = self.__database_headers__[key]
+            if header_type is dict and hasattr(value, "as_dict"):
+                embed_headers = value.objects.__database_headers__
+                serialized = {
+                    k: BaseDataType.get_data_type(embed_headers[k]).set(v) for k, v in value.as_dict().items()
+                }
+                data[key] = BaseDataType.get_data_type(dict).set(serialized)
+            else:
+                data[key] = BaseDataType.get_data_type(header_type).set(value)
 
-        self.save(id=id, fields=fields)
+        with self as db:
+            db[id] = bytes(str(data), "utf-8")
 
     def delete(self, *, id: str) -> None:
         with self as db:
             del db[id]
 
     def all(self) -> typing.Iterable[DbmModel]:
-        for key in self:
-            yield self.get(id=key)
+        with self as db:
+            raw_items: list[bytes] = []
+            for key in db.keys():
+                k = key.decode("utf-8")
+                if k != DATABASE_HEADER_NAME:
+                    raw_items.append(db[key])
+
+        for data_from_dbm in raw_items:
+            to_python = ast.literal_eval(data_from_dbm.decode("utf-8"))
+            fields: dict[str, typing.Any] = {}
+            for key, value in to_python.items():
+                fields[key] = BaseDataType.get_data_type(self.__database_headers__[key]).get(value)
+            yield self.model(**fields)
 
     def filter(self, **kwargs) -> typing.Iterator[DbmModel]:
         def check(model: DbmModel) -> bool:
@@ -227,12 +246,7 @@ class DatabaseManager:
 
     def exists(self, **kwargs) -> bool:
         if (id := kwargs.pop(C.PRIMARY_KEY, None)) is None and self.model._config.unique_together == tuple(kwargs.keys()):  # noqa: E501
-            auto_field = AutoField(
-                field_name=C.PRIMARY_KEY,
-                field_type=str,
-                unique_together=self.model._config.unique_together
-            )
-            id = auto_field(fields=kwargs).get_default_value()
+            id = AutoField.compute_id(self.model._config.unique_together, kwargs)
 
         if id is not None:
             with self as db:
