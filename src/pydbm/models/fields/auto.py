@@ -5,6 +5,7 @@ import typing
 import uuid
 
 from pydbm import contstant as C
+from pydbm.exceptions import ReadOnlyFieldError
 from pydbm.models.fields.base import BaseField
 
 if typing.TYPE_CHECKING:
@@ -35,7 +36,11 @@ class AutoField(BaseField):
         super().__init__(default_factory=self.generate_id, **kwargs)
 
     def __set__(self, instance: DbmModel, value: typing.Any) -> None:
-        if (fields := getattr(instance, "fields", None)) is not None and C.PRIMARY_KEY not in fields:
+        if getattr(instance, "fields", None) is not None:
+            if hasattr(instance, self.private_name):
+                raise ReadOnlyFieldError(
+                    f"'{C.PRIMARY_KEY}' field is read-only and cannot be modified after creation."
+                )
             return super().__set__(instance, value)
 
     def __call__(self: Self, fields: dict[str, typing.Any] | None = None, *args, **kwargs) -> Self:  # type: ignore[valid-type, override]  # noqa: E501

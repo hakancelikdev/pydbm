@@ -7,6 +7,7 @@ __all__ = (
     "ValidationError",
     "EmptyModelError",
     "UnnecessaryParamsError",
+    "ReadOnlyFieldError",
 )
 
 
@@ -42,5 +43,11 @@ class EmptyModelError(PydbmBaseException):
 
 class UnnecessaryParamsError(PydbmBaseException, ValueError):
     """Exception for invalid params."""
+
+    pass
+
+
+class ReadOnlyFieldError(PydbmBaseException, AttributeError):
+    """Exception for attempting to overwrite or redefine a read-only field."""
 
     pass
