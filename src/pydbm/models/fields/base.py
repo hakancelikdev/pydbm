@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import typing
+import warnings
 
 from pydbm import contstant as C
 from pydbm.exceptions import ValidationError
@@ -40,6 +41,7 @@ class BaseField:
         "min_value",
         "kwargs",
         "_is_call_run",
+        "_is_embed_model",
     )
 
     def __init__(
@@ -63,6 +65,7 @@ class BaseField:
         self.min_value = min_value
 
         self._is_call_run = False
+        self._is_embed_model = False
 
     def __set_name__(self, instance: Meta, name: str) -> None:
         self.public_name = name
@@ -75,6 +78,25 @@ class BaseField:
         return self.get_default_value()
 
     def __set__(self, instance: DbmModel, value: typing.Any) -> None:
+        if self._is_embed_model:
+            from pydbm.database.data_types import BaseDataType
+
+            if isinstance(value, dict):
+                embed_headers = self.field_type.objects.__database_headers__
+                deserialized = {
+                    k: BaseDataType.get_data_type(embed_headers[k]).get(v) for k, v in value.items()
+                }
+                model_instance = self.field_type(**deserialized)
+                setattr(instance, self.private_name, model_instance)
+                if self.field_name != C.PRIMARY_KEY:
+                    instance.fields[self.field_name] = model_instance
+                return
+            elif hasattr(value, "as_dict"):
+                setattr(instance, self.private_name, value)
+                if self.field_name != C.PRIMARY_KEY:
+                    instance.fields[self.field_name] = value
+                return
+
         if value.__class__ is int:
             if self.min_value:
                 self.validators.append(validate_min_value(self.min_value))
@@ -102,7 +124,18 @@ class BaseField:
         self.public_name = field_name
         self.private_name = "_" + field_name
 
-        self.validators.append(validator_mapping[field_type])
+        if isinstance(field_type, type) and hasattr(field_type, "objects"):
+            self._is_embed_model = True
+        elif field_type is dict:
+            warnings.warn(
+                f"Using 'dict' type for field '{field_name}'. "
+                "Consider using an embed model (DbmModel subclass) instead for better type safety.",
+                UserWarning,
+                stacklevel=4,
+            )
+            self.validators.append(validator_mapping[field_type])
+        else:
+            self.validators.append(validator_mapping[field_type])
         return self
 
     def __repr__(self) -> str:

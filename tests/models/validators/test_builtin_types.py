@@ -17,6 +17,8 @@ from pydbm.models.validators import builtin_types
         ("validate_int", 1),
         ("validate_none", None),
         ("validate_str", ""),
+        ("validate_dict", {}),
+        ("validate_dict", {"key": "value"}),
     ],
 )
 def test_builtin_types_valid(validator_name, value):
@@ -36,6 +38,8 @@ def test_builtin_types_valid(validator_name, value):
         ("validate_int", 1.1, "It must be int"),
         ("validate_none", 1, "It must be None"),
         ("validate_str", 1, "It must be str"),
+        ("validate_dict", 1, "It must be dict"),
+        ("validate_dict", "string", "It must be dict"),
     ],
 )
 def test_builtin_types_invalid(validator_name, value, exception_msg):

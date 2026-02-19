@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import datetime
 
 from pydbm.database.data_types.base import BaseDataType
@@ -9,6 +10,7 @@ __all__ = (
     "BytesDataType",
     "DateDataType",
     "DateTimeDataType",
+    "DictDataType",
     "FloatDataType",
     "IntDataType",
     "NoneDataType",
@@ -98,4 +100,16 @@ class StrDataType(BaseDataType, data_type=str):
 
     @staticmethod
     def set(value: str) -> str:
+        return str(value)
+
+
+class DictDataType(BaseDataType, data_type=dict):
+    @classmethod
+    def get(cls, value: str) -> dict:
+        if isinstance(value, dict):
+            return value
+        return ast.literal_eval(value)
+
+    @staticmethod
+    def set(value: dict) -> str:
         return str(value)
