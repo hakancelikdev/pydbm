@@ -21,6 +21,7 @@ class UserModel(DbmModel):
 - validate_bytes
 - validate_date
 - validate_datetime
+- validate_dict
 - validate_float
 - validate_int
 - validate_none
@@ -36,6 +37,7 @@ from pydbm import (
     validate_bytes,
     validate_date,
     validate_datetime,
+    validate_dict,
     validate_float,
     validate_int,
     validate_none,
