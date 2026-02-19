@@ -326,6 +326,7 @@ class UserModel(DbmModel):
 
 ### Custom Normalization
 It can be defined list of normalization functions, to normalize the field value.
+For more information, see [Normalizers](normalizers.md).
 
 ```python
 from pydbm import DbmModel, Field
@@ -335,7 +336,7 @@ __all__ = (
 )
 
 class UserModel(DbmModel):
-    username: str = Field(normalize=[lambda x: x.lower()])
+    username: str = Field(normalizers=[lambda x: x.lower()])
 ```
 
 In here, username field will be lowered case.
