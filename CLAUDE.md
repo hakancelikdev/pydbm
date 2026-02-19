@@ -54,6 +54,7 @@ tox
 
 ### Key patterns
 
+- **Model inheritance:** Subclasses merge `__annotations__` from all model bases in `Meta.__new__`; each concrete model has its own table. `Config.abstract = True` skips creating `DatabaseManager` and prevents instantiation; subclasses can inherit `unique_together` from the first base with a Config.
 - `unique_together` on a model's `Config` class controls both primary key generation (deterministic hashing) and uniqueness enforcement via `DatabaseManager.get()`.
 - Data flows through: user value → normalizers → validators → descriptor `__set__` → `instance.fields` dict → `DatabaseManager.save()` → `BaseDataType.set()` → dbm file.
 - Tests auto-cleanup: `conftest.py` has autouse fixtures that delete all `.pydbm` files after each test function and remove the `pydbm/` directory after the session.

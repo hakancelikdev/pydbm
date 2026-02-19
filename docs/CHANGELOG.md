@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - YYYY-MM-DD
 
+### Added
+
+- **Model inheritance** [#29](https://github.com/hakancelikdev/pydbm/issues/29)
+  - Concrete inheritance: subclasses inherit all fields from parent models; each concrete model has its own table.
+  - Abstract base models: set `Config.abstract = True` to define a model that only supplies fields and optional config for subclasses (no table, no `objects`, cannot be instantiated).
+  - Config inheritance: subclasses without a `Config` inherit `unique_together` from the first base that has one; table name is always derived from the subclass name.
+
 ## [0.6.0] - 2023-07-19
 ### Added
 - Implement exists() method [#50](https://github.com/hakancelikdev/pydbm/issues/50)

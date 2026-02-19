@@ -273,6 +273,64 @@ If you pass unique together fields of the model, it will be faster.
 
 ```python
 is_exists: bool = UserModel.objects.exists(username="hakancelik")
+```
+
+## Model inheritance
+
+You can reuse fields and behavior by subclassing models. Each concrete model has its own table; subclasses inherit all fields from their parent(s).
+
+### Concrete inheritance
+
+Define a base model and extend it with extra fields. The child model gets its own table (named from the child class, e.g. `Dog` → `"dogs"`) and stores both inherited and its own fields.
+
+```python
+from pydbm import DbmModel
+
+class Animal(DbmModel):
+    name: str
+
+class Dog(Animal):
+    breed: str
+
+# Dog has fields: id, name, breed
+dog = Dog(name="Max", breed="Labrador")
+dog.save()
+
+loaded = Dog.objects.get(id=dog.id)
+assert loaded.name == "Max"
+assert loaded.breed == "Labrador"
+```
+
+- Fields from all base classes are merged; the child must define at least one field or inherit at least one (so the model is not empty).
+- Each concrete model uses its own table. `Animal.objects` and `Dog.objects` refer to different tables (`animals` and `dogs`).
+
+### Abstract base models
+
+To share fields and config without creating a table, set `abstract = True` in the model’s `Config`. Abstract models do not have a database table or `objects` manager; they cannot be instantiated. Only concrete subclasses (non-abstract) get a table and can be saved.
+
+```python
+from pydbm import DbmModel
+
+class AbstractAnimal(DbmModel):
+    name: str
+
+    class Config:
+        abstract = True
+
+class Dog(AbstractAnimal):
+    breed: str
+
+# AbstractAnimal()  # TypeError: Cannot instantiate abstract model AbstractAnimal
+dog = Dog(name="Max", breed="Labrador")
+dog.save()  # uses table "dogs"
+```
+
+- Use abstract bases for common fields and optional shared `Config` (e.g. `unique_together`). Subclasses can override `Config` (e.g. their own `unique_together` or `table_name`).
+- Table name for a subclass is always derived from the subclass name; `table_name` from the base is not reused for the child.
+
+### Config inheritance
+
+If a subclass does not define a `Config` class, it inherits `unique_together` from the first base that has a `Config`. Table name is always generated from the subclass name.
 
 ## Model properties
 

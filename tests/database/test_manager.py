@@ -1,3 +1,4 @@
+import ast
 import datetime
 import dbm
 
@@ -44,7 +45,9 @@ def test__database_headers__minimum_manager(minimum_manager):
 
     with minimum_manager as db:
         assert "__database_headers__" in db
-        assert db["__database_headers__"] == b"{'str': 'str', 'id': 'str'}"
+        # Header dict key order is implementation-defined (e.g. id/str order)
+        header = ast.literal_eval(db["__database_headers__"].decode())
+        assert header == {"id": "str", "str": "str"}
 
 
 @pytest.mark.parametrize("annotations", [
@@ -89,10 +92,19 @@ def test__database_headers__maximum_manager(annotations):
 
     with objects as db:
         assert "__database_headers__" in db
-        assert (
-            b"{'bool': 'bool', 'bytes': 'bytes', 'date': 'date', 'datetime': 'datetime', 'float': 'float', 'int': 'int', 'none': 'null', 'str': 'str', 'id': 'str'}"  # noqa: E501
-            == db["__database_headers__"]
-        )
+        header = ast.literal_eval(db["__database_headers__"].decode())
+        expected = {
+            "id": "str",
+            "bool": "bool",
+            "bytes": "bytes",
+            "date": "date",
+            "datetime": "datetime",
+            "float": "float",
+            "int": "int",
+            "none": "null",
+            "str": "str",
+        }
+        assert header == expected
 
 
 @pytest.mark.parametrize(

@@ -17,6 +17,7 @@ __all__ = (
 class Config(typing.NamedTuple):  # unexport: not-public
     table_name: str
     unique_together: tuple[str, ...]
+    abstract: bool = False
 
 
 @typing_extra.dataclass_transform(kw_only_default=True, field_specifiers=(Field,))
@@ -30,8 +31,16 @@ class Meta(type):
 
     @staticmethod
     def __new__(mcs, cls_name: str, bases: tuple[Meta, ...], namespace: dict[str, typing.Any], **kwargs: typing.Any) -> type:  # noqa: E501
-        annotations = namespace.pop("__annotations__", {})
-        if [b for b in bases if isinstance(b, mcs)] and C.PRIMARY_KEY in annotations:
+        namespace_annotations = namespace.pop("__annotations__", {})
+        # Merge annotations from model bases (inheritance support)
+        merged_annotations: dict[str, typing.Any] = {}
+        for base in bases:
+            if isinstance(base, mcs):
+                merged_annotations.update(getattr(base, "__annotations__", {}))
+        merged_annotations.update(namespace_annotations)
+        annotations = merged_annotations
+
+        if [b for b in bases if isinstance(b, mcs)] and C.PRIMARY_KEY in namespace_annotations:
             raise ReadOnlyFieldError(
                 f"'{C.PRIMARY_KEY}' field is auto-generated and cannot be overwritten or change type."
                 " Use 'unique_together' in Config to change id creation behavior."
@@ -55,18 +64,26 @@ class Meta(type):
         if [b for b in bases if isinstance(b, type(cls))]:
             mcs = type(cls)
 
-            cls._config = mcs.get_config(cls, cls_name, namespace)
+            cls._config = mcs.get_config(cls, cls_name, namespace, bases)
             fields = mcs.generate_fields(cls, cls_name, namespace)
 
             cls.required_fields, cls.not_required_fields = mcs.split_fields(list(fields.values()))
-            cls.objects = DatabaseManager(model=cls, table_name=cls._config.table_name)  # type: ignore
-            cls.DoesNotExists = type("DoesNotExists", (PydbmBaseException,), {"__doc__": "Exception for not found id in the models."})  # type: ignore # noqa: E501
-            cls.RiskofReturningMultipleObjects = type("RiskofReturningMultipleObjects", (PydbmBaseException,), {"__doc__": "Exception for risk of returning multiple objects."})  # noqa: E501
+            if not cls._config.abstract:
+                cls.objects = DatabaseManager(model=cls, table_name=cls._config.table_name)  # type: ignore
+                cls.DoesNotExists = type("DoesNotExists", (PydbmBaseException,), {"__doc__": "Exception for not found id in the models."})  # type: ignore # noqa: E501
+                cls.RiskofReturningMultipleObjects = type("RiskofReturningMultipleObjects", (PydbmBaseException,), {"__doc__": "Exception for risk of returning multiple objects."})  # noqa: E501
+            else:
+                cls.objects = None  # type: ignore[assignment]
+                cls.DoesNotExists = None  # type: ignore[assignment]
+                cls.RiskofReturningMultipleObjects = None  # type: ignore[assignment]
 
             for key, value in fields.items():
                 setattr(cls, key, value)
 
     def __call__(cls, **kwargs):
+        if getattr(cls._config, "abstract", False):
+            raise TypeError(f"Cannot instantiate abstract model {cls.__name__}.")
+
         if C.PRIMARY_KEY in kwargs:
             raise ReadOnlyFieldError(
                 f"'{C.PRIMARY_KEY}' field is auto-generated and cannot be passed as an argument."
@@ -91,22 +108,31 @@ class Meta(type):
         return super().__call__(**kwargs)
 
     @classmethod
-    def get_config(mcs, cls, cls_name: str, namespace: dict[str, typing.Any]) -> Config:
+    def get_config(
+        mcs, cls, cls_name: str, namespace: dict[str, typing.Any], bases: tuple[type, ...] = ()
+    ) -> Config:
         config: Config | None = namespace.get(C.CLASS_CONFIG_NAME, None)
 
         if config is not None:
             table_name = config.table_name if hasattr(config, "table_name") else mcs.generate_table_name(cls_name)
             unique_together = config.unique_together if hasattr(config, "unique_together") else C.UNIQUE_TOGETHER
+            abstract = getattr(config, "abstract", False)
         else:
+            # Inherit from first concrete model base if present
             table_name = mcs.generate_table_name(cls_name)
             unique_together = C.UNIQUE_TOGETHER
+            abstract = False
+            for base in bases:
+                if isinstance(base, mcs) and hasattr(base, "_config"):
+                    unique_together = base._config.unique_together
+                    break
 
         if not unique_together:
             ann = get_obj_annotations(obj=cls)
             ann.pop(C.PRIMARY_KEY, None)  # NOTE: Remove primary key from unique_together
             unique_together = tuple(ann.keys())
 
-        return Config(table_name, unique_together)
+        return Config(table_name, unique_together, abstract)
 
     @staticmethod
     def generate_table_name(cls_name: str) -> str:

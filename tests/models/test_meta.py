@@ -19,6 +19,10 @@ def test_config():
 
     assert config.table_name == "users"
     assert config.unique_together == ("email", "username")
+    assert config.abstract is False
+
+    config_abstract = meta.Config(table_name="base", unique_together=(), abstract=True)
+    assert config_abstract.abstract is True
 
 
 def test_get_config():
