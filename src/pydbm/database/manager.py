@@ -245,10 +245,12 @@ class DatabaseManager:
         return next(iter(self.all()), None)
 
     def last(self) -> DbmModel | None:
-        last_item: DbmModel | None = None
-        for item in self.all():
-            last_item = item
-        return last_item
+        last_key: str | None = None
+        for key in self:
+            last_key = key
+        if last_key is not None:
+            return self.get(id=last_key)
+        return None
 
     def count(self):
         return len(self)
