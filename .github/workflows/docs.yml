@@ -1,3 +1,6 @@
+# Docs are deployed via mike to the gh-pages branch.
+# GitHub Pages must use: Source = "Deploy from a branch", Branch = gh-pages.
+# If Pages is set to "GitHub Actions", the site will not update (mike pushes to branch, not artifact).
 name: Build Documentation
 
 on:
