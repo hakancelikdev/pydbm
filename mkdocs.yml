@@ -57,13 +57,8 @@ plugins:
       enable_creation_date: true
   - minify:
       minify_html: true
-  - mike:
-      canonical_version: latest
 
 extra:
-  version:
-    provider: mike
-    default: latest
   analytics:
     provider: google
     property: G-2EGM5WWEED
