@@ -6,7 +6,7 @@ repo_url: https://github.com/hakancelikdev/pydbm
 repo_name: hakancelikdev/pydbm
 edit_uri: https://github.com/hakancelikdev/pydbm/tree/main/docs
 
-copyright: Copyright &copy; 2020 - 2020 Hakan Çelik
+copyright: Copyright &copy; 2020 - 2026 Hakan Çelik
 
 markdown_extensions:
   - fenced_code
